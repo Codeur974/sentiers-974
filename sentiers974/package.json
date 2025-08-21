@@ -1,0 +1,41 @@
+{
+  "name": "sentiers974",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format:check": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "@react-navigation/native": "^7.1.17",
+    "@react-navigation/stack": "^7.4.7",
+    "axios": "^1.11.0",
+    "expo": "~53.0.20",
+    "expo-location": "~18.1.6",
+    "expo-secure-store": "~14.2.3",
+    "expo-status-bar": "~2.2.3",
+    "expo-task-manager": "~13.1.6",
+    "nativewind": "^4.1.23",
+    "react": "19.0.0",
+    "react-native": "0.79.5",
+    "react-native-gesture-handler": "~2.24.0",
+    "react-native-maps": "1.20.1",
+    "react-native-reanimated": "~3.17.4",
+    "zustand": "^5.0.7"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@types/react": "~19.0.10",
+    "@types/react-native": "^0.72.8",
+    "typescript": "~5.8.3"
+  },
+  "private": true
+}
