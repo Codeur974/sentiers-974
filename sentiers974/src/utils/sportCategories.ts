@@ -35,6 +35,27 @@ export const getSportType = (sportName: string): SportType => {
 };
 
 /**
+ * Mapping des emojis par sport
+ */
+export const getSportEmoji = (sport: string): string => {
+  const emojiMap: Record<string, string> = {
+    'Trail': '🏃‍♂️',
+    'Course': '🏃‍♀️',
+    'Randonnée': '🥾',
+    'Vélo': '🚴‍♀️',
+    'VTT': '🚵‍♀️',
+    'Natation': '🏊‍♀️',
+    'Surf': '🏄‍♀️',
+    'SUP': '🏄‍♂️',
+    'Kayak': '🛶',
+    'Escalade': '🧗‍♀️',
+    'Marche': '🚶‍♀️',
+    'Duathlon': '🏃‍♂️'
+  };
+  return emojiMap[sport] || '🏃‍♀️';
+};
+
+/**
  * Configuration des métriques par type de sport
  */
 export const getSportMetrics = (sportType: SportType) => {
