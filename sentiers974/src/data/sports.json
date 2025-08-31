@@ -1,0 +1,270 @@
+{
+  "sports": [
+    {
+      "nom": "Course",
+      "emoji": "🏃‍♀️",
+      "categorie": "terrestre",
+      "difficulte": "facile",
+      "description": "Course à pied sur route ou piste",
+      "equipement": ["chaussures de running", "tenue de sport"],
+      "dureeMin": 15,
+      "caloriesParMinute": 12
+    },
+    {
+      "nom": "Trail",
+      "emoji": "🏃‍♂️",
+      "categorie": "terrestre",
+      "difficulte": "difficile",
+      "description": "Course en nature sur sentiers de montagne",
+      "equipement": ["chaussures de trail", "sac d'hydratation", "bâtons"],
+      "dureeMin": 30,
+      "caloriesParMinute": 15
+    },
+    {
+      "nom": "Marche",
+      "emoji": "🚶‍♀️",
+      "categorie": "terrestre",
+      "difficulte": "facile",
+      "description": "Marche tranquille en ville ou nature",
+      "equipement": ["chaussures confortables"],
+      "dureeMin": 20,
+      "caloriesParMinute": 4
+    },
+    {
+      "nom": "Randonnée",
+      "emoji": "🥾",
+      "categorie": "terrestre",
+      "difficulte": "moyen",
+      "description": "Marche en montagne sur sentiers balisés",
+      "equipement": ["chaussures de randonnée", "sac à dos", "eau", "chapeau"],
+      "dureeMin": 60,
+      "caloriesParMinute": 7
+    },
+    {
+      "nom": "VTT",
+      "emoji": "🚵‍♀️",
+      "categorie": "terrestre",
+      "difficulte": "moyen",
+      "description": "Vélo tout-terrain sur sentiers",
+      "equipement": ["VTT", "casque", "gants", "protection"],
+      "dureeMin": 45,
+      "caloriesParMinute": 10
+    },
+    {
+      "nom": "Vélo",
+      "emoji": "🚴‍♀️",
+      "categorie": "terrestre",
+      "difficulte": "facile",
+      "description": "Cyclisme sur route ou piste cyclable",
+      "equipement": ["vélo", "casque", "bidons d'eau"],
+      "dureeMin": 30,
+      "caloriesParMinute": 8
+    },
+    {
+      "nom": "Natation",
+      "emoji": "🏊‍♀️",
+      "categorie": "aquatique",
+      "difficulte": "moyen",
+      "description": "Nage en piscine, mer ou bassin naturel",
+      "equipement": ["maillot de bain", "lunettes de natation"],
+      "dureeMin": 20,
+      "caloriesParMinute": 11
+    },
+    {
+      "nom": "Surf",
+      "emoji": "🏄‍♀️",
+      "categorie": "aquatique",
+      "difficulte": "difficile",
+      "description": "Surf sur les vagues de l'océan Indien",
+      "equipement": ["planche de surf", "combinaison", "leash", "wax"],
+      "dureeMin": 60,
+      "caloriesParMinute": 9
+    },
+    {
+      "nom": "SUP",
+      "emoji": "🏄‍♂️",
+      "categorie": "aquatique",
+      "difficulte": "facile",
+      "description": "Stand Up Paddle en lagon ou mer",
+      "equipement": ["planche SUP", "pagaie", "leash"],
+      "dureeMin": 30,
+      "caloriesParMinute": 6
+    },
+    {
+      "nom": "Kayak",
+      "emoji": "🛶",
+      "categorie": "aquatique",
+      "difficulte": "moyen",
+      "description": "Kayak en mer, rivière ou lagon",
+      "equipement": ["kayak", "pagaie", "gilet de sauvetage"],
+      "dureeMin": 45,
+      "caloriesParMinute": 5
+    },
+    {
+      "nom": "Escalade",
+      "emoji": "🧗‍♀️",
+      "categorie": "terrestre",
+      "difficulte": "difficile",
+      "description": "Escalade sur falaises ou murs artificiels",
+      "equipement": ["chaussons d'escalade", "baudrier", "casque", "cordes"],
+      "dureeMin": 60,
+      "caloriesParMinute": 8
+    }
+  ],
+  "categories": [
+    {
+      "nom": "terrestre",
+      "emoji": "🏔️",
+      "description": "Sports pratiqués sur terre"
+    },
+    {
+      "nom": "aquatique",
+      "emoji": "🌊",
+      "description": "Sports pratiqués dans l'eau"
+    }
+  ],
+  "difficultes": [
+    {
+      "niveau": "facile",
+      "emoji": "🟢",
+      "description": "Accessible aux débutants"
+    },
+    {
+      "niveau": "moyen",
+      "emoji": "🟡",
+      "description": "Nécessite une condition physique moyenne"
+    },
+    {
+      "niveau": "difficile",
+      "emoji": "🔴",
+      "description": "Réservé aux sportifs confirmés"
+    }
+  ]
+}</output>
+</result>
+<result>
+<name>Bash</name>
+<output>// Barrel export pour tous les hooks
+export { useTrackingLogic } from './useTrackingLogic';
+export { useGeolocation } from './useGeolocation';</output>
+</result>
+<result>
+<name>Bash</name>
+<output>import * as Location from "expo-location";
+import { useState } from "react";
+import { Linking } from "react-native";
+import { useLocationStore } from "../store/useLocationStore";
+
+export const useGeolocation = () => {
+  const {
+    coords,
+    isLocating,
+    address,
+    locationError,
+    setIsLocating,
+    setCoords,
+    setAddress,
+    setError,
+  } = useLocationStore();
+  
+  const [showMap, setShowMap] = useState(false);
+
+  const getLocation = async () => {
+    setIsLocating(true);
+    setError(null);
+
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setError("Permission GPS requise");
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        altitude: location.coords.altitude,
+        accuracy: location.coords.accuracy,
+        timestamp: Date.now(),
+      };
+      
+      setCoords(coords);
+
+      // Récupérer l'adresse via reverse geocoding
+      try {
+        const reverseGeocode = await Location.reverseGeocodeAsync({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+        
+        if (reverseGeocode.length > 0) {
+          const address = reverseGeocode[0];
+          const cityName = address.city || address.subregion || address.region || "Lieu inconnu";
+          setAddress(cityName);
+        }
+      } catch (geocodeError) {
+        console.log("Erreur reverse geocoding:", geocodeError);
+        setAddress("Ville non trouvée");
+      }
+    } catch (error) {
+      setError("Impossible de localiser");
+    } finally {
+      setIsLocating(false);
+    }
+  };
+
+  const openInMaps = () => {
+    if (coords) {
+      const url = `https://maps.google.com/?q=${coords.latitude},${coords.longitude}`;
+      Linking.openURL(url);
+    }
+  };
+
+  const getLocationAndShowMap = async () => {
+    await getLocation();
+    // Ne plus afficher automatiquement la carte
+    // L'utilisateur peut choisir de l'afficher via toggleMap
+  };
+
+  const toggleMap = () => {
+    setShowMap(!showMap);
+  };
+
+  const formatTime = (timestamp: number) => {
+    return new Date(timestamp).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const resetMapDisplay = () => {
+    setShowMap(false);
+  };
+
+  const resetAll = () => {
+    setShowMap(false);
+  };
+
+  return {
+    // État
+    coords,
+    isLocating,
+    address,
+    locationError,
+    showMap,
+    
+    // Actions
+    getLocation,
+    openInMaps,
+    getLocationAndShowMap,
+    toggleMap,
+    formatTime,
+    resetMapDisplay,
+    resetAll,
+  };
+};</output>
+</result>
