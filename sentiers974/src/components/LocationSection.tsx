@@ -87,31 +87,32 @@ export default function LocationSection() {
         />
       )}
 
-      <TouchableOpacity
-        className={`px-6 py-3 rounded-xl ${
-          isLocating ? "bg-gray-400" : "bg-blue-600"
-        }`}
-        disabled={isLocating}
-        onPress={getLocationAndShowMap}
-      >
-        <Text className="text-white font-semibold text-center">
-          {isLocating ? "Localisation..." : "🗺️ Me localiser"}
-        </Text>
-      </TouchableOpacity>
-
-      {/* Bouton pour afficher/masquer la carte */}
-      {coords && (
+      <View className="flex-row justify-center space-x-4">
         <TouchableOpacity
-          className={`mt-2 px-6 py-3 rounded-xl ${
-            showMap ? "bg-red-600" : "bg-green-600"
+          className={`w-16 h-16 rounded-full items-center justify-center ${
+            isLocating ? "bg-gray-100" : "bg-blue-500"
           }`}
-          onPress={toggleMap}
+          disabled={isLocating}
+          onPress={getLocationAndShowMap}
         >
-          <Text className="text-white font-semibold text-center">
-            {showMap ? "🗺️ Masquer la carte" : "🗺️ Voir sur la carte"}
+          <Text className="text-2xl">
+            {isLocating ? "⏳" : "📍"}
           </Text>
         </TouchableOpacity>
-      )}
+
+        {coords && (
+          <TouchableOpacity
+            className={`w-16 h-16 rounded-full items-center justify-center ${
+              showMap ? "bg-red-500" : "bg-green-500"
+            }`}
+            onPress={toggleMap}
+          >
+            <Text className="text-2xl">
+              {showMap ? "❌" : "🗺️"}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
       {locationError && (
         <View className="mt-3 p-3 bg-red-50 rounded-lg">
