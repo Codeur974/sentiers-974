@@ -155,9 +155,9 @@ export default function EnhancedMapView({
           <div id="distance-indicator" class="distance-indicator">0.00 km</div>
           <div id="speed-indicator" class="speed-indicator">0 km/h</div>
           <div class="custom-zoom-controls">
-            <button class="zoom-btn" ontouchstart="handleZoomIn()" onclick="handleZoomIn()" type="button">+</button>
-            <button class="zoom-btn" ontouchstart="handleZoomOut()" onclick="handleZoomOut()" type="button">−</button>
-            <button class="zoom-btn" ontouchstart="handleCenterOnUser()" onclick="handleCenterOnUser()" type="button" style="font-size: 18px;">📍</button>
+            <button class="zoom-btn" onclick="zoomIn()" type="button">+</button>
+            <button class="zoom-btn" onclick="zoomOut()" type="button">−</button>
+            <button class="zoom-btn" onclick="centerOnUser()" type="button" style="font-size: 18px;">📍</button>
           </div>
         ` : ''}
         <div id="map"></div>
@@ -198,48 +198,28 @@ export default function EnhancedMapView({
             map.zoomControl.setPosition('bottomright');
           }
           
-          // Fonctions de zoom personnalisées avec gestion des événements
-          window.handleZoomIn = function(event) {
-            if (event) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
+          // Fonctions de zoom simplifiées et plus efficaces
+          window.zoomIn = function() {
             if (map) {
               map.zoomIn(1);
               console.log('Zoom in - Niveau:', map.getZoom());
             }
-            return false;
           };
           
-          window.handleZoomOut = function(event) {
-            if (event) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
+          window.zoomOut = function() {
             if (map) {
               map.zoomOut(1);
               console.log('Zoom out - Niveau:', map.getZoom());
             }
-            return false;
           };
           
-          window.handleCenterOnUser = function(event) {
-            if (event) {
-              event.preventDefault();
-              event.stopPropagation();
-            }
+          window.centerOnUser = function() {
             if (map && marker) {
               const targetZoom = Math.max(map.getZoom(), 16);
               map.setView(marker.getLatLng(), targetZoom);
               console.log('Centré sur utilisateur - Niveau:', targetZoom);
             }
-            return false;
           };
-          
-          // S'assurer que les fonctions sont disponibles globalement
-          window.zoomIn = window.handleZoomIn;
-          window.zoomOut = window.handleZoomOut;
-          window.centerOnUser = window.handleCenterOnUser;
           
           // Couches de cartes avec zoom étendu
           const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -258,13 +238,13 @@ export default function EnhancedMapView({
             zoomOffset: 0
           });
           
-          // Ajouter la couche par défaut
-          osmLayer.addTo(map);
+          // Ajouter la couche satellite par défaut (plus belle pour La Réunion)
+          satelliteLayer.addTo(map);
           
-          // Contrôle de couches
+          // Contrôle de couches avec satellite en premier
           const baseMaps = {
-            "Plan": osmLayer,
-            "Satellite": satelliteLayer
+            "Satellite": satelliteLayer,
+            "Plan": osmLayer
           };
           
           L.control.layers(baseMaps).addTo(map);
@@ -284,7 +264,7 @@ export default function EnhancedMapView({
           
           marker.bindPopup(\`
             <div style="text-align: center;">
-              <strong>📍 Ma position</strong><br/>
+              <strong>${address && address.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
               <small style="color: #666;">${address || 'Position actuelle'}</small><br/>
               <small style="color: #999; font-family: monospace;">
                 ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}
@@ -338,7 +318,7 @@ export default function EnhancedMapView({
             
             marker.setPopupContent(\`
               <div style="text-align: center;">
-                <strong>📍 Ma position</strong><br/>
+                <strong>\${newAddress && newAddress.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
                 <small style="color: #666;">\${newAddress}</small><br/>
                 <small style="color: #999; font-family: monospace;">
                   \${lat.toFixed(6)}, \${lng.toFixed(6)}

@@ -171,7 +171,7 @@ export default function AllEventsSection() {
   return (
     <View className="bg-white p-4 rounded-xl shadow-sm my-4">
       {/* Header avec titre */}
-      <View className="flex-row items-center justify-between mb-4">
+      <View className="flex-row items-center justify-between mb-3">
         <Text className="text-lg font-bold text-gray-800">
           {getFilterTitle()}
         </Text>
@@ -180,6 +180,13 @@ export default function AllEventsSection() {
             🏝️ 974
           </Text>
         </View>
+      </View>
+
+      {/* Message informatif */}
+      <View className="bg-green-50 p-3 rounded-lg mb-4 border border-green-200">
+        <Text className="text-green-700 text-sm text-center font-medium">
+          💪 {allEvents.length} événements - ✨ Sélectionnez un événement pour plus de détails
+        </Text>
       </View>
 
       {/* Filtres */}
@@ -213,20 +220,6 @@ export default function AllEventsSection() {
         </View>
       </View>
 
-      {/* Statistiques */}
-      <View className="bg-gray-50 p-3 rounded-lg mb-3">
-        <View className="flex-row flex-wrap justify-center items-center">
-          <Text className="text-gray-700 text-xs mx-2 mb-1">
-            💪 <Text className="font-semibold">{allEvents.length}</Text> événements
-          </Text>
-          <Text className="text-gray-700 text-xs mx-2 mb-1">
-            🎯 <Text className="font-semibold">{filteredEvents.length}</Text> affiché{filteredEvents.length > 1 ? 's' : ''}
-          </Text>
-          <Text className="text-gray-700 text-xs mx-2 mb-1">
-            🏃 <Text className="font-semibold">{new Set(allEvents.map(e => e.sport)).size}</Text> sports
-          </Text>
-        </View>
-      </View>
 
       {/* Liste des événements */}
       {filteredEvents.length === 0 ? (
@@ -258,14 +251,6 @@ export default function AllEventsSection() {
             ))}
           </ScrollView>
 
-          {/* Message informatif */}
-          {filteredEvents.length > 0 && (
-            <View className="bg-green-50 p-3 rounded-lg mt-3 border border-green-200">
-              <Text className="text-green-700 text-sm text-center font-medium">
-                ✨ Cliquez sur un événement pour voir tous les détails
-              </Text>
-            </View>
-          )}
         </>
       )}
 
