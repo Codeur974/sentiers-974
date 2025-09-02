@@ -13,3 +13,13 @@ export const formatTime = (ms: number): string => {
   }
   return `${minutes}:${String(seconds % 60).padStart(2, "0")}`;
 };
+
+/**
+ * Formate un timestamp en heure locale (HH:MM)
+ */
+export const formatTimestamp = (timestamp: number): string => {
+  return new Date(timestamp).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};

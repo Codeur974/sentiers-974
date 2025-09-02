@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Modal, FlatList } from "react-native";
 import EventCard from "./EventCard";
 import EventModal from "./EventModal";
-import { SportEvent } from "../services/eventsApi";
+import { SportEvent } from "../types/events";
 import { getAllReunionEvents, getTodayReunionEvents, getUpcomingReunionEvents } from "../data/reunionEvents";
 import { eventsDatabaseService } from "../services/eventsDatabase";
 import { getSportEmoji } from "../utils/sportCategories";
 
-type FilterType = 'all' | 'today';
+type FilterType = 'all' | 'today' | 'upcoming';
 type SportType = 'Trail' | 'Course' | 'Randonnée' | 'Vélo' | 'VTT' | 'Natation' | 'Surf' | 'SUP' | 'Kayak' | 'Escalade' | 'Marche';
 
 export default function AllEventsSection() {
@@ -25,7 +25,16 @@ export default function AllEventsSection() {
     try {
       setLoading(true);
       
-      // Charger depuis la base de données automatisée
+      // TEMPORAIRE: Force l'utilisation des nouvelles données statiques
+      console.log('🔄 Force reload des nouvelles données statiques');
+      const staticEvents = getAllReunionEvents();
+      console.log(`📊 ${staticEvents.length} événements chargés depuis les données statiques`);
+      
+      // Vider le cache et recharger avec les nouvelles données
+      await eventsDatabaseService.clearDatabase();
+      await eventsDatabaseService.initializeDatabase();
+      
+      // Charger depuis la base de données mise à jour
       const events = await eventsDatabaseService.getAllEvents();
       setAllEvents(events);
       

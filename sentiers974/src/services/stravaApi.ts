@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SportEvent } from './eventsApi';
+import { SportEvent } from '../types/events';
 import { getSportEmoji } from '../utils/sportCategories';
 
 export interface StravaClub {
@@ -71,7 +71,7 @@ class StravaApiService {
       });
 
       this.accessToken = response.data.access_token;
-      return this.accessToken;
+      return this.accessToken!;
     } catch (error) {
       console.error('Erreur échange token Strava:', error);
       throw new Error('Impossible d\'obtenir le token Strava');

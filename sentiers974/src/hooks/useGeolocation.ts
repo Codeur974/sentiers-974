@@ -1,7 +1,8 @@
-import * as Location from "expo-location";
 import { useState } from "react";
 import { Linking } from "react-native";
 import { useLocationStore } from "../store/useLocationStore";
+import { LocationHelper } from "../utils/locationUtils";
+import { formatTimestamp } from "../utils/timeFormatter";
 
 export const useGeolocation = () => {
   const {
@@ -18,49 +19,29 @@ export const useGeolocation = () => {
   const [showMap, setShowMap] = useState(false);
 
   const getLocation = async () => {
+    console.log("🔍 Début de la localisation");
     setIsLocating(true);
     setError(null);
 
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setError("Permission GPS requise");
+      const result = await LocationHelper.getFullLocation();
+      
+      if (result.error) {
+        console.log("❌ Erreur de localisation:", result.error);
+        setError(result.error);
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-
-      const coords = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        altitude: location.coords.altitude,
-        accuracy: location.coords.accuracy,
-        timestamp: Date.now(),
-      };
-      
-      setCoords(coords);
-
-      // Récupérer l'adresse via reverse geocoding
-      try {
-        const reverseGeocode = await Location.reverseGeocodeAsync({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        });
-        
-        if (reverseGeocode.length > 0) {
-          const address = reverseGeocode[0];
-          const cityName = address.city || address.subregion || address.region || "Lieu inconnu";
-          setAddress(cityName);
-        }
-      } catch (geocodeError) {
-        console.log("Erreur reverse geocoding:", geocodeError);
-        setAddress("Ville non trouvée");
+      if (result.coords) {
+        console.log("📍 Position obtenue:", result.coords);
+        setCoords(result.coords);
+        setAddress(result.address);
       }
     } catch (error) {
+      console.log("❌ Erreur de localisation:", error);
       setError("Impossible de localiser");
     } finally {
+      console.log("🏁 Fin de la localisation");
       setIsLocating(false);
     }
   };
@@ -74,20 +55,13 @@ export const useGeolocation = () => {
 
   const getLocationAndShowMap = async () => {
     await getLocation();
-    // Ne plus afficher automatiquement la carte
-    // L'utilisateur peut choisir de l'afficher via toggleMap
+    setShowMap(true); // Afficher la carte seulement quand on clique sur ce bouton
   };
 
   const toggleMap = () => {
     setShowMap(!showMap);
   };
 
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString("fr-FR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const resetMapDisplay = () => {
     setShowMap(false);
@@ -110,7 +84,7 @@ export const useGeolocation = () => {
     openInMaps,
     getLocationAndShowMap,
     toggleMap,
-    formatTime,
+    formatTime: formatTimestamp,
     resetMapDisplay,
     resetAll,
   };

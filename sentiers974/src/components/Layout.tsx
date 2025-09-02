@@ -39,16 +39,12 @@ export default function Layout({
               </Text>
             )}
           </View>
-          {headerButtons && (
-            <View className="flex-row">{headerButtons}</View>
-          )}
+          {headerButtons && <View className="flex-row">{headerButtons}</View>}
         </View>
       )}
 
       {/* Contenu principal */}
-      <View className="flex-1">
-        {children}
-      </View>
+      <View className="flex-1">{children}</View>
 
       {/* Footer */}
       {footerButtons && (

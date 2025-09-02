@@ -1,25 +1,7 @@
 import axios from 'axios';
 import { getAllReunionEvents, getTodayReunionEvents, getUpcomingReunionEvents } from '../data/reunionEvents';
 import { liveEventsApi } from './liveEventsApi';
-
-export interface SportEvent {
-  id: string;
-  title: string;
-  sport: string;
-  emoji: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM
-  location: string;
-  description: string;
-  difficulty: 'facile' | 'moyen' | 'difficile';
-  distance?: string;
-  elevation?: string;
-  organizer: string;
-  registration: string;
-  price: string;
-  image?: string;
-  website?: string;
-}
+import { SportEvent } from '../types/events';
 
 // Mapping des sports pour associer emojis et catégories
 const SPORT_MAPPING: Record<string, { emoji: string; category: string }> = {
