@@ -1,23 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
-import { useGeolocation } from "../hooks";
-import { useLocationStore } from "../store/useLocationStore";
-import { LocationCoords, LocationHelper } from "../utils/locationUtils";
+import { useHomeLocation } from "../hooks";
 import { formatTimestamp } from "../utils/timeFormatter";
 import EnhancedMapView from "./EnhancedMapView";
 
 export default function LocationSection() {
-  const [localShowMap, setLocalShowMap] = useState(true); // État local pour l'accueil
-  const [localIsLocating, setLocalIsLocating] = useState(false); // État de localisation local
-  const [locationError, setError] = useState<string | null>(null); // Erreur locale
-  const [isFirstLoad, setIsFirstLoad] = useState(true); // Pour distinguer premier chargement vs retour
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
   
-  const { resetAll } = useGeolocation();
-  
-  // Utiliser le store global comme TrackingScreen
-  const { coords, address, setCoords, setAddress, setIsLocating } = useLocationStore();
+  // Hook personnalisé qui encapsule toute la logique
+  const {
+    coords,
+    address,
+    showMap,
+    isLocating,
+    error,
+    getLocation,
+    toggleMap,
+    setShowMap
+  } = useHomeLocation();
 
   // Plus de logique compliquée - on laisse HomeScreen gérer les resets
   useFocusEffect(
@@ -26,141 +28,107 @@ export default function LocationSection() {
     }, [])
   );
 
-  // Fonction pour localiser en utilisant le store global
-  const getLocationForHome = async () => {
-    console.log("🔍 Début localisation accueil");
-    setLocalIsLocating(true);
-    setError(null);
-    
-    try {
-      // Utiliser LocationHelper et sauver dans le store global
-      const result = await LocationHelper.getFullLocation();
-      
-      console.log("📍 Résultat LocationHelper:", result);
-      
-      if (result.error) {
-        console.log("❌ Erreur dans le résultat:", result.error);
-        setError(result.error);
-        return;
-      }
 
-      if (result.coords) {
-        console.log("✅ Coords obtenues:", result.coords);
-        console.log("🏠 Adresse obtenue:", result.address);
-        
-        // Utiliser le store global comme TrackingScreen
-        setCoords(result.coords);
-        setAddress(result.address);
-        
-        console.log("💾 Coordonnées sauvées dans le store global");
-      } else {
-        console.log("❌ Aucune coordonnée dans le résultat");
-        setError("Position non trouvée");
-      }
-    } catch (error) {
-      console.log("❌ Erreur de localisation:", error);
-      setError("Impossible de localiser");
-    } finally {
-      console.log("🏁 Fin localisation accueil");
-      setLocalIsLocating(false);
-    }
-  };
-
-  // Plus d'écoute automatique des storeCoords
-  // Les coords locales ne sont mises à jour QUE quand l'utilisateur clique sur 📍
-
-  // Région par défaut centrée sur La Réunion
-  const defaultRegion = {
-    latitude: -21.1151,
-    longitude: 55.5364,
-    latitudeDelta: 0.5,
-    longitudeDelta: 0.5,
-  };
-
-  // Région centrée sur la position actuelle
-  const currentRegion = coords
-    ? {
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        latitudeDelta: 0.01,
-        longitudeDelta: 0.01,
-      }
-    : defaultRegion;
 
   return (
-    <View className="p-4 bg-white rounded-xl shadow-sm">
+    <View className="p-4 bg-white rounded-2xl shadow-lg mb-6">
       <View className="flex-row justify-between items-center mb-3">
-        <Text className="text-lg font-semibold text-gray-800">📍 Position</Text>
         <View
           className={`px-3 py-1 rounded-full ${
-            localIsLocating
+            isLocating
               ? "bg-orange-100"
               : coords
               ? "bg-green-100"
-              : "bg-gray-100"
+              : "bg-blue-100"
           }`}
         >
           <Text
             className={`text-xs font-medium ${
-              localIsLocating
+              isLocating
                 ? "text-orange-600"
                 : coords
                 ? "text-green-600"
-                : "text-gray-600"
+                : "text-blue-600"
             }`}
           >
-            {localIsLocating ? "Recherche..." : coords ? "Localisé" : "Prêt"}
+            {isLocating ? "Recherche..." : coords ? "Localisé" : "Volcan"}
           </Text>
         </View>
       </View>
 
 
-      {/* Carte affichée seulement si on a des coordonnées */}
-      {localShowMap && coords && (
+      {/* Carte - toujours affichée avec La Réunion par défaut */}
+      {showMap && (
         <View className="mb-4 h-64 rounded-xl overflow-hidden">
-          <EnhancedMapView
-            coords={coords}
-            address={address || "Position actuelle"}
-            isVisible={true}
-            onToggle={() => setLocalShowMap(false)}
-            trackingPath={[]}
-            isTracking={false}
-            showControls={false}
-          />
+          {coords ? (
+            <EnhancedMapView
+              coords={coords}
+              address={address || "Position actuelle"}
+              isVisible={true}
+              onToggle={() => setShowMap(false)}
+              trackingPath={[]}
+              isTracking={false}
+              showControls={false}
+            />
+          ) : (
+            <EnhancedMapView
+              coords={{ latitude: -21.2447, longitude: 55.7081, timestamp: Date.now() }}
+              address="Piton de la Fournaise - Volcan actif"
+              isVisible={true}
+              onToggle={() => setShowMap(false)}
+              trackingPath={[]}
+              isTracking={false}
+              showControls={false}
+            />
+          )}
         </View>
       )}
 
-      <View className="flex-row justify-center space-x-4">
+      <View className="flex-row justify-center" style={{ gap: 60 }}>
         <TouchableOpacity
-          className={`w-16 h-16 rounded-full items-center justify-center ${
-            localIsLocating ? "bg-gray-100" : "bg-blue-500"
-          }`}
-          disabled={localIsLocating}
-          onPress={getLocationForHome}
+          disabled={isLocating}
+          onPress={getLocation}
+          className="items-center"
         >
-          <Text className="text-2xl">
-            {localIsLocating ? "⏳" : "📍"}
+          <Text 
+            className={`text-3xl ${isLocating ? "text-gray-400" : "text-gray-800"}`}
+            style={{ 
+              textShadowColor: 'rgba(0, 0, 0, 0.3)', 
+              textShadowOffset: { width: 1, height: 1 }, 
+              textShadowRadius: 1 
+            }}
+          >
+            {isLocating ? "⏳" : "⌖"}
+          </Text>
+          <Text className={`text-xs mt-2 ${isLocating ? "text-gray-400" : "text-gray-600"}`}>
+            {isLocating ? "Recherche..." : "Me localiser"}
           </Text>
         </TouchableOpacity>
 
-        {coords && (
-          <TouchableOpacity
-            className={`w-16 h-16 rounded-full items-center justify-center ${
-              localShowMap ? "bg-red-500" : "bg-green-500"
-            }`}
-            onPress={() => setLocalShowMap(!localShowMap)}
+        <TouchableOpacity
+          onPress={toggleMap}
+          className="items-center"
+        >
+          <Text 
+            className={`text-3xl ${showMap ? "text-gray-600" : "text-blue-600"}`}
+            style={{ 
+              textShadowColor: 'rgba(0, 0, 0, 0.3)', 
+              textShadowOffset: { width: 1, height: 1 }, 
+              textShadowRadius: 1 
+            }}
           >
-            <Text className="text-2xl">
-              {localShowMap ? "❌" : "🗺️"}
-            </Text>
-          </TouchableOpacity>
-        )}
+            {showMap ? "⨯" : "🗺️"}
+          </Text>
+          <Text className={`text-xs mt-2 ${showMap ? "text-gray-600" : "text-blue-600"}`}>
+            {showMap ? "Fermer" : "Carte"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {locationError && (
+      {error && (
         <View className="mt-3 p-3 bg-red-50 rounded-lg">
           <Text className="text-red-600 text-sm text-center">
-            ❌ {locationError}
+            ❌ {error}
           </Text>
         </View>
       )}
