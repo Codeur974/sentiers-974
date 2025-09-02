@@ -3,3 +3,5 @@ export { default as TrackingStats } from './TrackingStats';
 export { default as TrackingControls } from './TrackingControls';
 export { default as TrackingHeader } from './TrackingHeader';
 export { default as SessionSummary } from './SessionSummary';
+export { default as TrackingModal } from './TrackingModal';
+export { default as FloatingTrackingControls } from './FloatingTrackingControls';

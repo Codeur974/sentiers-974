@@ -1,5 +1,5 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import AllEventsSection from "../components/AllEventsSection";
 import Layout from "../components/Layout";
@@ -15,13 +15,22 @@ export default function HomeScreen() {
   const { reset: resetLocation } = useLocationStore();
   const { reset: resetSession } = useSessionStore();
 
-  // Réinitialiser HomeScreen quand on revient dessus
+  const [isFirstHomeLoad, setIsFirstHomeLoad] = useState(true);
+
+  // Réinitialiser HomeScreen quand on revient dessus (pas au premier chargement)
   useFocusEffect(
     useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-      resetLocation();
-      resetSession();
-    }, [resetLocation, resetSession])
+      
+      if (isFirstHomeLoad) {
+        console.log("🏠 Premier chargement HomeScreen - pas de reset");
+        setIsFirstHomeLoad(false);
+      } else {
+        console.log("🏠 Retour HomeScreen - reset des stores");
+        resetLocation();
+        resetSession();
+      }
+    }, [isFirstHomeLoad, resetLocation, resetSession])
   );
 
   // Boutons du footer
