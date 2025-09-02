@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, RefreshControl, TextInput } from "react-native";
 import Layout from "../components/Layout";
 import EventCard from "../components/EventCard";
-import { SportEvent } from "../services/eventsApi";
+import { SportEvent } from "../types/events";
 import { getUpcomingReunionEvents } from "../data/reunionEvents";
 
 export default function EventsScreen() {

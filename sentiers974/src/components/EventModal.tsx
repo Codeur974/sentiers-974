@@ -8,7 +8,7 @@ import {
   Linking,
   Dimensions 
 } from 'react-native';
-import { SportEvent } from '../services/eventsApi';
+import { SportEvent } from '../types/events';
 
 interface EventModalProps {
   visible: boolean;

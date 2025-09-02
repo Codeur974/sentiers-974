@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { SportEvent } from './eventsApi';
+import { SportEvent } from '../types/events';
 import { getSportEmoji } from '../utils/sportCategories';
 
 /**
