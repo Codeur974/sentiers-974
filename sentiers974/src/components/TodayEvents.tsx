@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import EventCard from "./EventCard";
-import { SportEvent } from "../services/eventsApi";
+import { SportEvent } from "../types/events";
 import { getTodayReunionEvents } from "../data/reunionEvents";
 
 export default function TodayEvents() {

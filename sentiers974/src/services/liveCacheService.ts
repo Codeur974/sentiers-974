@@ -1,4 +1,4 @@
-import { SportEvent } from './eventsApi';
+import { SportEvent } from '../types/events';
 
 /**
  * Service pour lire le cache des événements live

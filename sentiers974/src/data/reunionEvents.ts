@@ -1,4 +1,4 @@
-import { SportEvent } from '../services/eventsApi';
+import { SportEvent } from '../types/events';
 
 /**
  * Base de données 100% RÉELLE des événements sportifs 2025 à La Réunion
@@ -292,6 +292,25 @@ export const REUNION_SPORTS_EVENTS: SportEvent[] = [
     organizer: 'Association Trail Charrette',
     registration: 'Obligatoire',
     price: '40€',
+  },
+  
+  // === VTT - ÉVÉNEMENT OFFICIEL CONFIRMÉ ===
+  {
+    id: 'vtt-regional-2025',
+    title: 'Épreuve VTT Régionale',
+    sport: 'VTT',
+    emoji: '🚵‍♀️',
+    date: '2025-08-31',
+    time: '08:00',
+    location: 'La Réunion',
+    description: 'Compétition VTT toutes catégories - Access 1-4, Elite, Open 1-3, U7-U17',
+    difficulty: 'moyen',
+    distance: 'Variable selon catégorie',
+    elevation: 'Variable',
+    organizer: 'Comité Régional de Cyclisme Réunion',
+    registration: 'Obligatoire',
+    price: 'Variable selon catégorie',
+    website: 'https://www.comitecyclismereunion.re/',
   },
 ];
 

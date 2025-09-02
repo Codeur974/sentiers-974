@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Linking } from "react-native";
-import { SportEvent } from "../services/eventsApi";
+import { SportEvent } from "../types/events";
 
 interface EventCardProps {
   event: SportEvent;

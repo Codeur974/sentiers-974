@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SportEvent } from './eventsApi';
+import { SportEvent } from '../types/events';
 import { REUNION_SPORTS_EVENTS } from '../data/reunionEvents';
 
 /**
