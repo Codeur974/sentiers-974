@@ -126,8 +126,8 @@ export default function TrackingFooter({
   }
 
   return (
-    <View className="absolute bottom-4 left-4 right-4 z-50">
-      <View className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg">
+    <View className="absolute bottom-80 left-4 right-4 z-40 max-h-96">
+      <View className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg flex-1">
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
           <Text className="text-lg font-bold">📍 Actions de tracking</Text>
@@ -137,7 +137,7 @@ export default function TrackingFooter({
         </View>
 
         {/* Actions rapides */}
-        <ScrollView className="max-h-64">
+        <ScrollView className="max-h-48 flex-1">
           <View className="p-4 space-y-4">
             {/* Créer un POI */}
             <TouchableOpacity

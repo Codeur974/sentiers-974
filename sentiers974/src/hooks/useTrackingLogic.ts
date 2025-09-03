@@ -326,8 +326,9 @@ export const useTrackingLogic = (selectedSport: any) => {
         
         // Debug supprimé - causait trop de logs
         
-        // Filtrage GPS ultra-fluide comme Strava
+        // Filtrage GPS ultra-fluide comme avant
         if (timeDiff > 0.05 || newDist > 0.0005) { // Ultra réactif - 50ms ou 0.5m
+          console.log(`✅ Point accepté - Distance: ${(newDist * 1000).toFixed(1)}m, Vitesse: ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
           // Log point accepté supprimé
           
           setDistance((prev) => {
@@ -375,12 +376,10 @@ export const useTrackingLogic = (selectedSport: any) => {
             return;
           }
           
-          // Lissage de vitesse pour stabilité (moyenne des 3 dernières vitesses)
+          // Lissage simple qui fonctionnait
           setSpeedHistory(prev => {
-            const newHistory = [...prev, rawSpeedKmh].slice(-3); // Garder seulement les 3 dernières
+            const newHistory = [...prev, rawSpeedKmh].slice(-3); // 3 dernières mesures
             const smoothedSpeed = newHistory.reduce((sum, speed) => sum + speed, 0) / newHistory.length;
-            
-            // Log vitesse lissée supprimé
             
             setInstantSpeed(smoothedSpeed);
             return newHistory;
