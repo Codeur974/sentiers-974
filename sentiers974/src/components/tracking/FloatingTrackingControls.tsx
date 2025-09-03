@@ -145,7 +145,7 @@ export default function FloatingTrackingControls({
 
         {/* Stats complètes ou réduites */}
         {!minimized && trackingLogic.status !== "idle" && (
-          <ScrollView className="max-h-64">
+          <ScrollView className="max-h-48" showsVerticalScrollIndicator={false}>
             <View className="p-4">
               {/* Erreur GPS si présente */}
               {trackingLogic.locationError && (
@@ -178,7 +178,7 @@ export default function FloatingTrackingControls({
               </View>
 
               {/* Stats détaillées */}
-              <View className="space-y-3">
+              <View>
                 <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
                   <Text className="text-gray-700">🏃‍♂️ Nombre de pas</Text>
                   <Text className="font-bold">{trackingLogic.steps.toLocaleString()}</Text>
