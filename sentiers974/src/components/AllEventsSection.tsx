@@ -25,21 +25,23 @@ export default function AllEventsSection() {
     try {
       setLoading(true);
       
-      // TEMPORAIRE: Force l'utilisation des nouvelles données statiques
-      console.log('🔄 Force reload des nouvelles données statiques');
-      const staticEvents = getAllReunionEvents();
-      console.log(`📊 ${staticEvents.length} événements chargés depuis les données statiques`);
-      
-      // Vider le cache et recharger avec les nouvelles données
-      await eventsDatabaseService.clearDatabase();
-      await eventsDatabaseService.initializeDatabase();
-      
-      // Charger depuis la base de données mise à jour
+      // Charger directement depuis la base de données existante
+      console.log('📊 Chargement des événements depuis la base...');
       const events = await eventsDatabaseService.getAllEvents();
-      setAllEvents(events);
       
-      // Appliquer le filtre par défaut
-      applyFilter(events, activeFilter, selectedSport);
+      if (events.length === 0) {
+        // Si la base est vide, l'initialiser
+        console.log('🔄 Base vide, initialisation...');
+        await eventsDatabaseService.initializeDatabase();
+        const newEvents = await eventsDatabaseService.getAllEvents();
+        setAllEvents(newEvents);
+        applyFilter(newEvents, activeFilter, selectedSport);
+      } else {
+        setAllEvents(events);
+        applyFilter(events, activeFilter, selectedSport);
+      }
+      
+      console.log(`✅ ${events.length} événements chargés`);
     } catch (error) {
       console.error('Erreur lors du chargement des événements:', error);
       // Fallback vers les données statiques

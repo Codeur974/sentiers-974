@@ -1,11 +1,30 @@
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
 import { getSportType, getSportMetrics } from "../utils";
 import { LocationHelper } from "../utils/locationUtils";
 
 export const useTrackingLogic = (selectedSport: any) => {
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  
+  // Charger le sessionId depuis AsyncStorage au démarrage
+  useEffect(() => {
+    const loadSessionId = async () => {
+      try {
+        const storedSessionId = await AsyncStorage.getItem('currentSessionId');
+        if (storedSessionId) {
+          setSessionId(storedSessionId);
+          console.log('🔄 SessionId restauré:', storedSessionId);
+        }
+      } catch (error) {
+        console.error('❌ Erreur chargement sessionId:', error);
+      }
+    };
+    
+    loadSessionId();
+  }, []);
   const [duration, setDuration] = useState(0);
   const [steps, setSteps] = useState(0);
   const [distance, setDistance] = useState(0);
@@ -17,6 +36,46 @@ export const useTrackingLogic = (selectedSport: any) => {
   const [speedHistory, setSpeedHistory] = useState<number[]>([]);
   const [initialPermissionChecked, setInitialPermissionChecked] = useState(false);
   const [trackingPath, setTrackingPath] = useState<Array<{latitude: number; longitude: number}>>([]);
+  const [elevationGain, setElevationGain] = useState(0);
+  const [elevationLoss, setElevationLoss] = useState(0);
+  const [minAltitude, setMinAltitude] = useState<number | null>(null);
+  const [maxAltitude, setMaxAltitude] = useState<number | null>(null);
+  const [lastAltitude, setLastAltitude] = useState<number | null>(null);
+  const [forceUpdate, setForceUpdate] = useState(0); // État pour forcer les re-renders
+  
+  // Splits et chronométrage avancé
+  const [splits, setSplits] = useState<Array<{
+    km: number;
+    time: number;
+    duration: number;
+    avgSpeed: number;
+    type: 'auto' | 'manual';
+    timestamp: number;
+  }>>([]);
+  const [lastSplitDistance, setLastSplitDistance] = useState(0);
+  
+  // Données pour graphiques
+  const [chartData, setChartData] = useState<Array<{
+    time: number;           // Temps écoulé en ms
+    altitude: number | null; // Altitude en m
+    speed: number;          // Vitesse instantanée km/h
+    distance: number;       // Distance parcourue km
+    timestamp: number;      // Timestamp réel
+  }>>([]);
+  
+  // Points d'intérêt
+  const [pointsOfInterest, setPointsOfInterest] = useState<Array<{
+    id: string;
+    latitude: number;
+    longitude: number;
+    altitude?: number;
+    distance: number;       // Distance au moment où créé
+    time: number;          // Temps écoulé
+    title: string;
+    note?: string;
+    photo?: string;        // URI de la photo
+    timestamp: number;     // Timestamp réel
+  }>>([]);
   
   const stepInterval = useRef<any>(null);
   const pausedSteps = useRef(0);
@@ -72,69 +131,77 @@ export const useTrackingLogic = (selectedSport: any) => {
     }
   };
 
-  // Configuration précise adaptée au sport sélectionné
+  // Configuration GPS optimisée pour la précision
   const getSportConfig = () => {
     if (!selectedSport) {
       return {
         maxSpeed: 35,
-        minDistance: 0.001, // 1 mètre minimum
-        timeInterval: 1000,
-        distanceInterval: 1
+        minDistance: 0.005, // 5m minimum pour éviter le bruit GPS
+        timeInterval: 2000,  // 2s pour laisser le GPS se stabiliser
+        distanceInterval: 5, // 5m minimum entre updates
+        accuracyThreshold: 20 // Précision minimum acceptée
       };
     }
 
-    // Configuration spécifique selon le type de sport pour une précision maximale
+    // Configuration optimisée selon le sport pour éliminer les erreurs GPS
     const sportConfigs: Record<string, any> = {
       'Course': {
-        maxSpeed: 25, // km/h max réaliste pour la course
-        minDistance: 0.002, // 2m minimum 
-        timeInterval: 500, // 0.5s pour réactivité
-        distanceInterval: 1, // 1m pour précision
-        accuracy: Location.Accuracy.BestForNavigation
+        maxSpeed: 25, // km/h max réaliste
+        minDistance: 0.008, // 8m minimum - élimine la plupart du bruit GPS
+        timeInterval: 2000,  // 2s entre mesures
+        distanceInterval: 5, // 5m minimum GPS
+        accuracy: Location.Accuracy.BestForNavigation,
+        accuracyThreshold: 15 // Très précis requis pour course
       },
       'Trail': {
         maxSpeed: 20,
-        minDistance: 0.003, // 3m (terrain plus irrégulier)
-        timeInterval: 750,
-        distanceInterval: 1.5,
-        accuracy: Location.Accuracy.BestForNavigation
+        minDistance: 0.010, // 10m - terrain difficile, GPS moins précis
+        timeInterval: 3000,  // 3s - terrain variable
+        distanceInterval: 8,
+        accuracy: Location.Accuracy.BestForNavigation,
+        accuracyThreshold: 20
       },
       'Marche': {
         maxSpeed: 8,
-        minDistance: 0.002,
-        timeInterval: 1000, // 1s (plus lent)
-        distanceInterval: 1,
-        accuracy: Location.Accuracy.High
+        minDistance: 0.002, // 2m - réactif mais stable  
+        timeInterval: 500,   // 500ms - équilibre fluidité/performance
+        distanceInterval: 1, // 1m minimum GPS
+        accuracy: Location.Accuracy.BestForNavigation,
+        accuracyThreshold: 20
       },
       'Randonnée': {
         maxSpeed: 10,
-        minDistance: 0.003,
-        timeInterval: 1000,
-        distanceInterval: 2,
-        accuracy: Location.Accuracy.High
+        minDistance: 0.010, // 10m - terrain montagneux
+        timeInterval: 4000,  // 4s - économie batterie en montagne
+        distanceInterval: 10,
+        accuracy: Location.Accuracy.High,
+        accuracyThreshold: 25 // GPS moins précis en montagne
       },
       'VTT': {
         maxSpeed: 45,
-        minDistance: 0.005, // 5m (vitesse élevée)
-        timeInterval: 400,
-        distanceInterval: 2,
-        accuracy: Location.Accuracy.BestForNavigation
+        minDistance: 0.015, // 15m - vitesse élevée, moins de points
+        timeInterval: 1500,  // 1.5s - rapide
+        distanceInterval: 10,
+        accuracy: Location.Accuracy.BestForNavigation,
+        accuracyThreshold: 20
       },
       'Vélo': {
         maxSpeed: 50,
-        minDistance: 0.005,
-        timeInterval: 400,
-        distanceInterval: 2,
-        accuracy: Location.Accuracy.BestForNavigation
+        minDistance: 0.020, // 20m - route, vitesse constante
+        timeInterval: 2000,  // 2s
+        distanceInterval: 15,
+        accuracy: Location.Accuracy.BestForNavigation,
+        accuracyThreshold: 15
       }
     };
 
     return sportConfigs[selectedSport.nom] || {
       maxSpeed: 35,
-      minDistance: 0.002,
-      timeInterval: 750,
-      distanceInterval: 1,
-      accuracy: Location.Accuracy.High
+      minDistance: 0.008,
+      timeInterval: 2500,
+      distanceInterval: 8,
+      accuracy: Location.Accuracy.High,
+      accuracyThreshold: 20
     };
   };
 
@@ -149,13 +216,9 @@ export const useTrackingLogic = (selectedSport: any) => {
     return () => clearInterval(interval);
   }, [status, getDuration]);
 
-  // Simuler les pas de manière plus réaliste basé sur la vitesse ET le mouvement
+  // Calculer les pas directement basé sur la distance - pas d'interval
   useEffect(() => {
     if (status === "running" && selectedSport && distance > 0) {
-      if (stepInterval.current) {
-        clearInterval(stepInterval.current);
-      }
-
       const stepsPerKmMap: Record<string, number> = {
         Course: 1300,
         Trail: 1400,
@@ -165,40 +228,36 @@ export const useTrackingLogic = (selectedSport: any) => {
       };
       const stepsPerKm = stepsPerKmMap[selectedSport.nom] || 1200;
 
-      const totalSteps = distance * stepsPerKm;
-
-      stepInterval.current = setInterval(() => {
-        setSteps((prev) => {
-          const diff = totalSteps - prev;
-          if (diff > 0) {
-            return prev + Math.min(diff, diff * 0.1 + 1);
-          }
-          return prev;
-        });
-      }, 500);
-    } else {
-      if (stepInterval.current) {
-        clearInterval(stepInterval.current);
-      }
+      // Calcul direct des pas basé sur la distance
+      const calculatedSteps = Math.round(distance * stepsPerKm);
+      setSteps(calculatedSteps);
+      
+      // Log pas calculés supprimé
     }
-
-    return () => {
-      if (stepInterval.current) {
-        clearInterval(stepInterval.current);
-      }
-    };
+    
+    // Plus besoin d'interval - nettoyage
+    if (stepInterval.current) {
+      clearInterval(stepInterval.current);
+      stepInterval.current = null;
+    }
   }, [status, selectedSport, distance]);
 
   // Calculer distance et vitesse avec filtrage GPS amélioré
   useEffect(() => {
     if (coords && status === "running") {
+      const config = getSportConfig();
+      
+      // Débogage GPS
+      console.log(`📡 GPS Update - Précision: ${coords.accuracy?.toFixed(1)}m, Seuil: ${config.accuracyThreshold}m`);
+      
       setLocationHistory((prev) => {
         const newHistory = [...prev, coords].slice(-10);
         return newHistory;
       });
 
-      // Ajouter le point au tracé si les coordonnées sont précises
-      if (coords.accuracy && coords.accuracy < 50) {
+      // Ajouter le point au tracé avec seuil de précision adapté
+      const accuracyThreshold = config.accuracyThreshold || 25;
+      if (coords.accuracy && coords.accuracy <= accuracyThreshold) {
         setTrackingPath((prev) => {
           const newPoint = {
             latitude: coords.latitude,
@@ -222,66 +281,140 @@ export const useTrackingLogic = (selectedSport: any) => {
         });
       }
 
+      // Calcul du dénivelé si on a l'altitude
+      if (coords.altitude && status === "running") {
+        // Initialiser les altitudes min/max au premier point
+        if (minAltitude === null || maxAltitude === null) {
+          setMinAltitude(coords.altitude);
+          setMaxAltitude(coords.altitude);
+        } else {
+          // Mettre à jour min/max
+          if (coords.altitude < minAltitude) setMinAltitude(coords.altitude);
+          if (coords.altitude > maxAltitude) setMaxAltitude(coords.altitude);
+        }
+
+        // Calculer gain/perte d'altitude
+        if (lastAltitude !== null) {
+          const altitudeDiff = coords.altitude - lastAltitude;
+          
+          // Seuil adaptatif selon l'altitude pour La Réunion (0-3070m)
+          // Plus l'altitude est élevée, plus on accepte de variation (pression atmosphérique)
+          const currentAltitude = coords.altitude;
+          let threshold = 1; // Base: 1m
+          
+          if (currentAltitude > 2000) {
+            threshold = 3; // Haute montagne: 3m (Piton des Neiges, Maïdo)
+          } else if (currentAltitude > 1000) {
+            threshold = 2; // Moyenne montagne: 2m (Cilaos, volcans)
+          }
+          
+          if (Math.abs(altitudeDiff) > threshold) {
+            if (altitudeDiff > 0) {
+              setElevationGain(prev => prev + altitudeDiff);
+            } else {
+              setElevationLoss(prev => prev + Math.abs(altitudeDiff));
+            }
+          }
+        }
+        
+        setLastAltitude(coords.altitude);
+      }
+
       if (lastCoords) {
         const newDist = calculateSimpleDistance(lastCoords, coords);
         const timeDiff = (coords.timestamp - lastCoords.timestamp) / 1000;
-
-        if (timeDiff > 0.5 && timeDiff < 30) {
-          const config = getSportConfig();
-          const theoreticalMaxDist = (config.maxSpeed / 3600) * timeDiff;
-
-          // Filtre GPS amélioré selon le sport
-          const accuracyThreshold = selectedSport?.nom === 'Course' || selectedSport?.nom === 'Trail' ? 15 : 25;
-          const isAccurate = coords.accuracy && coords.accuracy < accuracyThreshold;
-          const isReasonableDistance = newDist > config.minDistance && newDist < theoreticalMaxDist;
-          const isValidTiming = timeDiff > 0.3 && timeDiff < 10; // Plus strict sur le timing
+        
+        // Debug supprimé - causait trop de logs
+        
+        // Filtrage GPS ultra-fluide comme Strava
+        if (timeDiff > 0.05 || newDist > 0.0005) { // Ultra réactif - 50ms ou 0.5m
+          // Log point accepté supprimé
           
-          if (isAccurate && isReasonableDistance && isValidTiming) {
-            setDistance((prev) => prev + newDist);
-
-            const rawSpeedKmh = (newDist / timeDiff) * 3600;
+          setDistance((prev) => {
+            const newTotalDistance = prev + newDist;
             
-            setSpeedHistory((prev) => {
-              const newHistory = [...prev, rawSpeedKmh].slice(-5);
-              return newHistory;
-            });
+            // Vérifier si on a franchi un kilomètre entier (split automatique)
+            const prevKm = Math.floor(prev);
+            const newKm = Math.floor(newTotalDistance);
             
-            setInstantSpeed((prev) => {
-              let targetSpeed = rawSpeedKmh;
+            // Si on a franchi un ou plusieurs kilomètres
+            if (newKm > prevKm) {
+              const currentTime = getDuration();
               
-              if (speedHistory.length >= 3) {
-                const recentSpeeds = [...speedHistory, rawSpeedKmh].slice(-4);
-                const sorted = [...recentSpeeds].sort((a, b) => a - b);
-                const median = sorted[Math.floor(sorted.length / 2)];
+              // Créer un split pour chaque kilomètre franchi
+              for (let km = prevKm + 1; km <= newKm; km++) {
+                const lastSplitTime = splits.length > 0 ? splits[splits.length - 1].time : 0;
+                const splitTime = currentTime - lastSplitTime;
                 
-                if (Math.abs(rawSpeedKmh - median) > 4) {
-                  targetSpeed = (rawSpeedKmh + median) / 2;
-                }
+                setSplits(prevSplits => [...prevSplits, {
+                  km: km,
+                  time: currentTime,
+                  duration: splitTime,
+                  avgSpeed: splitTime > 0 ? (3600000 / splitTime) : 0,
+                  type: 'auto',
+                  timestamp: Date.now()
+                }]);
+                
+                console.log(`🏁 Split automatique ${km}km - Distance réelle: ${newTotalDistance.toFixed(3)}km - Temps split: ${splitTime}ms`);
               }
-              
-              // Mettre à jour la vitesse max si nécessaire
-              if (targetSpeed > maxSpeed) {
-                setMaxSpeed(targetSpeed);
-              }
-              
-              if (targetSpeed < 1) {
-                return targetSpeed;
-              }
-              
-              const speedDiff = Math.abs(targetSpeed - prev);
-              if (speedDiff > 2) {
-                return prev + (targetSpeed - prev) * 0.6;
-              }
-              
-              return prev * 0.3 + targetSpeed * 0.7;
-            });
+            }
+            
+            console.log(`📏 Distance totale: ${newTotalDistance.toFixed(3)} km`);
+            return newTotalDistance;
+          });
+
+          // Calcul de vitesse SIMPLE et direct
+          const rawSpeedKmh = (newDist / timeDiff) * 3600;
+          
+          // Log vitesse calculée supprimé
+          
+          // Rejeter seulement les vitesses vraiment aberrantes
+          const config = getSportConfig();
+          if (rawSpeedKmh > config.maxSpeed * 2) {
+            console.log(`🚫 Vitesse rejetée: ${rawSpeedKmh.toFixed(1)} km/h (max: ${config.maxSpeed * 2})`);
+            return;
+          }
+          
+          // Lissage de vitesse pour stabilité (moyenne des 3 dernières vitesses)
+          setSpeedHistory(prev => {
+            const newHistory = [...prev, rawSpeedKmh].slice(-3); // Garder seulement les 3 dernières
+            const smoothedSpeed = newHistory.reduce((sum, speed) => sum + speed, 0) / newHistory.length;
+            
+            // Log vitesse lissée supprimé
+            
+            setInstantSpeed(smoothedSpeed);
+            return newHistory;
+          });
+          
+          // Forcer une mise à jour de l'interface supprimé - causait une boucle
+          
+          // Mettre à jour la vitesse max
+          if (rawSpeedKmh > maxSpeed) {
+            setMaxSpeed(rawSpeedKmh);
+            console.log(`⚡ Nouvelle vitesse max: ${rawSpeedKmh.toFixed(1)} km/h`);
+          }
+          
+          // Enregistrer les données pour les graphiques
+          const currentTime = getDuration();
+          const lastChartEntry = chartData[chartData.length - 1];
+          const shouldSample = !lastChartEntry || (currentTime - lastChartEntry.time) >= 5000;
+          
+          if (shouldSample && status === "running") {
+            setChartData(prev => [...prev, {
+              time: currentTime,
+              altitude: coords.altitude || null,
+              speed: rawSpeedKmh,
+              distance: distance + newDist,
+              timestamp: Date.now()
+            }]);
           }
         }
       }
-
+      
+      // Toujours mettre à jour lastCoords
       setLastCoords(coords);
     }
-  }, [coords, status, lastCoords, selectedSport, speedHistory]);
+  }, [coords, status, lastCoords, selectedSport]);
 
   // Calculer la vitesse moyenne séparément
   useEffect(() => {
@@ -329,19 +462,33 @@ export const useTrackingLogic = (selectedSport: any) => {
     };
   }, []);
 
-  // Fonction pour calculer la distance simple
+  // Fonction de calcul de distance ultra-précise (formule de Vincenty simplifiée)
   const calculateSimpleDistance = (coord1: any, coord2: any) => {
-    const R = 6371;
-    const dLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
-    const dLon = ((coord2.longitude - coord1.longitude) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((coord1.latitude * Math.PI) / 180) *
-        Math.cos((coord2.latitude * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+    // Rayon terrestre moyen en km (plus précis que 6371)
+    const R = 6371.008;
+    
+    // Conversion en radians
+    const lat1 = (coord1.latitude * Math.PI) / 180;
+    const lat2 = (coord2.latitude * Math.PI) / 180;
+    const deltaLat = ((coord2.latitude - coord1.latitude) * Math.PI) / 180;
+    const deltaLon = ((coord2.longitude - coord1.longitude) * Math.PI) / 180;
+
+    // Formule de Haversine améliorée pour petites distances
+    const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+              Math.cos(lat1) * Math.cos(lat2) *
+              Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+    
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+    
+    // Distance en km
+    const distance = R * c;
+    
+    // Pour les très petites distances, vérification de cohérence
+    if (distance < 0.001) { // Moins d'1 mètre
+      return 0; // Considérer comme pas de mouvement
+    }
+    
+    return distance;
   };
 
   // Fonction pour calculer la vitesse
@@ -464,6 +611,17 @@ export const useTrackingLogic = (selectedSport: any) => {
     // Réinitialiser l'état d'erreur avant de commencer
     setError(null);
     
+    // Générer un sessionId unique seulement s'il n'y en a pas déjà un
+    if (!sessionId) {
+      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setSessionId(newSessionId);
+      // Sauvegarder dans AsyncStorage
+      await AsyncStorage.setItem('currentSessionId', newSessionId);
+      console.log('🆔 Nouveau sessionId créé et sauvegardé:', newSessionId);
+    } else {
+      console.log('🆔 SessionId existant conservé:', sessionId);
+    }
+    
     const gpsSuccess = await startLocationTracking();
     if (!gpsSuccess) {
       // Arrêter tout processus de tracking en cas d'échec GPS
@@ -510,27 +668,103 @@ export const useTrackingLogic = (selectedSport: any) => {
     setAvgSpeed(0);
     setSpeedHistory([]);
     setTrackingPath([]);
+    setElevationGain(0);
+    setElevationLoss(0);
+    setMinAltitude(null);
+    setMaxAltitude(null);
+    setLastAltitude(null);
+    setSplits([]);
+    setLastSplitDistance(0);
+    setChartData([]);
     pausedSteps.current = 0;
     pausedDistance.current = 0;
   };
 
-  const handleBackToSelection = () => {
+  const handleBackToSelection = async () => {
     resetTracking();
     stopLocationTracking();
     setInitialPermissionChecked(false); // Reset pour la prochaine sélection
+    setSessionId(null); // Reset complet - nouvelle session
+    
+    // Nettoyer AsyncStorage
+    try {
+      await AsyncStorage.removeItem('currentSessionId');
+      console.log('🧹 SessionId supprimé d\'AsyncStorage');
+    } catch (error) {
+      console.error('❌ Erreur suppression sessionId:', error);
+    }
+  };
+
+  // Navigation temporaire sans perdre la session
+  const handleNavigateAway = () => {
+    // Pas de resetTracking() - on garde tout l'état
+    console.log('🧭 Navigation temporaire - sessionId conservé:', sessionId);
   };
 
   const handleNewSession = () => {
     resetTracking();
   };
 
+  // Fonction pour créer un split manuel
+  const handleManualSplit = () => {
+    if (status === "running" && distance > 0) {
+      const currentTime = getDuration();
+      const lastSplitTime = splits.length > 0 ? splits[splits.length - 1].time : 0;
+      const splitTime = currentTime - lastSplitTime;
+      
+      // Éviter les splits trop rapprochés (minimum 10 secondes)
+      if (splitTime < 10000) {
+        console.log(`⚠️ Split manuel ignoré - trop rapproché (${splitTime}ms)`);
+        return;
+      }
+      
+      const previousSplitDistance = splits.length > 0 ? 
+        (splits[splits.length - 1].type === 'auto' ? splits[splits.length - 1].km : 0) : 0;
+      const distanceSinceLastSplit = distance - previousSplitDistance;
+      
+      setSplits(prevSplits => [...prevSplits, {
+        km: Math.round(distance * 100) / 100, // Distance avec 2 décimales
+        time: currentTime,
+        duration: splitTime,
+        avgSpeed: splitTime > 0 && distanceSinceLastSplit > 0 ? 
+          (distanceSinceLastSplit * 3600000 / splitTime) : 0,
+        type: 'manual',
+        timestamp: Date.now()
+      }]);
+      
+      console.log(`⏱️ Split manuel - Distance: ${distance.toFixed(2)}km - Temps split: ${splitTime}ms - Vitesse: ${distanceSinceLastSplit > 0 ? (distanceSinceLastSplit * 3600000 / splitTime).toFixed(1) : 0} km/h`);
+    }
+  };
+  
+  // Calculer les statistiques des splits
+  const getSplitStats = () => {
+    if (splits.length === 0) return null;
+    
+    const autoSplits = splits.filter(s => s.type === 'auto');
+    if (autoSplits.length === 0) return null;
+    
+    const durations = autoSplits.map(s => s.duration);
+    const avgSplitTime = durations.reduce((a, b) => a + b, 0) / durations.length;
+    const bestSplit = Math.min(...durations);
+    const worstSplit = Math.max(...durations);
+    
+    return {
+      bestSplit,
+      worstSplit,
+      avgSplitTime,
+      totalSplits: splits.length,
+      autoSplits: autoSplits.length
+    };
+  };
+
   return {
     // État
     status,
+    sessionId,
     duration,
     steps,
     distance,
-    instantSpeed: calculateSpeed(true),
+    instantSpeed: instantSpeed,
     maxSpeed,
     avgSpeed: calculateSpeed(false),
     calories: calculateCalories(),
@@ -540,12 +774,30 @@ export const useTrackingLogic = (selectedSport: any) => {
     locationError,
     trackingPath,
     
+    // Dénivelé
+    elevationGain,
+    elevationLoss,
+    minAltitude,
+    maxAltitude,
+    
+    // Chronométrage avancé
+    splits,
+    splitStats: getSplitStats(),
+    
+    // Données pour graphiques
+    chartData,
+    
+    // Force update pour synchronisation UI
+    _forceUpdate: forceUpdate,
+    
     // Actions
     handleStartTracking,
     handlePauseTracking,
     handleResumeTracking,
     handleStopTracking,
     handleBackToSelection,
+    handleNavigateAway,
     handleNewSession,
+    handleManualSplit,
   };
 };

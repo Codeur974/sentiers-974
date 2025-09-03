@@ -5,11 +5,14 @@ import Layout from "../components/Layout";
 import EnhancedMapView from "../components/EnhancedMapView";
 import {
   FloatingTrackingControls,
+  PhotosSection,
 } from "../components/tracking";
+import TrackingFooter from "../components/tracking/TrackingFooter";
 import { useTrackingLogic } from "../hooks";
 
 export default function TrackingScreen() {
   const [selectedSport, setSelectedSport] = useState<any>(null);
+  const [showTrackingFooter, setShowTrackingFooter] = useState(false);
   const trackingLogic = useTrackingLogic(selectedSport);
 
   const handleBackToSelection = () => {
@@ -55,6 +58,16 @@ export default function TrackingScreen() {
             className="bg-blue-600 p-3 rounded-full"
           >
             <Text className="text-white text-xl">▶️</Text>
+          </TouchableOpacity>
+        )}
+        
+        {/* Split manuel - affiché seulement en cours */}
+        {trackingLogic.status === "running" && (
+          <TouchableOpacity
+            onPress={trackingLogic.handleManualSplit}
+            className="bg-blue-500 p-3 rounded-full"
+          >
+            <Text className="text-white text-xl">⏱️</Text>
           </TouchableOpacity>
         )}
         
@@ -120,6 +133,11 @@ export default function TrackingScreen() {
                 🏃‍♀️ Nouvelle session
               </Text>
               <Filter onSportSelect={handleSportSelect} />
+              
+              {/* Section Photos avec historique */}
+              <View className="mt-6">
+                <PhotosSection isVisible={true} />
+              </View>
             </View>
           </ScrollView>
         ) : (
@@ -140,6 +158,13 @@ export default function TrackingScreen() {
               selectedSport={selectedSport}
               trackingLogic={trackingLogic}
               onBackToSelection={handleBackToSelection}
+            />
+            
+            {/* Footer de tracking pour POI et photos */}
+            <TrackingFooter
+              trackingLogic={trackingLogic}
+              isVisible={showTrackingFooter}
+              onToggle={() => setShowTrackingFooter(!showTrackingFooter)}
             />
           </View>
         )}

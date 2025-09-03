@@ -14,6 +14,8 @@ export default function FloatingTrackingControls({
 }: FloatingTrackingControlsProps) {
   const [minimized, setMinimized] = useState(false);
   
+  // Debug supprimé - causait trop de logs
+  
   if (!selectedSport) return null;
 
   const getMainButton = () => {
@@ -106,7 +108,7 @@ export default function FloatingTrackingControls({
   };
 
   return (
-    <View className="absolute bottom-4 left-4 right-4 z-40">
+    <View className="absolute bottom-4 left-4 right-4 z-30">
       <View className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg">
         {/* Header avec contrôles */}
         <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
@@ -166,7 +168,7 @@ export default function FloatingTrackingControls({
                   </View>
                   <View className="items-center flex-1">
                     <Text className="text-2xl font-bold text-green-600">{trackingLogic.instantSpeed.toFixed(1)}</Text>
-                    <Text className="text-xs text-gray-500">Vitesse (km/h)</Text>
+                    <Text className="text-xs text-gray-500">Vitesse actuelle (km/h)</Text>
                   </View>
                   <View className="items-center flex-1">
                     <Text className="text-2xl font-bold text-orange-600">{trackingLogic.calories}</Text>
@@ -188,9 +190,10 @@ export default function FloatingTrackingControls({
                 </View>
                 
                 <View className="flex-row justify-between items-center py-2 border-b border-gray-100">
-                  <Text className="text-gray-700">📊 Vitesse moyenne</Text>
+                  <Text className="text-gray-700">📊 Vitesse moyenne totale</Text>
                   <Text className="font-bold">{trackingLogic.avgSpeed.toFixed(1)} km/h</Text>
                 </View>
+                
                 
                 {trackingLogic.coords && (
                   <>
@@ -217,6 +220,7 @@ export default function FloatingTrackingControls({
                   <Text className="text-gray-700">📡 GPS actif</Text>
                   <Text className="font-bold">{trackingLogic.watching ? "✅ Oui" : "❌ Non"}</Text>
                 </View>
+                
                 
                 {trackingLogic.address && (
                   <View className="py-2">

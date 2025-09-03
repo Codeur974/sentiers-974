@@ -16,7 +16,7 @@ class AutoUpdateScheduler {
     notifyOnUpdate: true
   };
 
-  private updateTimer: NodeJS.Timeout | null = null;
+  private updateTimer: ReturnType<typeof setTimeout> | null = null;
   private isRunning: boolean = false;
 
   /**
@@ -210,7 +210,7 @@ class AutoUpdateScheduler {
     isRunning: boolean;
     nextUpdateIn: string;
     lastRun: string;
-    config: typeof this.DEFAULT_CONFIG;
+    config: typeof AutoUpdateScheduler.prototype.DEFAULT_CONFIG;
   }> {
     const config = await this.getConfig();
     const now = Date.now();

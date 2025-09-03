@@ -99,8 +99,8 @@ class LiveEventsApiService {
 
       return (response.data?.events || [])
         .filter(this.isSportEvent)
-        .map(this.convertOpenAgendaEvent)
-        .filter(event => this.isReunionEvent(event));
+        .map((event: any) => this.convertOpenAgendaEvent(event))
+        .filter((event: any) => this.isReunionEvent(event));
 
     } catch (error) {
       console.warn(`Erreur récupération agenda ${agendaUid}:`, error);
@@ -313,7 +313,7 @@ class LiveEventsApiService {
       time: '00:00',
       location: 'La Réunion',
       description: dataset.description || 'Dataset gouvernemental',
-      difficulty: 'info',
+      difficulty: 'facile',
       organizer: 'data.gouv.fr',
       registration: 'Consultation libre',
       price: 'Gratuit',
