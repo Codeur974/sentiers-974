@@ -650,10 +650,76 @@ export const useTrackingLogic = (selectedSport: any) => {
     resume();
   };
 
-  const handleStopTracking = () => {
+  // Sauvegarder les performances quotidiennes
+  const saveDailyPerformance = async (finalDuration: number) => {
+    if (!sessionId || !selectedSport) return;
+    
+    try {
+      const today = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+      const statsKey = `daily_stats_${today}`;
+      
+      // Calculer les performances de cette session
+      const sessionPerformance = {
+        distance: distance,
+        duration: finalDuration,
+        calories: calculateCalories(),
+        avgSpeed: avgSpeed,
+        maxSpeed: maxSpeed,
+        steps: steps,
+        sport: selectedSport.nom,
+        sessionId: sessionId,
+        timestamp: Date.now()
+      };
+      
+      // Charger les performances existantes du jour
+      const existingStatsJson = await AsyncStorage.getItem(statsKey);
+      let dayPerformance = existingStatsJson ? JSON.parse(existingStatsJson) : {
+        totalDistance: 0,
+        totalTime: 0,
+        totalCalories: 0,
+        avgSpeed: 0,
+        sessions: 0,
+        maxSpeed: 0,
+        totalSteps: 0,
+        sessionsList: []
+      };
+      
+      // Mettre à jour les stats du jour
+      dayPerformance.totalDistance += distance;
+      dayPerformance.totalTime += finalDuration;
+      dayPerformance.totalCalories += calculateCalories();
+      dayPerformance.sessions += 1;
+      dayPerformance.maxSpeed = Math.max(dayPerformance.maxSpeed, maxSpeed);
+      dayPerformance.totalSteps += steps;
+      dayPerformance.avgSpeed = (dayPerformance.totalTime > 0) ? 
+        ((dayPerformance.totalDistance / (dayPerformance.totalTime / 3600000)) || 0) : 0;
+      
+      // Ajouter cette session à la liste
+      dayPerformance.sessionsList = dayPerformance.sessionsList || [];
+      dayPerformance.sessionsList.push(sessionPerformance);
+      
+      // Sauvegarder
+      await AsyncStorage.setItem(statsKey, JSON.stringify(dayPerformance));
+      
+      console.log('📊 Performances du jour sauvegardées:', {
+        date: today,
+        sessions: dayPerformance.sessions,
+        totalDistance: dayPerformance.totalDistance.toFixed(2) + 'km'
+      });
+      
+    } catch (error) {
+      console.error('❌ Erreur sauvegarde performances:', error);
+    }
+  };
+
+  const handleStopTracking = async () => {
     stop();
     stopLocationTracking();
-    setDuration(getDuration());
+    const finalDuration = getDuration();
+    setDuration(finalDuration);
+    
+    // Sauvegarder les performances de la session
+    await saveDailyPerformance(finalDuration);
   };
 
   const resetTracking = () => {
