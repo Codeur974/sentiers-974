@@ -139,7 +139,11 @@ export default function Filter({ onSportSelect }: FilterProps) {
 
       {/* Liste des sports */}
       {showSports && (
-        <ScrollView className="max-h-80">
+        <ScrollView 
+          className="max-h-80"
+          nestedScrollEnabled={true}
+          showsVerticalScrollIndicator={true}
+        >
           <Text className="text-lg font-bold mb-3 text-gray-800">
             Choisissez votre sport ({sports.length})
           </Text>
