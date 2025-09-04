@@ -63,18 +63,36 @@ export default function TrackingFooter({
     console.log('📷 Photo:', poiPhoto);
     console.log('🆔 SessionId:', trackingLogic.sessionId);
     
-    if (!trackingLogic.coords || !poiTitle.trim()) {
-      Alert.alert('Erreur', 'Position GPS requise et titre obligatoire');
+    if (!poiTitle.trim()) {
+      Alert.alert('Erreur', 'Titre obligatoire');
       return;
+    }
+
+    // Si pas de sessionId, impossible de créer un POI
+    if (!trackingLogic.sessionId) {
+      Alert.alert('Erreur', 'Aucune session active ou récente pour associer ce POI');
+      return;
+    }
+
+    // Si pas de coordonnées GPS, utiliser position par défaut
+    let useCoords = trackingLogic.coords;
+    if (!useCoords) {
+      // Position par défaut (centre de La Réunion)
+      useCoords = { latitude: -21.1151, longitude: 55.5364, altitude: 0 };
+      Alert.alert(
+        'Position GPS', 
+        'Aucune position GPS disponible. Une position approximative sera utilisée.',
+        [{ text: 'OK' }]
+      );
     }
 
     setCreatingPOI(true);
     
     try {
       const poi = await createPOI(
-        trackingLogic.coords,
-        trackingLogic.distance,
-        trackingLogic.duration,
+        useCoords,
+        trackingLogic.distance || 0, // Si distance non disponible, utiliser 0
+        trackingLogic.duration || 0, // Si durée non disponible, utiliser 0
         {
           title: poiTitle.trim(),
           note: poiNote.trim() || undefined,
@@ -142,14 +160,11 @@ export default function TrackingFooter({
             {/* Créer un POI */}
             <TouchableOpacity
               onPress={() => setShowPOIModal(true)}
-              className={`p-4 rounded-lg flex-row items-center justify-center ${
-                (!trackingLogic.coords || !trackingLogic.sessionId) ? 'bg-gray-400' : 'bg-purple-600'
-              }`}
-              disabled={!trackingLogic.coords || !trackingLogic.sessionId}
+              className="p-4 rounded-lg flex-row items-center justify-center bg-purple-600"
             >
               <Text className="text-white font-bold mr-2">📍</Text>
               <Text className="text-white font-bold">
-                {(!trackingLogic.coords || !trackingLogic.sessionId) ? 'POI (session requise)' : 'Créer Point d\'Intérêt'}
+                {trackingLogic.coords ? 'Créer Point d\'Intérêt' : 'Ajouter Photo Oubliée'}
               </Text>
             </TouchableOpacity>
 
