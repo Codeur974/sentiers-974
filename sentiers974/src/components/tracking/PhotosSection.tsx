@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, Modal } from 'react-native';
 import { usePointsOfInterest } from '../../hooks/usePointsOfInterest';
 import { useActivity } from '../../hooks/useActivity';
@@ -6,6 +6,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface PhotosSectionProps {
   isVisible: boolean;
+  onInteraction?: () => void;
+}
+
+export interface PhotosSectionRef {
+  closeAllSections: () => void;
 }
 
 interface DayPerformance {
@@ -34,12 +39,17 @@ interface PhotoGroup {
   performance?: DayPerformance;
 }
 
-export default function PhotosSection({ isVisible }: PhotosSectionProps) {
+const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisible, onInteraction }, ref) => {
   const { pois } = usePointsOfInterest();
   const { activities } = useActivity();
   const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<{uri: string, title: string, note?: string} | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+  // Exposer la fonction pour fermer toutes les sections
+  useImperativeHandle(ref, () => ({
+    closeAllSections: () => setExpandedSections(new Set())
+  }));
 
   // Charger les performances d'une journée spécifique
   const loadDayPerformance = async (dateString: string): Promise<DayPerformance | undefined> => {
@@ -179,7 +189,10 @@ export default function PhotosSection({ isVisible }: PhotosSectionProps) {
             <View key={group.date} className="mb-3">
               {/* Header de section cliquable */}
               <TouchableOpacity
-                onPress={() => toggleSection(group.date)}
+                onPress={() => {
+                  toggleSection(group.date);
+                  onInteraction?.();
+                }}
                 className="bg-blue-100 p-3 rounded-lg border border-blue-300 flex-row justify-between items-center"
               >
                 <View className="flex-1">
@@ -250,11 +263,14 @@ export default function PhotosSection({ isVisible }: PhotosSectionProps) {
                   {group.photos.map((photo) => (
                     <TouchableOpacity
                       key={photo.id}
-                      onPress={() => setSelectedPhoto({
-                        uri: photo.uri,
-                        title: photo.title,
-                        note: photo.note
-                      })}
+                      onPress={() => {
+                        setSelectedPhoto({
+                          uri: photo.uri,
+                          title: photo.title,
+                          note: photo.note
+                        });
+                        onInteraction?.();
+                      }}
                       className="flex-row items-center p-2 mb-2 bg-gray-50 rounded-lg border border-gray-200"
                     >
                       {/* Miniature de la photo */}
@@ -343,4 +359,8 @@ export default function PhotosSection({ isVisible }: PhotosSectionProps) {
       </Modal>
     </View>
   );
-}
+});
+
+PhotosSection.displayName = 'PhotosSection';
+
+export default PhotosSection;
