@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Activity } from "../types/api";
 
@@ -7,7 +8,7 @@ interface ActivityCardProps {
   compact?: boolean;
 }
 
-export default function ActivityCard({ activity, onPress, compact = false }: ActivityCardProps) {
+const ActivityCard = React.memo(function ActivityCard({ activity, onPress, compact = false }: ActivityCardProps) {
   const getActivityIcon = (type: Activity['activityType']) => {
     switch (type) {
       case 'course': return '🏃‍♂️';
@@ -179,4 +180,6 @@ export default function ActivityCard({ activity, onPress, compact = false }: Act
       )}
     </TouchableOpacity>
   );
-}
+});
+
+export default ActivityCard;

@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text, TouchableOpacity, Linking } from "react-native";
 import { SportEvent } from "../types/events";
 
@@ -7,7 +8,7 @@ interface EventCardProps {
   compact?: boolean; // Version compacte pour la page d'accueil
 }
 
-export default function EventCard({ event, onPress, compact = false }: EventCardProps) {
+const EventCard = React.memo(function EventCard({ event, onPress, compact = false }: EventCardProps) {
   const handleWebsitePress = () => {
     if (event.website) {
       Linking.openURL(event.website);
@@ -183,4 +184,6 @@ export default function EventCard({ event, onPress, compact = false }: EventCard
       )}
     </TouchableOpacity>
   );
-}
+});
+
+export default EventCard;
