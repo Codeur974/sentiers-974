@@ -2,7 +2,6 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useRef, useState } from "react";
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import AllEventsSection from "../components/AllEventsSection";
-import BackendActivitiesSection from "../components/BackendActivitiesSection";
 import Layout from "../components/Layout";
 import LocationSection from "../components/LocationSection";
 import { useLocationStore } from "../store/useLocationStore";
@@ -93,11 +92,6 @@ export default function HomeScreen() {
         <View className="px-4 bg-slate-50 flex-1">
           {/* Section Localisation avec style moderne */}
           <LocationSection />
-
-          {/* Section Activités du Backend */}
-          <View className="mb-6">
-            <BackendActivitiesSection compact={true} maxItems={3} />
-          </View>
           
           {/* Section Tous les événements */}
           <AllEventsSection />

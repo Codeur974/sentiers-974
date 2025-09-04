@@ -29,16 +29,43 @@ export default function PointOfInterestSection({
   const sessionPOIs = sessionId ? getPOIsForSession(sessionId) : [];
 
   const handleCreatePOI = async () => {
-    if (!coords || !title.trim()) {
-      Alert.alert('Erreur', 'Position GPS requise et titre obligatoire');
+    if (!title.trim()) {
+      Alert.alert('Erreur', 'Titre obligatoire');
       return;
     }
+
+    // Si pas de coordonnées GPS actuelles, utiliser la position de la session ou demander une position approximative
+    let useCoords = coords;
+    if (!coords) {
+      // Pour les photos oubliées, on peut utiliser des coordonnées approximatives ou la dernière position connue
+      Alert.alert(
+        'Position GPS',
+        'Aucune position GPS actuelle. La photo sera créée avec une position approximative.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { 
+            text: 'Continuer', 
+            onPress: () => {
+              // Position par défaut (centre de La Réunion) si aucune coordonnée
+              useCoords = { latitude: -21.1151, longitude: 55.5364, altitude: 0 };
+              proceedWithCreation(useCoords);
+            }
+          }
+        ]
+      );
+      return;
+    }
+
+    proceedWithCreation(useCoords);
+  };
+
+  const proceedWithCreation = async (useCoords: { latitude: number; longitude: number; altitude?: number }) => {
 
     setCreating(true);
     
     try {
       const poi = await createPOI(
-        coords,
+        useCoords,
         distance,
         time,
         {
@@ -87,7 +114,8 @@ export default function PointOfInterestSection({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!isTracking && sessionPOIs.length === 0) {
+  // Toujours afficher la section, même sans session active
+  if (!isTracking && sessionPOIs.length === 0 && !sessionId) {
     return (
       <View className="bg-gray-50 p-3 rounded-lg border border-gray-200">
         <Text className="text-center text-gray-500 text-sm">
@@ -102,12 +130,14 @@ export default function PointOfInterestSection({
       <View className="flex-row justify-between items-center mb-3">
         <Text className="text-gray-700 font-bold">📍 Points d'intérêt</Text>
         
-        {isTracking && coords && (
+        {sessionId && (
           <TouchableOpacity
             onPress={() => setShowModal(true)}
             className="bg-purple-600 px-3 py-1 rounded-full"
           >
-            <Text className="text-white text-sm font-bold">+ Ajouter</Text>
+            <Text className="text-white text-sm font-bold">
+              {isTracking ? '+ Ajouter' : '+ Photo oubliée'}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
