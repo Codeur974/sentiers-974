@@ -1,13 +1,23 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useState } from "react";
+import { useState, useImperativeHandle, forwardRef } from "react";
 
 interface FilterProps {
   onSportSelect?: (sport: any) => void;
+  onCloseFilter?: () => void;
 }
 
-export default function Filter({ onSportSelect }: FilterProps) {
+export interface FilterRef {
+  closeSportsFilter: () => void;
+}
+
+const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter }, ref) => {
   const [sportSelected, setSportSelected] = useState<any | null>(null);
   const [showSports, setShowSports] = useState(false);
+
+  // Exposer la fonction pour fermer le filtre
+  useImperativeHandle(ref, () => ({
+    closeSportsFilter: () => setShowSports(false)
+  }));
 
   // Sports data intégré directement pour éviter les problèmes d'import JSON
   const sports = [
@@ -112,7 +122,14 @@ export default function Filter({ onSportSelect }: FilterProps) {
       {/* Bouton pour afficher les sports */}
       <TouchableOpacity
         className="bg-blue-600 p-4 rounded-xl mb-4"
-        onPress={() => setShowSports(!showSports)}
+        onPress={() => {
+          const willShow = !showSports;
+          setShowSports(willShow);
+          // Si on ouvre le filtre, fermer les sections photos
+          if (willShow) {
+            onCloseFilter?.();
+          }
+        }}
       >
         <Text className="text-white font-semibold text-center text-lg">
           {showSports ? "🔽 Masquer les sports" : "⚽ Choisir un sport"}
@@ -201,4 +218,8 @@ export default function Filter({ onSportSelect }: FilterProps) {
       )}
     </View>
   );
-}
+});
+
+Filter.displayName = 'Filter';
+
+export default Filter;

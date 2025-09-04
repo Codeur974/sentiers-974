@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import Filter from "../components/Filter";
+import Filter, { FilterRef } from "../components/Filter";
 import Layout from "../components/Layout";
 import EnhancedMapView from "../components/EnhancedMapView";
 import {
   FloatingTrackingControls,
-  PhotosSection,
 } from "../components/tracking";
+import PhotosSection, { PhotosSectionRef } from "../components/tracking/PhotosSection";
 import TrackingFooter from "../components/tracking/TrackingFooter";
 import { useTrackingLogic } from "../hooks";
 
@@ -14,6 +14,8 @@ export default function TrackingScreen() {
   const [selectedSport, setSelectedSport] = useState<any>(null);
   const [showTrackingFooter, setShowTrackingFooter] = useState(false);
   const trackingLogic = useTrackingLogic(selectedSport);
+  const filterRef = useRef<FilterRef>(null);
+  const photosSectionRef = useRef<PhotosSectionRef>(null);
 
   const handleBackToSelection = () => {
     trackingLogic.handleBackToSelection();
@@ -24,8 +26,15 @@ export default function TrackingScreen() {
     setSelectedSport(sport);
   };
 
-  // Pas de bouton header nécessaire maintenant
-  const headerButtons = null;
+  const handlePhotosSectionInteraction = () => {
+    // Fermer le filtre des sports quand l'utilisateur interagit avec les photos
+    filterRef.current?.closeSportsFilter();
+  };
+
+  const handleSportFilterInteraction = () => {
+    // Fermer les sections photos quand le filtre sport s'ouvre
+    photosSectionRef.current?.closeAllSections();
+  };
 
   // Icônes de tracking dans le footer
   const getFooterButtons = () => {
@@ -112,18 +121,9 @@ export default function TrackingScreen() {
     );
   };
 
-  // Titre du header selon l'état
-  const getHeaderTitle = () => {
-    if (!selectedSport) return "Sélection du sport";
-    return `${selectedSport.emoji} ${selectedSport.nom}`;
-  };
-
   return (
     <View className="flex-1">
       <Layout
-        headerTitle={getHeaderTitle()}
-        showBackButton={!selectedSport}
-        headerButtons={headerButtons}
         footerButtons={getFooterButtons()}
       >
         {!selectedSport ? (
@@ -132,11 +132,19 @@ export default function TrackingScreen() {
               <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
                 🏃‍♀️ Nouvelle session
               </Text>
-              <Filter onSportSelect={handleSportSelect} />
+              <Filter 
+                ref={filterRef} 
+                onSportSelect={handleSportSelect}
+                onCloseFilter={handleSportFilterInteraction}
+              />
               
               {/* Section Photos avec historique */}
               <View className="mt-6">
-                <PhotosSection isVisible={true} />
+                <PhotosSection 
+                  ref={photosSectionRef}
+                  isVisible={true} 
+                  onInteraction={handlePhotosSectionInteraction}
+                />
               </View>
             </View>
           </ScrollView>
