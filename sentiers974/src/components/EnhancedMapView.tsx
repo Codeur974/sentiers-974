@@ -148,6 +148,31 @@ export default function EnhancedMapView({
             background: rgba(240,240,240,1);
             transform: scale(0.92);
           }
+          
+          /* Styles pour les popups Leaflet */
+          .leaflet-popup-content-wrapper {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+          }
+          
+          .leaflet-popup-content {
+            margin: 8px 12px !important;
+            color: #1f2937 !important;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+          }
+          
+          .leaflet-popup-tip {
+            background: rgba(255, 255, 255, 0.98) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+          }
+          
+          .custom-popup .leaflet-popup-content-wrapper {
+            background: white !important;
+            border-radius: 12px !important;
+          }
         </style>
       </head>
       <body>
@@ -263,14 +288,18 @@ export default function EnhancedMapView({
           }).addTo(map);
           
           marker.bindPopup(\`
-            <div style="text-align: center;">
-              <strong>${address && address.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
-              <small style="color: #666;">${address || 'Position actuelle'}</small><br/>
-              <small style="color: #999; font-family: monospace;">
+            <div style="text-align: center; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+              <strong style="color: #1f2937; font-size: 14px;">${address && address.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
+              <small style="color: #4b5563; font-size: 12px; margin-top: 4px; display: block;">${address || 'Position actuelle'}</small><br/>
+              <small style="color: #6b7280; font-family: monospace; font-size: 10px; margin-top: 2px; display: block;">
                 ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}
               </small>
             </div>
-          \`).openPopup();
+          \`, { 
+            className: 'custom-popup',
+            maxWidth: 250,
+            closeButton: true
+          }).openPopup();
           
           // Ajouter le tracé initial s'il existe
           ${trackingPath.length > 0 ? `
@@ -317,10 +346,10 @@ export default function EnhancedMapView({
             marker.setIcon(createCustomIcon('${isTracking ? '#22c55e' : '#3b82f6'}'));
             
             marker.setPopupContent(\`
-              <div style="text-align: center;">
-                <strong>\${newAddress && newAddress.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
-                <small style="color: #666;">\${newAddress}</small><br/>
-                <small style="color: #999; font-family: monospace;">
+              <div style="text-align: center; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                <strong style="color: #1f2937; font-size: 14px;">\${newAddress && newAddress.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
+                <small style="color: #4b5563; font-size: 12px; margin-top: 4px; display: block;">\${newAddress}</small><br/>
+                <small style="color: #6b7280; font-family: monospace; font-size: 10px; margin-top: 2px; display: block;">
                   \${lat.toFixed(6)}, \${lng.toFixed(6)}
                 </small>
               </div>
