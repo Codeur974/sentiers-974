@@ -5,6 +5,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "./screens/HomeScreen";
 import TrackingScreen from "./screens/TrackingScreen";
 import EventsScreen from "./screens/EventsScreen";
+import SportsScreen from "./screens/SportsScreen";
+import SentiersScreen from "./screens/SentiersScreen";
+import SentierDetailScreen from "./screens/SentierDetailScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 
@@ -38,7 +41,7 @@ export default function App() {
         <Stack.Screen 
           name="Home" 
           component={HomeScreen}
-          options={{
+          options={({ route }) => ({
             title: "Accueil",
             headerRight: () => (
               <TouchableOpacity 
@@ -51,7 +54,12 @@ export default function App() {
                 <Text className="text-lg">⚙️</Text>
               </TouchableOpacity>
             )
-          }}
+          })}
+        />
+        <Stack.Screen 
+          name="Sports" 
+          component={SportsScreen}
+          options={{ title: "Sports & Événements" }}
         />
         <Stack.Screen 
           name="Tracking" 
@@ -62,6 +70,19 @@ export default function App() {
           name="Events" 
           component={EventsScreen}
           options={{ title: "Événements sportifs" }}
+        />
+        <Stack.Screen 
+          name="Sentiers" 
+          component={SentiersScreen}
+          options={{ title: "Sentiers de La Réunion" }}
+        />
+        <Stack.Screen 
+          name="SentierDetail" 
+          component={SentierDetailScreen}
+          options={{ 
+            title: "Détails du sentier",
+            headerShown: false // On utilise le header personnalisé du Layout
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

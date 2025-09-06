@@ -28,7 +28,21 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'application accède à vos photos pour vous permettre de partager vos aventures.",
+          "cameraPermission": "L'application accède à l'appareil photo pour vous permettre de capturer vos moments sportifs.",
+          "mediaLibraryPermission": "L'application accède à votre galerie pour vous permettre de partager vos photos d'aventures."
+        }
+      ]
+    ],
+    "permissions": [
+      "android.permission.CAMERA",
+      "android.permission.RECORD_AUDIO",
+      "android.permission.READ_EXTERNAL_STORAGE",
+      "android.permission.WRITE_EXTERNAL_STORAGE"
     ]
   }
 }
