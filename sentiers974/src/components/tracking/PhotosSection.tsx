@@ -138,6 +138,27 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
     setCreatingPhoto(true);
     
     try {
+      console.log('🔍 DEBUG: Ajout photo pour session =', selectedSessionId);
+      
+      // Récupérer le timestamp de la session originale
+      let sessionTimestamp = Date.now(); // Par défaut l'heure actuelle
+      
+      // 1. Chercher dans les activités backend
+      const backendActivity = activities.find(activity => activity._id === selectedSessionId);
+      if (backendActivity) {
+        sessionTimestamp = new Date(backendActivity.date).getTime();
+        console.log('✅ Timestamp trouvé depuis backend:', new Date(sessionTimestamp).toLocaleString());
+      } else {
+        // 2. Chercher dans les POI existants
+        const existingPOI = pois.find(poi => poi.sessionId === selectedSessionId);
+        if (existingPOI) {
+          sessionTimestamp = existingPOI.createdAt;
+          console.log('✅ Timestamp trouvé depuis POI:', new Date(sessionTimestamp).toLocaleString());
+        } else {
+          console.log('⚠️ Session non trouvée, utilisation timestamp actuel');
+        }
+      }
+      
       // Utiliser une position par défaut car c'est une photo oubliée
       const defaultCoords = { latitude: -21.1151, longitude: 55.5364, altitude: 0 };
       
@@ -150,7 +171,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
           note: photoNote.trim() || undefined,
           photo: selectedPhotoUri || undefined
         },
-        selectedSessionId
+        selectedSessionId,
+        sessionTimestamp // Utiliser le timestamp de la session originale
       );
 
       if (poi) {
@@ -810,12 +832,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                                   💭 {photo.note}
                                 </Text>
                               )}
-                              <Text className="text-xs text-gray-500 mt-1">
-                                {new Date(photo.createdAt).toLocaleTimeString('fr-FR', { 
-                                  hour: '2-digit', 
-                                  minute: '2-digit' 
-                                })}
-                              </Text>
                             </View>
                             
                             {/* Actions */}
@@ -889,12 +905,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                             💭 {photo.note}
                           </Text>
                         )}
-                        <Text className="text-xs text-gray-500 mt-1">
-                          🕒 {new Date(photo.createdAt).toLocaleTimeString('fr-FR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </Text>
                         {/* Indicateur de source */}
                         <Text className="text-xs text-blue-500">
                           {photo.source === 'backend' ? '☁️ Serveur' : '📱 Local'}

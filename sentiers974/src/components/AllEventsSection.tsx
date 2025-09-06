@@ -120,7 +120,7 @@ export default function AllEventsSection() {
         baseTitle = "📅 Événements d'aujourd'hui";
         break;
       case 'all':
-        baseTitle = "📊 Tous les événements sportifs";
+        baseTitle = "🔔 Tous les événements sportifs";
         break;
     }
     

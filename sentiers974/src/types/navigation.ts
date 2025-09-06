@@ -1,9 +1,17 @@
 import type { StackScreenProps } from "@react-navigation/stack";
+import { SentierReel } from "../services/sentiersService";
 
 export type RootStackParamList = {
-  Home: undefined;
+  Home: {
+    openCreatePost?: () => void;
+  } | undefined;
+  Sports: undefined;
   Tracking: undefined;
   Events: undefined;
+  Sentiers: undefined;
+  SentierDetail: {
+    sentier: SentierReel;
+  };
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

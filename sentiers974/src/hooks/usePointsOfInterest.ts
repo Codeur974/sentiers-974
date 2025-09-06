@@ -41,7 +41,8 @@ export const usePointsOfInterest = () => {
     distance: number,
     time: number,
     data: POICreationData,
-    sessionId?: string
+    sessionId?: string,
+    customTimestamp?: number
   ): Promise<PointOfInterest | null> => {
     
     let photoUri: string | undefined;
@@ -69,7 +70,7 @@ export const usePointsOfInterest = () => {
       title: data.title,
       note: data.note,
       photoUri,
-      createdAt: Date.now(),
+      createdAt: customTimestamp || Date.now(),
       sessionId
     };
 

@@ -1,0 +1,19 @@
+{
+  "name": "randopitons-scraper",
+  "version": "1.0.0",
+  "description": "Scraper pour récupérer tous les sentiers de randopitons.re",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js",
+    "dev": "nodemon scraper.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0-rc.12",
+    "mongoose": "^8.0.0",
+    "dotenv": "^16.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
