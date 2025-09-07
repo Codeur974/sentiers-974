@@ -31,6 +31,7 @@ export default function SentierDetailScreen() {
     }
   };
 
+
   const openMaps = () => {
     const [lng, lat] = sentier.point_depart.coordonnees;
     const url = `https://maps.google.com/maps?q=${lat},${lng}`;
@@ -79,10 +80,10 @@ export default function SentierDetailScreen() {
             </View>
           </View>
 
-          {/* Badges de certification */}
-          <View className="flex-row items-center mb-4">
+          {/* Badges de certification et type de parcours */}
+          <View className="flex-row items-center mb-4 flex-wrap gap-2">
             {sentier.certification_officielle && (
-              <View className="bg-green-500 px-3 py-1 rounded-full mr-2">
+              <View className="bg-green-500 px-3 py-1 rounded-full">
                 <Text className="text-white text-sm font-bold">✓ CERTIFIÉ OFFICIEL</Text>
               </View>
             )}

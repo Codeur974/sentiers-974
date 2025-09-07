@@ -3,8 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList }
 import Layout from '../components/Layout';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { sentiersService, SentierReel } from '../services/sentiersService';
-import { SentiersService } from '../services/sentiersService';
+import sentiersService, { SentierReel, SentiersService } from '../services/sentiersService';
 import { RootStackParamList } from '../types/navigation';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Sentiers'>;
@@ -16,7 +15,7 @@ export default function SentiersScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const [selectedSousRegion, setSelectedSousRegion] = useState<string | null>(null);
+  const [selectedZoneSpecifique, setSelectedZoneSpecifique] = useState<string | null>(null);
 
   useEffect(() => {
     loadSentiers();
@@ -63,6 +62,7 @@ export default function SentiersScreen() {
       default: return 'bg-gray-500';
     }
   };
+
 
   const getCityFromCoordinates = (coordinates: [number, number]) => {
     const [lng, lat] = coordinates;
@@ -118,24 +118,24 @@ export default function SentiersScreen() {
   // Utiliser la hiérarchie des régions du service
   const regionsHierarchy = SentiersService.REGIONS_HIERARCHY;
 
-  // Filtre les sentiers selon l'onglet actif, la région et la sous-région sélectionnée
+  // Filtre les sentiers selon l'onglet actif, la région et la zone spécifique sélectionnée
   const filteredSentiers = sentiers.filter(sentier => {
     const matchesType = activeTab === 'randonnee' ? sentier.type === 'Randonnée' : sentier.type === 'VTT';
     const matchesRegion = selectedRegion ? sentier.region === selectedRegion : true;
-    const matchesSousRegion = selectedSousRegion ? sentier.sous_region === selectedSousRegion : true;
-    return matchesType && matchesRegion && matchesSousRegion;
+    const matchesZoneSpecifique = selectedZoneSpecifique ? sentier.zone_specifique === selectedZoneSpecifique : true;
+    return matchesType && matchesRegion && matchesZoneSpecifique;
   });
 
   // Fonction pour réinitialiser les filtres
   const resetFilters = () => {
     setSelectedRegion(null);
-    setSelectedSousRegion(null);
+    setSelectedZoneSpecifique(null);
   };
 
-  // Fonction pour sélectionner une région (et réinitialiser la sous-région)
+  // Fonction pour sélectionner une région (et réinitialiser la zone spécifique)
   const selectRegion = (region: string | null) => {
     setSelectedRegion(region);
-    setSelectedSousRegion(null);
+    setSelectedZoneSpecifique(null);
   };
 
   if (loading) {
@@ -291,11 +291,11 @@ export default function SentiersScreen() {
                 })}
               </ScrollView>
 
-              {/* Niveau 2: Sous-régions (si une région est sélectionnée) */}
+              {/* Niveau 2: Zones spécifiques (si une région est sélectionnée) */}
               {selectedRegion && regionsHierarchy[selectedRegion] && (
                 <>
                   <Text className="text-gray-600 font-medium px-4 pt-2 pb-2">
-                    ↳ Sous-régions de {selectedRegion}
+                    ↳ Zones spécifiques de {selectedRegion}
                   </Text>
                   <ScrollView 
                     horizontal 
@@ -304,42 +304,42 @@ export default function SentiersScreen() {
                   >
                     {/* Bouton "Toute la région" */}
                     <TouchableOpacity
-                      onPress={() => setSelectedSousRegion(null)}
+                      onPress={() => setSelectedZoneSpecifique(null)}
                       className={`mr-2 px-3 py-1.5 rounded-full border ${
-                        selectedSousRegion === null 
+                        selectedZoneSpecifique === null 
                           ? 'bg-green-500 border-green-500' 
                           : 'bg-white border-gray-300'
                       }`}
                     >
                       <Text className={`font-medium text-xs ${
-                        selectedSousRegion === null ? 'text-white' : 'text-gray-700'
+                        selectedZoneSpecifique === null ? 'text-white' : 'text-gray-700'
                       }`}>
                         Toute la région
                       </Text>
                     </TouchableOpacity>
 
-                    {/* Boutons des sous-régions */}
-                    {regionsHierarchy[selectedRegion].sous_regions.map((sousRegion) => {
+                    {/* Boutons des zones spécifiques */}
+                    {regionsHierarchy[selectedRegion].sous_regions.map((zoneSpecifique) => {
                       const nbSentiers = sentiers.filter(s => 
                         s.region === selectedRegion &&
-                        s.sous_region === sousRegion &&
+                        s.zone_specifique === zoneSpecifique &&
                         (activeTab === 'randonnee' ? s.type === 'Randonnée' : s.type === 'VTT')
                       ).length;
                       
                       return (
                         <TouchableOpacity
-                          key={sousRegion}
-                          onPress={() => setSelectedSousRegion(sousRegion)}
+                          key={zoneSpecifique}
+                          onPress={() => setSelectedZoneSpecifique(zoneSpecifique)}
                           className={`mr-2 px-3 py-1.5 rounded-full border ${
-                            selectedSousRegion === sousRegion 
+                            selectedZoneSpecifique === zoneSpecifique 
                               ? 'bg-green-500 border-green-500' 
                               : 'bg-white border-gray-300'
                           }`}
                         >
                           <Text className={`font-medium text-xs ${
-                            selectedSousRegion === sousRegion ? 'text-white' : 'text-gray-700'
+                            selectedZoneSpecifique === zoneSpecifique ? 'text-white' : 'text-gray-700'
                           }`}>
-                            {sousRegion} {nbSentiers > 0 && `(${nbSentiers})`}
+                            {zoneSpecifique} {nbSentiers > 0 && `(${nbSentiers})`}
                           </Text>
                         </TouchableOpacity>
                       );
@@ -360,15 +360,15 @@ export default function SentiersScreen() {
               <Text className="text-lg font-semibold text-gray-900 mb-2">
                 Aucun sentier {activeTab === 'randonnee' ? 'de randonnée' : 'VTT'} trouvé
                 {selectedRegion && ` dans la région "${selectedRegion}"`}
-                {selectedSousRegion && ` (${selectedSousRegion})`}
+                {selectedZoneSpecifique && ` (${selectedZoneSpecifique})`}
               </Text>
               <Text className="text-gray-600 text-center">
-                {selectedRegion || selectedSousRegion
+                {selectedRegion || selectedZoneSpecifique
                   ? 'Essayez de modifier vos filtres ou sélectionner "Toutes" pour voir tous les sentiers disponibles.'
                   : 'Les données sont en cours de chargement depuis les sources officielles.'
                 }
               </Text>
-              {(selectedRegion || selectedSousRegion) && (
+              {(selectedRegion || selectedZoneSpecifique) && (
                 <TouchableOpacity
                   onPress={resetFilters}
                   className="bg-blue-500 px-4 py-2 rounded-full mt-4"
@@ -384,23 +384,25 @@ export default function SentiersScreen() {
             onPress={() => navigation.navigate('SentierDetail', { sentier })}
             className="bg-white rounded-xl mb-3 mx-4 overflow-hidden shadow-sm border border-gray-100"
           >
-            {/* Header avec région */}
+            {/* Header avec région/sous-région */}
             <View className="bg-blue-500 px-4 py-2">
               <Text className="text-white font-bold text-sm">
-                📍 {sentier.region || getCityFromCoordinates(sentier.point_depart.coordonnees)}
+                📍 {sentier.zone_specifique || sentier.region || getCityFromCoordinates(sentier.point_depart.coordonnees)}
               </Text>
             </View>
             
             <View className="p-4">
-              {/* Titre et difficulté */}
+              {/* Titre et badges */}
               <View className="flex-row items-start justify-between mb-3">
                 <Text className="text-lg font-bold text-gray-900 flex-1 mr-3" numberOfLines={2}>
                   {sentier.nom}
                 </Text>
-                <View className={`px-2 py-1 rounded-full ${getDifficultyColor(sentier.difficulte)}`}>
-                  <Text className="text-white text-xs font-semibold">
-                    {sentier.difficulte}
-                  </Text>
+                <View className="flex-col items-end space-y-1">
+                  <View className={`px-2 py-1 rounded-full ${getDifficultyColor(sentier.difficulte)}`}>
+                    <Text className="text-white text-xs font-semibold">
+                      {sentier.difficulte}
+                    </Text>
+                  </View>
                 </View>
               </View>
 
