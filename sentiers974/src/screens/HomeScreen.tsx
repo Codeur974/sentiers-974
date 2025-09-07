@@ -136,11 +136,11 @@ export default function HomeScreen() {
       <View className="items-center">
         <TouchableOpacity
           onPress={() => navigation.navigate("Sports")}
-          className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center mb-2"
+          className="w-10 h-10 items-center justify-center mb-1"
         >
           <Text className="text-base">🏃</Text>
         </TouchableOpacity>
-        <Text className="text-gray-700 text-sm font-medium">
+        <Text className="text-gray-700 text-xs font-medium">
           Événement
         </Text>
       </View>
@@ -149,11 +149,11 @@ export default function HomeScreen() {
       <View className="items-center">
         <TouchableOpacity
           onPress={() => navigation.navigate("Tracking")}
-          className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mb-2"
+          className="w-10 h-10 items-center justify-center mb-1"
         >
           <Text className="text-base">▶️</Text>
         </TouchableOpacity>
-        <Text className="text-gray-700 text-sm font-medium">
+        <Text className="text-gray-700 text-xs font-medium">
           Commencer activité
         </Text>
       </View>
@@ -295,7 +295,7 @@ export default function HomeScreen() {
           <View className="mb-6">
             <TouchableOpacity
               onPress={() => navigation.navigate("Sentiers")}
-              className="bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl p-6 mb-4"
+              className="bg-blue-600 rounded-2xl p-6 mb-4"
             >
               <View className="flex-row items-center justify-between">
                 <View className="flex-1">
