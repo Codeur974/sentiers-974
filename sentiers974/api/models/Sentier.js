@@ -201,6 +201,7 @@ SentierSchema.methods.toClientFormat = function() {
     denivele_negatif: this.denivele_negatif,
     type: this.type,
     region: this.region,
+    zone_specifique: this.zone_specifique,
     commune_depart: this.commune_depart,
     description: this.description_complete || this.description_courte,
     points_interet: this.points_interet.map(p => p.nom),
