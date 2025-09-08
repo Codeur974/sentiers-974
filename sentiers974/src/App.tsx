@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import RecordingIndicator from "./components/RecordingIndicator";
 import HomeScreen from "./screens/HomeScreen";
 import TrackingScreen from "./screens/TrackingScreen";
 import EventsScreen from "./screens/EventsScreen";
@@ -44,37 +45,52 @@ export default function App() {
           options={({ route }) => ({
             title: "Accueil",
             headerRight: () => (
-              <TouchableOpacity 
-                className="mr-4 p-2"
-                onPress={() => {
-                  // Action pour les paramètres
-                  console.log("Paramètres");
-                }}
-              >
-                <Text className="text-lg">⚙️</Text>
-              </TouchableOpacity>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <RecordingIndicator />
+                <TouchableOpacity 
+                  className="mr-4 p-2"
+                  onPress={() => {
+                    // Action pour les paramètres
+                    console.log("Paramètres");
+                  }}
+                >
+                  <Text className="text-lg">⚙️</Text>
+                </TouchableOpacity>
+              </View>
             )
           })}
         />
         <Stack.Screen 
           name="Sports" 
           component={SportsScreen}
-          options={{ title: "Sports & Événements" }}
+          options={{ 
+            title: "Sports & Événements",
+            headerRight: () => <RecordingIndicator />
+          }}
         />
         <Stack.Screen 
           name="Tracking" 
           component={TrackingScreen}
-          options={{ title: "Suivi d'activité" }}
+          options={({ route }) => ({
+            title: route.params?.selectedSport ? "Mon Activité" : "Mon Suivi",
+            headerRight: () => <RecordingIndicator />
+          })}
         />
         <Stack.Screen 
           name="Events" 
           component={EventsScreen}
-          options={{ title: "Événements sportifs" }}
+          options={{ 
+            title: "Événements sportifs",
+            headerRight: () => <RecordingIndicator />
+          }}
         />
         <Stack.Screen 
           name="Sentiers" 
           component={SentiersScreen}
-          options={{ title: "Sentiers de La Réunion" }}
+          options={{ 
+            title: "Sentiers de La Réunion",
+            headerRight: () => <RecordingIndicator />
+          }}
         />
         <Stack.Screen 
           name="SentierDetail" 
