@@ -4,15 +4,16 @@ import { useState, useImperativeHandle, forwardRef } from "react";
 interface FilterProps {
   onSportSelect?: (sport: any) => void;
   onCloseFilter?: () => void;
+  autoOpen?: boolean;
 }
 
 export interface FilterRef {
   closeSportsFilter: () => void;
 }
 
-const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter }, ref) => {
+const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter, autoOpen = false }, ref) => {
   const [sportSelected, setSportSelected] = useState<any | null>(null);
-  const [showSports, setShowSports] = useState(false);
+  const [showSports, setShowSports] = useState(autoOpen);
 
   // Exposer la fonction pour fermer le filtre
   useImperativeHandle(ref, () => ({
@@ -119,22 +120,24 @@ const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilte
 
   return (
     <View className="p-4">
-      {/* Bouton pour afficher les sports */}
-      <TouchableOpacity
-        className="bg-blue-600 p-4 rounded-xl mb-4"
-        onPress={() => {
-          const willShow = !showSports;
-          setShowSports(willShow);
-          // Si on ouvre le filtre, fermer les sections photos
-          if (willShow) {
-            onCloseFilter?.();
-          }
-        }}
-      >
-        <Text className="text-white font-semibold text-center text-lg">
-          {showSports ? "🔽 Masquer les sports" : "⚽ Choisir un sport"}
-        </Text>
-      </TouchableOpacity>
+      {/* Bouton pour afficher les sports - masqué si autoOpen */}
+      {!autoOpen && (
+        <TouchableOpacity
+          className="bg-blue-600 p-4 rounded-xl mb-4"
+          onPress={() => {
+            const willShow = !showSports;
+            setShowSports(willShow);
+            // Si on ouvre le filtre, fermer les sections photos
+            if (willShow) {
+              onCloseFilter?.();
+            }
+          }}
+        >
+          <Text className="text-white font-semibold text-center text-lg">
+            {showSports ? "🔽 Masquer les sports" : "⚽ Choisir un sport"}
+          </Text>
+        </TouchableOpacity>
+      )}
 
       {/* Sport sélectionné */}
       {sportSelected && (

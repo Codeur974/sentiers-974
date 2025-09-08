@@ -40,16 +40,58 @@ export default function SentiersScreen() {
   };
 
   const footerButtons = (
-    <View className="items-center">
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Tracking")}
-        className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mb-2"
-      >
-        <Text className="text-base">▶️</Text>
-      </TouchableOpacity>
-      <Text className="text-gray-700 text-sm font-medium">
-        Commencer activité
-      </Text>
+    <View className="flex-row justify-around items-center w-full">
+      {/* Bouton Accueil - en première position */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Home")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">🏠</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Accueil
+        </Text>
+      </View>
+
+      {/* Bouton Événements */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Sports")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">🏃</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Événement
+        </Text>
+      </View>
+
+      {/* Bouton Enregistrer */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Tracking")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">📝</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Enregistrer
+        </Text>
+      </View>
+
+      {/* Bouton Suivi */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Tracking")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">📊</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Suivi
+        </Text>
+      </View>
     </View>
   );
 
@@ -140,7 +182,7 @@ export default function SentiersScreen() {
 
   if (loading) {
     return (
-      <Layout headerTitle="Sentiers" showBackButton={true}>
+      <Layout showHomeButton={false}>
         <View className="flex-1 justify-center items-center bg-gray-50">
           <ActivityIndicator size="large" color="#3B82F6" />
           <Text className="mt-4 text-gray-600">Chargement des sentiers officiels...</Text>
@@ -152,7 +194,7 @@ export default function SentiersScreen() {
 
   if (error) {
     return (
-      <Layout headerTitle="Sentiers" showBackButton={true}>
+      <Layout showHomeButton={false}>
         <View className="flex-1 justify-center items-center bg-gray-50 px-4">
           <Text className="text-xl font-bold text-gray-900 mb-2 text-center">
             Erreur de chargement
@@ -174,8 +216,7 @@ export default function SentiersScreen() {
   return (
     <Layout 
       footerButtons={footerButtons}
-      headerTitle="Sentiers de La Réunion"
-      showBackButton={true}
+      showHomeButton={false}
     >
       <FlatList
         data={filteredSentiers}
@@ -217,21 +258,6 @@ export default function SentiersScreen() {
                   {sentiers.filter(s => s.type === 'VTT').length} parcours
                 </Text>
               </TouchableOpacity>
-            </View>
-
-            {/* Header avec infos sources */}
-            <View className="bg-blue-600 px-4 py-6">
-              <Text className="text-white text-2xl font-bold text-center mb-2">
-                {activeTab === 'randonnee' ? 'Sentiers Officiels' : '🚵 Parcours VTT Certifiés'}
-              </Text>
-              <Text className="text-blue-100 text-center text-sm">
-                Données issues de Randopitons.re • Mises à jour automatiquement
-              </Text>
-              <View className="flex-row justify-center mt-2 space-x-4">
-                <Text className="text-blue-200 text-xs">📍 Randopitons</Text>
-                <Text className="text-blue-200 text-xs">🏛️ Parc National</Text>
-                <Text className="text-blue-200 text-xs">🗺️ IGN</Text>
-              </View>
             </View>
 
             {/* Filtres par régions hiérarchiques */}

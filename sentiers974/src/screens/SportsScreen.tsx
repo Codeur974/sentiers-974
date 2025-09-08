@@ -6,18 +6,47 @@ import Layout from "../components/Layout";
 export default function SportsScreen() {
   const navigation = useNavigation();
 
-  // Boutons du footer - bouton tracking
+  // Boutons du footer - tous sauf événement
   const footerButtons = (
-    <View className="items-center">
-      <TouchableOpacity
-        onPress={() => navigation.navigate("Tracking")}
-        className="w-10 h-10 bg-green-500 rounded-full items-center justify-center mb-2"
-      >
-        <Text className="text-base">▶️</Text>
-      </TouchableOpacity>
-      <Text className="text-gray-700 text-sm font-medium">
-        Commencer activité
-      </Text>
+    <View className="flex-row justify-around items-center w-full">
+      {/* Bouton Sentiers */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Sentiers")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">🥾</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Sentiers
+        </Text>
+      </View>
+
+      {/* Bouton Enregistrer */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => {/* TODO: implémenter setSportFilterVisible */}}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">📝</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Enregistrer
+        </Text>
+      </View>
+
+      {/* Bouton Suivi */}
+      <View className="items-center flex-1">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Tracking")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">📊</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Suivi
+        </Text>
+      </View>
     </View>
   );
 

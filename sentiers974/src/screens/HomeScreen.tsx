@@ -5,6 +5,8 @@ import Layout from "../components/Layout";
 import LocationSection from "../components/LocationSection";
 import SocialFeed from "../components/social/SocialFeed";
 import CreatePostModal from "../components/social/CreatePostModal";
+import Filter, { FilterRef } from "../components/Filter";
+import { Modal } from "react-native";
 import { SocialPost } from "../types/social";
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
@@ -109,6 +111,8 @@ export default function HomeScreen() {
   const [createPostVisible, setCreatePostVisible] = useState(false);
   const [posts, setPosts] = useState<SocialPost[]>(mockPosts);
   const [editingPost, setEditingPost] = useState<SocialPost | null>(null);
+  const [sportFilterVisible, setSportFilterVisible] = useState(false);
+  const filterRef = useRef<FilterRef>(null);
 
   const currentUserId = 'currentUser';
 
@@ -129,6 +133,12 @@ export default function HomeScreen() {
     }, [isFirstHomeLoad, resetLocation, resetSession])
   );
 
+  // Handle sport selection and navigation
+  const handleSportSelect = (sport: any) => {
+    setSportFilterVisible(false);
+    navigation.navigate("Tracking", { selectedSport: sport });
+  };
+
   // Boutons du footer avec navigation vers Sports
   const footerButtons = (
     <View className="flex-row justify-around w-full">
@@ -145,16 +155,42 @@ export default function HomeScreen() {
         </Text>
       </View>
 
+      {/* Bouton Sentiers */}
+      <View className="items-center">
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Sentiers")}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">🥾</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Sentiers
+        </Text>
+      </View>
+
+      {/* Bouton Sport Filter */}
+      <View className="items-center">
+        <TouchableOpacity
+          onPress={() => setSportFilterVisible(true)}
+          className="w-10 h-10 items-center justify-center mb-1"
+        >
+          <Text className="text-base">📝</Text>
+        </TouchableOpacity>
+        <Text className="text-gray-700 text-xs font-medium">
+          Enregistrer
+        </Text>
+      </View>
+
       {/* Bouton Tracking */}
       <View className="items-center">
         <TouchableOpacity
           onPress={() => navigation.navigate("Tracking")}
           className="w-10 h-10 items-center justify-center mb-1"
         >
-          <Text className="text-base">▶️</Text>
+          <Text className="text-base">📊</Text>
         </TouchableOpacity>
         <Text className="text-gray-700 text-xs font-medium">
-          Commencer activité
+          Suivi
         </Text>
       </View>
     </View>
@@ -248,7 +284,7 @@ export default function HomeScreen() {
 
 
   return (
-    <Layout footerButtons={footerButtons}>
+    <Layout footerButtons={footerButtons} showHomeButton={false}>
       <ScrollView ref={scrollViewRef} className="flex-1">
         {/* Hero section avec photo de La Réunion */}
         <ImageBackground
@@ -341,6 +377,51 @@ export default function HomeScreen() {
         onSubmit={handleCreatePost}
         editPost={editingPost}
       />
+
+      {/* Modal pour sélectionner un sport */}
+      <Modal
+        visible={sportFilterVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSportFilterVisible(false)}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'flex-end',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+        }}>
+          <View style={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            maxHeight: '90%',
+            position: 'relative',
+          }}>
+            {/* Bouton fermer positionné par-dessus le contenu */}
+            <TouchableOpacity 
+              onPress={() => setSportFilterVisible(false)} 
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 20,
+                zIndex: 10,
+                backgroundColor: 'rgba(255,255,255,0.9)',
+                borderRadius: 20,
+                padding: 6,
+              }}
+            >
+              <Text style={{ fontSize: 18 }}>✕</Text>
+            </TouchableOpacity>
+            
+            <Filter 
+              ref={filterRef}
+              onSportSelect={handleSportSelect}
+              onCloseFilter={() => {}}
+              autoOpen={true}
+            />
+          </View>
+        </View>
+      </Modal>
     </Layout>
   );
 }

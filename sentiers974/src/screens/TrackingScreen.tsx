@@ -1,7 +1,7 @@
-import { useState, useRef } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import Filter, { FilterRef } from "../components/Filter";
+import { useState, useRef, useEffect } from "react";
+import { ScrollView, Text, TouchableOpacity, View, Modal } from "react-native";
 import Layout from "../components/Layout";
+import { useRecordingStore } from "../store/useRecordingStore";
 import EnhancedMapView from "../components/EnhancedMapView";
 import {
   FloatingTrackingControls,
@@ -9,36 +9,110 @@ import {
 import PhotosSection, { PhotosSectionRef } from "../components/tracking/PhotosSection";
 import TrackingFooter from "../components/tracking/TrackingFooter";
 import { useTrackingLogic } from "../hooks";
+import { useNavigation } from "@react-navigation/native";
+import Filter, { FilterRef } from "../components/Filter";
 
-export default function TrackingScreen() {
-  const [selectedSport, setSelectedSport] = useState<any>(null);
+export default function TrackingScreen({ route }: any) {
+  const [selectedSport, setSelectedSport] = useState<any>(route?.params?.selectedSport || null);
   const [showTrackingFooter, setShowTrackingFooter] = useState(false);
+  const [sportFilterVisible, setSportFilterVisible] = useState(false);
   const trackingLogic = useTrackingLogic(selectedSport);
-  const filterRef = useRef<FilterRef>(null);
   const photosSectionRef = useRef<PhotosSectionRef>(null);
+  const filterRef = useRef<FilterRef>(null);
+  const navigation = useNavigation();
+  const { setRecording, setPaused, resetRecording, setSelectedSport: setStoreSport } = useRecordingStore();
+
+  // Sauvegarder le sport dans le store quand il change
+  useEffect(() => {
+    if (selectedSport) {
+      setStoreSport(selectedSport);
+    }
+  }, [selectedSport, setStoreSport]);
+
+  // Détecter les changements de paramètres de route
+  useEffect(() => {
+    if (route?.params?.selectedSport && route.params.selectedSport !== selectedSport) {
+      setSelectedSport(route.params.selectedSport);
+    }
+  }, [route?.params?.selectedSport]);
+
+  // Synchroniser l'état d'enregistrement avec l'indicateur global
+  useEffect(() => {
+    const isRecording = trackingLogic.status === "running";
+    const isPaused = trackingLogic.status === "paused";
+    
+    setRecording(isRecording);
+    setPaused(isPaused);
+    
+    // Si arrêt complet, reset tout
+    if (trackingLogic.status === "stopped" || trackingLogic.status === "idle") {
+      resetRecording();
+    }
+  }, [trackingLogic.status, setRecording, setPaused, resetRecording]);
 
   const handleBackToSelection = () => {
     trackingLogic.handleBackToSelection();
     setSelectedSport(null);
+    resetRecording(); // Reset complet de l'indicateur
   };
 
   const handleSportSelect = (sport: any) => {
     setSelectedSport(sport);
+    setStoreSport(sport); // Sauvegarder dans le store global
   };
 
   const handlePhotosSectionInteraction = () => {
-    // Fermer le filtre des sports quand l'utilisateur interagit avec les photos
-    filterRef.current?.closeSportsFilter();
-  };
-
-  const handleSportFilterInteraction = () => {
-    // Fermer les sections photos quand le filtre sport s'ouvre
-    photosSectionRef.current?.closeAllSections();
+    // Interaction avec les photos
   };
 
   // Icônes de tracking dans le footer
   const getFooterButtons = () => {
-    if (!selectedSport) return null;
+    if (!selectedSport) {
+      // Mode 1: Afficher les boutons de navigation (tous sauf Suivi)
+      return (
+        <View className="flex-row justify-around items-center w-full">
+
+          {/* Bouton Événements */}
+          <View className="items-center flex-1">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Sports")}
+              className="w-10 h-10 items-center justify-center mb-1"
+            >
+              <Text className="text-base">🏃</Text>
+            </TouchableOpacity>
+            <Text className="text-gray-700 text-xs font-medium">
+              Événement
+            </Text>
+          </View>
+
+          {/* Bouton Sentiers */}
+          <View className="items-center flex-1">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Sentiers")}
+              className="w-10 h-10 items-center justify-center mb-1"
+            >
+              <Text className="text-base">🥾</Text>
+            </TouchableOpacity>
+            <Text className="text-gray-700 text-xs font-medium">
+              Sentiers
+            </Text>
+          </View>
+
+          {/* Bouton Enregistrer */}
+          <View className="items-center flex-1">
+            <TouchableOpacity
+              onPress={() => setSportFilterVisible(true)}
+              className="w-10 h-10 items-center justify-center mb-1"
+            >
+              <Text className="text-base">📝</Text>
+            </TouchableOpacity>
+            <Text className="text-gray-700 text-xs font-medium">
+              Enregistrer
+            </Text>
+          </View>
+        </View>
+      );
+    }
 
     return (
       <View className="flex-row justify-center space-x-4">
@@ -129,23 +203,12 @@ export default function TrackingScreen() {
         {!selectedSport ? (
           <ScrollView className="flex-1 bg-white">
             <View className="p-4">
-              <Text className="text-2xl font-bold text-center mb-6 text-gray-800">
-                🏃‍♀️ Nouvelle session
-              </Text>
-              <Filter 
-                ref={filterRef} 
-                onSportSelect={handleSportSelect}
-                onCloseFilter={handleSportFilterInteraction}
-              />
-              
               {/* Section Photos avec historique */}
-              <View className="mt-6">
-                <PhotosSection 
-                  ref={photosSectionRef}
-                  isVisible={true} 
-                  onInteraction={handlePhotosSectionInteraction}
-                />
-              </View>
+              <PhotosSection 
+                ref={photosSectionRef}
+                isVisible={true} 
+                onInteraction={handlePhotosSectionInteraction}
+              />
             </View>
           </ScrollView>
         ) : (
