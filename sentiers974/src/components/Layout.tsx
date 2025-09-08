@@ -8,6 +8,7 @@ interface LayoutProps {
   showBackButton?: boolean;
   headerButtons?: ReactNode;
   footerButtons?: ReactNode;
+  showHomeButton?: boolean;
 }
 
 export default function Layout({
@@ -16,6 +17,7 @@ export default function Layout({
   showBackButton = false,
   headerButtons,
   footerButtons,
+  showHomeButton = true,
 }: LayoutProps) {
   const navigation = useNavigation();
 
@@ -47,9 +49,29 @@ export default function Layout({
       <View className="flex-1">{children}</View>
 
       {/* Footer */}
-      {footerButtons && (
+      {(footerButtons || showHomeButton) && (
         <View className="bg-white px-4 py-4 pb-12 border-t border-gray-300 shadow-lg">
-          {footerButtons}
+          <View className="flex-row justify-between items-center">
+            {/* Bouton Home (toujours présent sauf HomeScreen) - en première position */}
+            {showHomeButton && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Home")}
+                className="items-center mr-4"
+              >
+                <View className="w-10 h-10 items-center justify-center mb-1">
+                  <Text className="text-base">🏠</Text>
+                </View>
+                <Text className="text-gray-700 text-xs font-medium">
+                  Accueil
+                </Text>
+              </TouchableOpacity>
+            )}
+            
+            {/* Boutons custom de la page */}
+            <View className="flex-1">
+              {footerButtons}
+            </View>
+          </View>
         </View>
       )}
     </SafeAreaView>
