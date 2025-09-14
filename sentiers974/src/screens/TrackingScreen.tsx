@@ -3,6 +3,7 @@ import { ScrollView, Text, TouchableOpacity, View, Modal } from "react-native";
 import Layout from "../components/Layout";
 import { useRecordingStore } from "../store/useRecordingStore";
 import EnhancedMapView from "../components/EnhancedMapView";
+import FooterNavigation from "../components/FooterNavigation";
 import {
   FloatingTrackingControls,
 } from "../components/tracking";
@@ -35,7 +36,11 @@ export default function TrackingScreen({ route }: any) {
     if (route?.params?.selectedSport && route.params.selectedSport !== selectedSport) {
       setSelectedSport(route.params.selectedSport);
     }
-  }, [route?.params?.selectedSport]);
+    // Ouvrir automatiquement la sélection de sport si demandé
+    if (route?.params?.openSportSelection) {
+      setSportFilterVisible(true);
+    }
+  }, [route?.params?.selectedSport, route?.params?.openSportSelection]);
 
   // Synchroniser l'état d'enregistrement avec l'indicateur global
   useEffect(() => {
@@ -72,6 +77,19 @@ export default function TrackingScreen({ route }: any) {
       // Mode 1: Afficher les boutons de navigation (tous sauf Suivi)
       return (
         <View className="flex-row justify-around items-center w-full">
+
+          {/* Bouton Accueil */}
+          <View className="items-center flex-1">
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Home")}
+              className="w-10 h-10 items-center justify-center mb-1"
+            >
+              <Text className="text-base">🏠</Text>
+            </TouchableOpacity>
+            <Text className="text-gray-700 text-xs font-medium">
+              Accueil
+            </Text>
+          </View>
 
           {/* Bouton Événements */}
           <View className="items-center flex-1">
@@ -200,6 +218,7 @@ export default function TrackingScreen({ route }: any) {
     <View className="flex-1">
       <Layout
         showHomeButton={false}
+        footerButtons={!selectedSport ? <FooterNavigation currentPage="Tracking" onEnregistrer={() => setSportFilterVisible(true)} /> : getFooterButtons()}
       >
         {!selectedSport ? (
           <ScrollView className="flex-1 bg-white">
@@ -394,6 +413,37 @@ export default function TrackingScreen({ route }: any) {
                   setStoreSport(sport);
                 }}
                 onCloseFilter={() => setShowSportModal(false)}
+                autoOpen={true}
+              />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal pour sélection de sport depuis le bouton Enregistrer */}
+        <Modal
+          visible={sportFilterVisible}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setSportFilterVisible(false)}
+        >
+          <View className="flex-1 justify-end bg-black/50">
+            <View className="bg-white rounded-t-3xl max-h-128">
+              <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+                <Text className="text-xl font-bold">Choisir un sport</Text>
+                <TouchableOpacity
+                  onPress={() => setSportFilterVisible(false)}
+                  className="p-2"
+                >
+                  <Text className="text-lg">✕</Text>
+                </TouchableOpacity>
+              </View>
+              <Filter
+                onSportSelect={(sport) => {
+                  setSportFilterVisible(false);
+                  setSelectedSport(sport);
+                  setStoreSport(sport);
+                }}
+                onCloseFilter={() => setSportFilterVisible(false)}
                 autoOpen={true}
               />
             </View>

@@ -2,6 +2,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useRef, useState } from "react";
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import Layout from "../components/Layout";
+import FooterNavigation from "../components/FooterNavigation";
 import LocationSection from "../components/LocationSection";
 import SocialFeed from "../components/social/SocialFeed";
 import CreatePostModal from "../components/social/CreatePostModal";
@@ -284,7 +285,7 @@ export default function HomeScreen() {
 
 
   return (
-    <Layout footerButtons={footerButtons} showHomeButton={false}>
+    <Layout footerButtons={<FooterNavigation currentPage="Home" />} showHomeButton={false}>
       <ScrollView ref={scrollViewRef} className="flex-1">
         {/* Hero section avec photo de La Réunion */}
         <ImageBackground

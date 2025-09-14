@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
 import Layout from '../components/Layout';
+import FooterNavigation from '../components/FooterNavigation';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import sentiersService, { SentierReel, SentiersService } from '../services/sentiersService';
@@ -215,7 +216,7 @@ export default function SentiersScreen() {
 
   return (
     <Layout
-      footerButtons={footerButtons}
+      footerButtons={<FooterNavigation currentPage="Sentiers" />}
       showHomeButton={false}
     >
       <FlatList
