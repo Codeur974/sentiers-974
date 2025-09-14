@@ -1,7 +1,7 @@
 import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { usePointsOfInterest } from '../../../../hooks/usePointsOfInterest';
-import { useActivity } from '../../../../hooks/useActivity';
+// useActivity supprimé car collection activities supprimée
 import { PhotoManager } from '../../../../utils/photoUtils';
 import { logger } from '../../../../utils/logger';
 import apiService from '../../../../services/api';
@@ -17,7 +17,7 @@ export function usePhotoActions(
   refreshData: () => void
 ) {
   const { pois, deletePOI, createPOI } = usePointsOfInterest();
-  const { activities, loadActivities } = useActivity();
+  // activities et loadActivities supprimés car collection activities supprimée
 
   // Prendre une photo
   const takePhoto = async (): Promise<string | null> => {
@@ -162,16 +162,15 @@ export function usePhotoActions(
     try {
       logger.photos('Début suppression session', { sessionId });
       
-      // Vérifier si c'est une session locale ou backend
+      // Supprimer les POI locaux liés à cette session
       const sessionPois = pois.filter(poi => poi.sessionId === sessionId);
-      const backendActivity = activities.find(activity => activity._id === sessionId);
-      
+
       if (sessionPois.length > 0) {
         // Suppression des POI locaux
         for (const poi of sessionPois) {
           await deletePOI(poi.id);
         }
-        
+
         // Supprimer les performances locales de la session
         const sessionPhotos = pois.find(poi => poi.sessionId === sessionId);
         if (sessionPhotos) {
@@ -179,12 +178,18 @@ export function usePhotoActions(
           await removeDaySessionPerformance(date, sessionId);
         }
       }
-      
-      if (backendActivity) {
-        // Suppression de l'activité backend
-        await apiService.deleteActivity(sessionId);
-        logger.photos('Activité backend supprimée', { sessionId });
-        await loadActivities();
+
+      // Supprimer la session MongoDB
+      try {
+        logger.photos('Suppression session MongoDB', { sessionId });
+        const deleteResult = await apiService.deleteSession(sessionId);
+        if (deleteResult.success) {
+          logger.photos('Session MongoDB supprimée', { sessionId });
+        } else {
+          logger.error('Échec suppression session MongoDB', deleteResult.message, 'PHOTOS');
+        }
+      } catch (mongoError) {
+        logger.error('Erreur suppression session MongoDB', mongoError, 'PHOTOS');
       }
       
       refreshData();

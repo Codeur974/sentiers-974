@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useRecordingStore } from "../store/useRecordingStore";
 
 interface FooterNavigationProps {
   currentPage: "Home" | "Sports" | "Sentiers" | "Tracking" | "SentierDetail" | "Events";
@@ -9,6 +10,7 @@ interface FooterNavigationProps {
 
 export default function FooterNavigation({ currentPage, onEnregistrer }: FooterNavigationProps) {
   const navigation = useNavigation();
+  const { isRecording, selectedSport } = useRecordingStore();
 
   const buttons = [
     {
@@ -33,7 +35,15 @@ export default function FooterNavigation({ currentPage, onEnregistrer }: FooterN
       key: "Enregistrer",
       label: "Enregistrer",
       emoji: "📝",
-      onPress: onEnregistrer || (() => navigation.navigate("Tracking" as never, { openSportSelection: true } as never))
+      onPress: onEnregistrer || (() => {
+        // Si un enregistrement est en cours, rediriger vers l'enregistrement actuel
+        if (isRecording && selectedSport) {
+          navigation.navigate("Tracking" as never, { selectedSport } as never);
+        } else {
+          // Sinon ouvrir la sélection de sport
+          navigation.navigate("Tracking" as never, { openSportSelection: true } as never);
+        }
+      })
     },
     {
       key: "Tracking",
