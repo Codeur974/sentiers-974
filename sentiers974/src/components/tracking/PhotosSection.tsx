@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, Modal, Alert, TextInput } from 'react-native';
 import { usePointsOfInterest } from '../../hooks/usePointsOfInterest';
-import { useActivity } from '../../hooks/useActivity';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiService from '../../services/api';
 import { PhotoManager } from '../../utils/photoUtils';
@@ -64,7 +63,6 @@ interface SessionGroup {
 
 const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisible, onInteraction }, ref) => {
   const { pois, deletePOI, deletePOIsBatch, createPOI, loading } = usePointsOfInterest();
-  const { activities, refreshActivities } = useActivity();
   const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<{uri: string, title: string, note?: string} | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
@@ -253,7 +251,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
 
             } catch (error) {
               console.error('❌ Erreur suppression multiple:', error);
-              Alert.alert('❌ Erreur', `Erreur lors de la suppression multiple.\n\n${error.message || error}`);
+              Alert.alert('❌ Erreur', `Erreur lors de la suppression multiple.\n\n${error instanceof Error ? error.message : error}`);
             }
           },
         },
@@ -323,20 +321,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       // Récupérer le timestamp de la session originale
       let sessionTimestamp = Date.now(); // Par défaut l'heure actuelle
       
-      // 1. Chercher dans les activités backend
-      const backendActivity = activities.find(activity => activity._id === selectedSessionId);
-      if (backendActivity) {
-        sessionTimestamp = new Date(backendActivity.date).getTime();
-        console.log('✅ Timestamp trouvé depuis backend:', new Date(sessionTimestamp).toLocaleString());
+      // Chercher dans les POI existants
+      const existingPOI = pois.find(poi => poi.sessionId === selectedSessionId);
+      if (existingPOI) {
+        sessionTimestamp = existingPOI.createdAt;
+        console.log('✅ Timestamp trouvé depuis POI:', new Date(sessionTimestamp).toLocaleString());
       } else {
-        // 2. Chercher dans les POI existants
-        const existingPOI = pois.find(poi => poi.sessionId === selectedSessionId);
-        if (existingPOI) {
-          sessionTimestamp = existingPOI.createdAt;
-          console.log('✅ Timestamp trouvé depuis POI:', new Date(sessionTimestamp).toLocaleString());
-        } else {
-          console.log('⚠️ Session non trouvée, utilisation timestamp actuel');
-        }
+        console.log('⚠️ Session non trouvée, utilisation timestamp actuel');
       }
       
       // Utiliser une position par défaut car c'est une photo oubliée
@@ -381,14 +372,50 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
   // Charger les performances d'une journée spécifique
   const loadDayPerformance = async (dateString: string): Promise<DayPerformance | undefined> => {
     try {
-      // Aller directement à AsyncStorage pour un affichage instantané
+      // D'abord essayer MongoDB
+      console.log('🔍 Tentative chargement MongoDB pour:', dateString);
+      const response = await apiService.getDailyStats(dateString);
+
+      if (response.success && response.data) {
+        console.log('✅ Stats jour chargées depuis MongoDB:', dateString);
+        console.log('📊 DEBUG response.data:', response.data);
+
+        // L'API retourne { success, date, data: { ... } }
+        const mongoStats = (response.data as any)?.data || response.data;
+
+        const adaptedStats: DayPerformance = {
+          totalDistance: mongoStats.totalDistance / 1000, // Convertir mètres en km
+          totalTime: mongoStats.totalDuration,
+          totalCalories: mongoStats.totalCalories,
+          avgSpeed: mongoStats.avgSpeed,
+          sessions: mongoStats.totalSessions,
+          maxSpeed: mongoStats.maxSpeed,
+          totalSteps: mongoStats.totalSteps || 0,
+          sessionsList: mongoStats.sessions?.map((session: any) => ({
+            distance: session.distance, // Déjà en km selon l'API test
+            duration: session.duration,
+            calories: 0, // Pas dans l'API pour l'instant
+            avgSpeed: session.avgSpeed || 0,
+            maxSpeed: session.maxSpeed || 0,
+            steps: session.steps || 0,
+            sport: session.sport,
+            sessionId: session.id,
+            timestamp: new Date(session.createdAt).getTime()
+          })) || []
+        };
+        console.log('✅ Stats adaptées:', adaptedStats);
+        return adaptedStats;
+      }
+
+      // Fallback vers AsyncStorage
+      console.log('📱 Fallback AsyncStorage pour:', dateString);
       const statsKey = `daily_stats_${dateString}`;
       const savedStats = await AsyncStorage.getItem(statsKey);
       if (savedStats) {
-        console.log('📱 Stats jour chargées depuis AsyncStorage:', dateString);
+        console.log('✅ Stats jour chargées depuis AsyncStorage:', dateString);
         return JSON.parse(savedStats);
       }
-      
+
       return undefined;
     } catch (error) {
       console.error('❌ Erreur chargement stats jour:', error);
@@ -409,7 +436,15 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
 
   // Uniformiser le format de date (timezone locale)
   const getLocalDateString = (timestamp: number) => {
+    if (!timestamp || isNaN(timestamp)) {
+      console.warn('⚠️ Timestamp invalide:', timestamp);
+      return null;
+    }
     const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      console.warn('⚠️ Date invalide:', timestamp, date);
+      return null;
+    }
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -479,7 +514,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       
     } catch (error) {
       console.error('❌ Erreur suppression photo:', error);
-      Alert.alert('❌ Erreur', `Impossible de supprimer la photo "${photo.title}".\n\nErreur: ${error.message || error}\n\nVérifiez votre connexion.`);
+      Alert.alert('❌ Erreur', `Impossible de supprimer la photo "${photo.title}".\n\nErreur: ${error instanceof Error ? error.message : error}\n\nVérifiez votre connexion.`);
     }
   };
 
@@ -510,7 +545,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
     try {
       // Vérifier si c'est une session locale ou backend
       const sessionPois = pois.filter(poi => poi.sessionId === sessionId);
-      const backendActivity = activities.find(activity => activity._id === sessionId);
+      
       
       if (sessionPois.length > 0) {
         // Suppression des POI locaux
@@ -522,16 +557,23 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
         const sessionPhotos = pois.find(poi => poi.sessionId === sessionId);
         if (sessionPhotos) {
           const date = getLocalDateString(sessionPhotos.createdAt);
-          await removeDaySessionPerformance(date, sessionId);
+          if (date) {
+            await removeDaySessionPerformance(date, sessionId);
+          }
         }
       }
       
-      if (backendActivity) {
-        // Suppression de l'activité backend
-        await apiService.deleteActivity(sessionId);
-        console.log('🗑️ Activité backend supprimée:', sessionId);
-        // Actualiser les activités
-        await refreshActivities();
+      // Supprimer la session MongoDB
+      try {
+        console.log(`🗑️ Suppression session MongoDB: ${sessionId}`);
+        const deleteResult = await apiService.deleteSession(sessionId);
+        if (deleteResult.success) {
+          console.log(`✅ Session MongoDB supprimée: ${sessionId}`);
+        } else {
+          console.error(`❌ Échec suppression session MongoDB: ${sessionId}`, deleteResult.message);
+        }
+      } catch (mongoError) {
+        console.error(`❌ Erreur suppression session MongoDB ${sessionId}:`, mongoError);
       }
       
       console.log('🗑️ Session supprimée:', sessionId);
@@ -570,11 +612,15 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       console.log('🗑️ === DÉBUT SUPPRESSION JOUR ===');
       console.log('📅 Date à supprimer:', date);
       console.log('📊 Total POI disponibles:', pois.length);
-      console.log('☁️ Total activités disponibles:', activities.length);
+      console.log('☁️ Total activités backend disponibles:', 0);
       
       // Supprimer les POI locaux du jour
       const dayPhotos = pois.filter(poi => {
         const poiDate = getLocalDateString(poi.createdAt);
+        if (!poiDate) {
+          console.log(`⚠️ POI "${poi.title}" ignoré (date invalide): ${poi.createdAt}`);
+          return false;
+        }
         const match = poiDate === date;
         console.log(`🔍 POI "${poi.title}": ${poiDate} ${match ? '✅' : '❌'} ${date}`);
         return match;
@@ -595,45 +641,46 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
         console.log('ℹ️ Aucun POI local à supprimer pour ce jour');
       }
       
-      // Supprimer les activités backend du jour
-      const dayActivities = activities.filter(activity => {
-        const activityDate = getLocalDateString(new Date(activity.date).getTime());
-        const match = activityDate === date;
-        console.log(`🔍 Activité "${activity.title}": ${activityDate} ${match ? '✅' : '❌'} ${date}`);
-        return match;
-      });
-      
-      console.log('☁️ Activités backend trouvées à supprimer:', dayActivities.length);
-      
-      if (dayActivities.length > 0) {
-        console.log('🗑️ Suppression des activités backend...');
-        let activityErrors = [];
-        for (let i = 0; i < dayActivities.length; i++) {
-          const activity = dayActivities[i];
-          console.log(`🗑️ [${i+1}/${dayActivities.length}] Suppression activité: ${activity._id} - "${activity.title}"`);
-          try {
-            const result = await apiService.deleteActivity(activity._id);
-            console.log(`✅ Activité supprimée: ${activity._id}`, result);
-          } catch (activityError) {
-            console.error(`❌ Erreur suppression activité ${activity._id}:`, activityError);
-            activityErrors.push({activity: activity._id, error: activityError});
-            // Continue avec les autres activités au lieu de s'arrêter
+      // Supprimer les sessions MongoDB du jour
+      console.log('☁️ Suppression sessions MongoDB du jour...');
+      try {
+        const sessionsResponse = await apiService.getUserSessions({
+          limit: 100,
+          dateFrom: new Date(date + 'T00:00:00.000Z').toISOString(),
+          dateTo: new Date(date + 'T23:59:59.999Z').toISOString()
+        });
+
+        if (sessionsResponse.success && sessionsResponse.data) {
+          const sessions = Array.isArray(sessionsResponse.data) ? sessionsResponse.data : (sessionsResponse.data as any)?.data;
+
+          if (sessions && Array.isArray(sessions)) {
+            console.log(`☁️ ${sessions.length} session(s) MongoDB trouvée(s) à supprimer pour ${date}`);
+
+            let deletedCount = 0;
+            for (const session of sessions) {
+              try {
+                console.log(`🗑️ Suppression session MongoDB: ${session.sessionId} - ${session.sport} - ${session.distance}km`);
+                const deleteResult = await apiService.deleteSession(session.sessionId);
+                if (deleteResult.success) {
+                  deletedCount++;
+                  console.log(`✅ Session MongoDB supprimée: ${session.sessionId}`);
+                } else {
+                  console.error(`❌ Échec suppression session: ${session.sessionId}`, deleteResult.message);
+                }
+              } catch (sessionError) {
+                console.error(`❌ Erreur suppression session ${session.sessionId}:`, sessionError);
+              }
+            }
+            console.log(`✅ ${deletedCount}/${sessions.length} session(s) MongoDB supprimée(s)`);
+          } else {
+            console.log('ℹ️ Aucune session MongoDB trouvée pour ce jour');
           }
+        } else {
+          console.log('⚠️ Échec récupération sessions MongoDB:', sessionsResponse.message);
         }
-        if (activityErrors.length > 0) {
-          console.warn(`⚠️ ${activityErrors.length} activité(s) n'ont pas pu être supprimées`);
-        }
-        
-        console.log('🔄 Actualisation des activités après suppression backend...');
-        try {
-          await refreshActivities();
-          console.log('✅ Activités actualisées');
-        } catch (refreshError) {
-          console.error('❌ Erreur actualisation activités:', refreshError);
-          throw refreshError;
-        }
-      } else {
-        console.log('ℹ️ Aucune activité backend à supprimer pour ce jour');
+      } catch (mongoError) {
+        console.error('❌ Erreur suppression sessions MongoDB:', mongoError);
+        // Ne pas faire échouer toute la suppression si MongoDB échoue
       }
       
       // Supprimer les performances locales du jour
@@ -649,7 +696,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       console.log('✅ === JOUR SUPPRIMÉ AVEC SUCCÈS ===');
       console.log('📅 Date:', date);
       console.log('📷 POI supprimés:', dayPhotos.length);
-      console.log('☁️ Activités supprimées:', dayActivities.length);
+      console.log('☁️ Sessions MongoDB supprimées: voir logs ci-dessus');
       
       // Forcer le rechargement de l'interface avec un délai
       console.log('🔄 Rechargement de l\'interface...');
@@ -664,8 +711,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       console.error('❌ === ERREUR SUPPRESSION JOUR ===');
       console.error('📅 Date:', date);
       console.error('🔥 Erreur:', error);
-      console.error('📋 Stack:', error.stack);
-      Alert.alert('❌ Erreur Suppression', `Impossible de supprimer le jour "${date}".\n\nErreur: ${error.message || error.toString()}\n\nVérifiez la console pour plus de détails.`);
+      console.error('📋 Stack:', error instanceof Error ? error.stack : 'No stack trace');
+      Alert.alert('❌ Erreur Suppression', `Impossible de supprimer le jour "${date}".\n\nErreur: ${error instanceof Error ? error.message : String(error)}\n\nVérifiez la console pour plus de détails.`);
     }
   };
 
@@ -736,7 +783,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
   // Grouper les photos par jour et charger les performances
   useEffect(() => {
     const loadGroupsWithPerformance = async () => {
-      console.log('🔍 DEBUG PhotosSection: pois=', pois.length, 'activities=', activities.length);
       // Combiner les photos des POI locaux et des activités backend
       const allPhotos: PhotoItem[] = [
         // Photos des POI locaux - afficher tous les POI avec ou sans photo
@@ -749,18 +795,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
           createdAt: poi.createdAt,
           source: 'poi' as const
         })),
-        // Photos des activités backend
-        ...activities.flatMap(activity => 
-          activity.photos.map((photo, index) => ({
-            id: `${activity._id}_${index}`,
-            uri: photo.url,
-            title: photo.caption || activity.title,
-            note: activity.notes,
-            sessionId: activity._id,
-            createdAt: new Date(activity.date).getTime(),
-            source: 'backend' as const
-          }))
-        )
+        // Plus de photos des activités backend (collection supprimée)
+        // Les photos viennent maintenant uniquement des POI locaux
       ];
       
       console.log('📷 DEBUG allPhotos créés:', allPhotos.length, allPhotos.map(p => p.title));
@@ -768,13 +804,20 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       
       const groupedByDate = allPhotos.reduce((groups, photo) => {
         const date = getLocalDateString(photo.createdAt); // Utilise le même format que la suppression
+
+        // Ignorer les photos avec dates invalides
+        if (!date) {
+          console.warn('⚠️ Photo ignorée (date invalide):', photo.title, photo.createdAt);
+          return groups;
+        }
+
         const displayDate = new Date(photo.createdAt).toLocaleDateString('fr-FR', {
           weekday: 'long',
-          year: 'numeric', 
+          year: 'numeric',
           month: 'long',
           day: 'numeric'
         });
-        
+
         if (!groups[date]) {
           groups[date] = {
             date,
@@ -782,39 +825,144 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
             photos: []
           };
         }
-        
+
         groups[date].photos.push(photo);
-        
+
         return groups;
       }, {} as Record<string, PhotoGroup>);
       
       // Convertir en array et charger les performances pour chaque jour
       const groupsArray = Object.values(groupedByDate);
+
+      // Récupérer TOUS les jours qui ont des performances, même sans photos
+      const allDatesWithPerformance = new Set<string>();
+
+      // Ajouter les dates des groupes avec photos
+      groupsArray.forEach(group => allDatesWithPerformance.add(group.date));
+
+      // Récupérer toutes les sessions des 30 derniers jours depuis MongoDB d'un coup
+      try {
+        console.log('📊 Récupération sessions MongoDB des 30 derniers jours...');
+        const today = new Date();
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 30);
+
+        const sessionsResponse = await apiService.getUserSessions({
+          limit: 100, // Limiter à 100 sessions max
+          dateFrom: thirtyDaysAgo.toISOString(),
+          dateTo: today.toISOString()
+        });
+
+        if (sessionsResponse.success && sessionsResponse.data) {
+          console.log('📊 DEBUG sessionsResponse.data:', sessionsResponse.data);
+          // L'API retourne { success: true, data: [...] } et notre request() l'enveloppe encore
+          const sessions = Array.isArray(sessionsResponse.data) ? sessionsResponse.data : (sessionsResponse.data as any)?.data;
+
+          if (sessions && Array.isArray(sessions)) {
+            console.log('✅ Sessions MongoDB récupérées:', sessions.length);
+            sessions.forEach((session: any) => {
+              const sessionDate = getLocalDateString(new Date(session.createdAt).getTime());
+              if (sessionDate) {
+                allDatesWithPerformance.add(sessionDate);
+              }
+            });
+          } else {
+            console.log('⚠️ Format sessions incorrect:', sessions);
+          }
+        } else {
+          console.log('⚠️ Échec récupération MongoDB, fallback AsyncStorage');
+          // Fallback vers AsyncStorage comme avant
+          for (let i = 0; i < 30; i++) {
+            const date = new Date(today);
+            date.setDate(date.getDate() - i);
+            const dateString = getLocalDateString(date.getTime());
+
+            if (dateString) {
+              try {
+                const performance = await loadDayPerformance(dateString);
+                if (performance && performance.sessionsList && performance.sessionsList.length > 0) {
+                  allDatesWithPerformance.add(dateString);
+                }
+              } catch (error) {
+                // Ignorer les erreurs pour cette date
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erreur récupération sessions MongoDB:', error);
+        // Fallback vers AsyncStorage
+        const today = new Date();
+        for (let i = 0; i < 30; i++) {
+          const date = new Date(today);
+          date.setDate(date.getDate() - i);
+          const dateString = getLocalDateString(date.getTime());
+
+          if (dateString) {
+            try {
+              const performance = await loadDayPerformance(dateString);
+              if (performance && performance.sessionsList && performance.sessionsList.length > 0) {
+                allDatesWithPerformance.add(dateString);
+              }
+            } catch (error) {
+              // Ignorer les erreurs pour cette date
+            }
+          }
+        }
+      }
+
+      // Créer les groupes pour toutes les dates valides
+      const validDates = Array.from(allDatesWithPerformance).filter(date => {
+        if (!date || date === 'null' || date === 'undefined' || date.includes('NaN')) {
+          console.warn('⚠️ Date invalide ignorée:', date);
+          return false;
+        }
+        return true;
+      });
+
+      const allGroups = validDates.map(date => {
+        const existingGroup = groupsArray.find(g => g.date === date);
+        return existingGroup || {
+          date,
+          displayDate: new Date(date).toLocaleDateString('fr-FR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          }),
+          photos: []
+        };
+      });
+
       const groupsWithPerformance = await Promise.all(
-        groupsArray.map(async (group) => {
+        allGroups.map(async (group) => {
           const performance = await loadDayPerformance(group.date);
-          
+
           // Créer des groupes par session pour ce jour
           const sessionGroups: Record<string, SessionGroup> = {};
-          
-          group.photos.forEach(photo => {
-            if (photo.sessionId) {
-              if (!sessionGroups[photo.sessionId]) {
-                const sessionPerformance = performance?.sessionsList?.find(
-                  session => session.sessionId === photo.sessionId
-                );
-                sessionGroups[photo.sessionId] = {
-                  sessionId: photo.sessionId,
+
+          // D'abord, ajouter toutes les sessions du jour, même celles sans photo
+          if (performance?.sessionsList) {
+            performance.sessionsList.forEach(sessionPerformance => {
+              if (!sessionGroups[sessionPerformance.sessionId]) {
+                sessionGroups[sessionPerformance.sessionId] = {
+                  sessionId: sessionPerformance.sessionId,
                   photos: [],
                   performance: sessionPerformance
                 };
               }
+            });
+          }
+
+          // Ensuite, associer les photos aux sessions
+          group.photos.forEach(photo => {
+            if (photo.sessionId && sessionGroups[photo.sessionId]) {
               sessionGroups[photo.sessionId].photos.push(photo);
             }
           });
-          
-          return { 
-            ...group, 
+
+          return {
+            ...group,
             performance,
             sessionGroups: Object.values(sessionGroups)
           };
@@ -837,7 +985,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
     };
 
     loadGroupsWithPerformance();
-  }, [pois, activities, refreshTrigger]);
+  }, [pois, refreshTrigger]);
 
   const toggleSection = (date: string) => {
     setExpandedSections(prev => {
@@ -859,12 +1007,17 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
     });
   };
 
-  if (!isVisible || photoGroups.length === 0) {
+  // Vérifier s'il y a des sessions même sans photos
+  const hasAnySessions = photoGroups.some(group =>
+    group.sessionGroups && group.sessionGroups.length > 0
+  );
+
+  if (!isVisible || (photoGroups.length === 0 && !hasAnySessions)) {
     return (
       <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
         <Text className="text-center text-blue-600 font-bold text-lg mb-2">🗂️ Mon Historique</Text>
         <Text className="text-center text-gray-500 text-sm">
-          {photoGroups.length === 0 ? 
+          {(photoGroups.length === 0 && !hasAnySessions) ?
             'Aucune activité pour le moment.\nCommencez un entraînement pour créer votre historique !' :
             'Historique masqué'
           }
@@ -979,6 +1132,11 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                     <Text className="text-sm text-blue-600">
                       📷 {group.photos.length} photo{group.photos.length > 1 ? 's' : ''}
                     </Text>
+                    {group.sessionGroups && group.sessionGroups.length > 0 && (
+                      <Text className="text-sm text-purple-600 font-medium">
+                        📊 {group.sessionGroups.length} session{group.sessionGroups.length > 1 ? 's' : ''}
+                      </Text>
+                    )}
                     {group.performance && group.performance.totalDistance > 0 && (
                       <Text className="text-sm text-green-600 font-bold">
                         🏃 {group.performance.totalDistance.toFixed(1)}km
