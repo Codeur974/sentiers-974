@@ -476,13 +476,18 @@ app.post('/api/sessions', async (req, res) => {
     const sessionData = req.body;
     
     // Validation basique
-    if (!sessionData.sessionId || !sessionData.sport?.nom) {
+    if (!sessionData.sport?.nom) {
       return res.status(400).json({
         success: false,
-        error: 'sessionId et sport.nom sont requis'
+        error: 'sport.nom est requis'
       });
     }
-    
+
+    // Générer un sessionId unique côté serveur (plus fiable)
+    const { ObjectId } = require('mongodb');
+    const uniqueSessionId = `session_${Date.now()}_${new ObjectId().toString()}`;
+    sessionData.sessionId = uniqueSessionId;
+
     // Créer la session
     const session = new Session(sessionData);
     await session.save();

@@ -5,13 +5,14 @@ interface FilterProps {
   onSportSelect?: (sport: any) => void;
   onCloseFilter?: () => void;
   autoOpen?: boolean;
+  showCloseButton?: boolean;
 }
 
 export interface FilterRef {
   closeSportsFilter: () => void;
 }
 
-const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter, autoOpen = false }, ref) => {
+const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter, autoOpen = false, showCloseButton = false }, ref) => {
   const [sportSelected, setSportSelected] = useState<any | null>(null);
   const [showSports, setShowSports] = useState(autoOpen);
 
@@ -164,9 +165,19 @@ const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilte
           nestedScrollEnabled={true}
           showsVerticalScrollIndicator={true}
         >
-          <Text className="text-lg font-bold mb-3 text-gray-800">
-            Choisissez votre sport ({sports.length})
-          </Text>
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-lg font-bold text-gray-800">
+              Choisissez votre sport ({sports.length})
+            </Text>
+            {showCloseButton && (
+              <TouchableOpacity
+                onPress={onCloseFilter}
+                className="p-1"
+              >
+                <Text className="text-lg">✕</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {sports.map((sport, index) => (
             <TouchableOpacity
               key={index}

@@ -130,17 +130,7 @@ export default function TrackingFooter({
   };
 
   if (!isVisible) {
-    // Version minimisée - juste le bouton pour ouvrir
-    return (
-      <View className="absolute bottom-4 left-4 right-4 z-50">
-        <TouchableOpacity
-          onPress={onToggle}
-          className="bg-purple-600 p-3 rounded-full shadow-lg self-center"
-        >
-          <Text className="text-white font-bold">📍 Actions</Text>
-        </TouchableOpacity>
-      </View>
-    );
+    return null;
   }
 
   return (
