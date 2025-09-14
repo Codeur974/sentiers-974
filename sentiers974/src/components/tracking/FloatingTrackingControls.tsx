@@ -108,7 +108,7 @@ export default function FloatingTrackingControls({
   };
 
   return (
-    <View className="absolute bottom-4 left-4 right-4 z-30">
+    <View className="absolute top-20 left-4 right-4 z-30">
       <View className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg">
         {/* Header avec contrôles */}
         <View className="flex-row items-center justify-between p-4 border-b border-gray-200">

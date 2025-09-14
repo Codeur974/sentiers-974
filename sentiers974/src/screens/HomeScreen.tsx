@@ -351,7 +351,7 @@ export default function HomeScreen() {
           </View>
 
           {/* Feed Social */}
-          <SocialFeed 
+          <SocialFeed
             posts={posts}
             currentUserId={currentUserId}
             onLike={handleLike}
@@ -375,7 +375,7 @@ export default function HomeScreen() {
           setEditingPost(null);
         }}
         onSubmit={handleCreatePost}
-        editPost={editingPost}
+        editPost={editingPost || undefined}
       />
 
       {/* Modal pour sélectionner un sport */}

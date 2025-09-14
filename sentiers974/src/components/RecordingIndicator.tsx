@@ -36,7 +36,12 @@ export default function RecordingIndicator() {
   if (!isRecording && !isPaused) return null;
 
   const handlePress = () => {
-    navigation.navigate('Tracking' as never, { selectedSport } as never);
+    if (selectedSport) {
+      navigation.navigate('Tracking' as never, { selectedSport } as never);
+    } else {
+      // Si pas de sport sélectionné, aller au mode 1
+      navigation.navigate('Tracking' as never);
+    }
   };
 
   const getIndicatorContent = () => {

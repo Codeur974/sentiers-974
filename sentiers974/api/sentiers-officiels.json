@@ -1,0 +1,6320 @@
+[
+  {
+    "nom": "Deux boucles de Bras Sec à Palmiste Rouge",
+    "difficulte": "Moyen",
+    "distance": 12.2,
+    "duree": "5h",
+    "denivele": 850,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Dans les alentours de Bras Sec"
+  },
+  {
+    "nom": "Le Sentier des Sources entre Cilaos et Bras SecFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.8,
+    "duree": "1h15",
+    "denivele": 280,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Dans les alentours de Bras Sec"
+  },
+  {
+    "nom": "Le sommet du Piton Béthoune par le tour du Bonnet de Prêtre",
+    "difficulte": "Très difficile",
+    "distance": 5.7,
+    "duree": "4h",
+    "denivele": 650,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Dans les alentours de Bras Sec"
+  },
+  {
+    "nom": "Le Dimitile depuis Bras Sec par le Kerveguen",
+    "difficulte": "Difficile",
+    "distance": 24.5,
+    "duree": "10h",
+    "denivele": 1550,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Dans les alentours de Bras Sec"
+  },
+  {
+    "nom": "De la Mare à Joncs à Cilaos par le Kerveguen et le Gîte de la Caverne Dufour",
+    "difficulte": "Difficile",
+    "distance": 16.5,
+    "duree": "7h",
+    "denivele": 1420,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Dans les alentours de Bras Sec"
+  },
+  {
+    "nom": "Une boucle par l'Îlet et la Ravine des Fleurs Jaunes",
+    "difficulte": "Très difficile",
+    "distance": 6.4,
+    "duree": "7h",
+    "denivele": 620,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "De la route de l’Ilet à Cordes à l’Îlet Fleurs Jaunes",
+    "difficulte": "Difficile",
+    "distance": 3.2,
+    "duree": "3h",
+    "denivele": 450,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "Le Plateau de Kerval par le Taïbit depuis la route de l'Ilet à Cordes",
+    "difficulte": "Difficile",
+    "distance": 17,
+    "duree": "9h",
+    "denivele": 1550,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "Le Col Choupette par le Taibit, Marla et le Plateau du Kerval",
+    "difficulte": "Très difficile",
+    "distance": 12.5,
+    "duree": "9h",
+    "denivele": 1400,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "L'Ilet des Salazes et le point de vue de Cap Bouteille",
+    "difficulte": "Moyen",
+    "distance": 8,
+    "duree": "4h",
+    "denivele": 750,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "L'arête des Salazes, côté Nez de Bœuf, par la Plaine des Fraises",
+    "difficulte": "Difficile",
+    "distance": 7.1,
+    "duree": "3h30",
+    "denivele": 850,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "La montée à l'Îlet Sources depuis l'Îlet à Cordes",
+    "difficulte": "Difficile",
+    "distance": 5.7,
+    "duree": "5h30",
+    "denivele": 450,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "Le tour des Îlets du Bras de Saint-Paul depuis l'Îlet à Cordes",
+    "difficulte": "Moyen",
+    "distance": 6.9,
+    "duree": "3h",
+    "denivele": 450,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "De la D242 à la RF 13 par le Taïbit, Marla et le Col de Fourche",
+    "difficulte": "Difficile",
+    "distance": 14.8,
+    "duree": "7h",
+    "denivele": 1520,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "De l'Îlet Totor au Bras Crochet par la Forêt du Tapcal",
+    "difficulte": "Très difficile",
+    "distance": 7.7,
+    "duree": "8h",
+    "denivele": 850,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "La cascade de Trois Roches par le Taïbit et Marla",
+    "difficulte": "Difficile",
+    "distance": 18.6,
+    "duree": "8h30",
+    "denivele": 1800,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "La grande cascade du Bras Rouge depuis le pont sur la RD242",
+    "difficulte": "Moyen",
+    "distance": 1.5,
+    "duree": "1h30",
+    "denivele": 240,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "La montée à la Cascade Pitsa (ou Pissa) depuis la route de l'Îlet à Cordes",
+    "difficulte": "Difficile",
+    "distance": 1.5,
+    "duree": "2h",
+    "denivele": 300,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "De Cilaos au Col des Bœufs par le Taïbit et La Nouvelle",
+    "difficulte": "Difficile",
+    "distance": 22,
+    "duree": "8h30",
+    "denivele": 1500,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "La crête des Trois Salazes depuis la route de l'Ilet à Cordes",
+    "difficulte": "Difficile",
+    "distance": 8.2,
+    "duree": "5h",
+    "denivele": 950,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la route de l'Ilet à Cordes ou de l'Îlet à Cordes"
+  },
+  {
+    "nom": "De la Roche Merveilleuse au Plateau du Petit Matarum par le Bras de Benjoin",
+    "difficulte": "Très difficile",
+    "distance": 5.6,
+    "duree": "6h",
+    "denivele": 750,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La boucle de la Roche Merveilleuse depuis l'hôtel des Thermes de Cilaos.Familiale",
+    "difficulte": "Facile",
+    "distance": 5.8,
+    "duree": "1h30",
+    "denivele": 360,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Courte aventure vers le Bassin Bleu à partir de l'hôtel des Thermes",
+    "difficulte": "Moyen",
+    "distance": 3.1,
+    "duree": "1h30",
+    "denivele": 200,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos aux cascades des Anciens ThermesFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.8,
+    "duree": "1h30",
+    "denivele": 190,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La remontée du Bras des Etangs par la Cascade l'Eau Chaude",
+    "difficulte": "Très difficile",
+    "distance": 6,
+    "duree": "5h30",
+    "denivele": 600,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La boucle des Thermes de Cilaos par le GR et le Bras des Etangs",
+    "difficulte": "Difficile",
+    "distance": 5,
+    "duree": "4h30",
+    "denivele": 300,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La remontée du Bras Rouge à partir de Cilaos",
+    "difficulte": "Difficile",
+    "distance": 12,
+    "duree": "6h30",
+    "denivele": 570,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Des Anciens Thermes au Bassin Alfred par le Bassin Fouquet",
+    "difficulte": "Difficile",
+    "distance": 6,
+    "duree": "3h30",
+    "denivele": 400,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos à la Ravine Fleurs Jaunes par la Cascade du Bras Rouge",
+    "difficulte": "Difficile",
+    "distance": 6.2,
+    "duree": "3h30",
+    "denivele": 430,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Le Sentier de la Chapelle depuis Cilaos",
+    "difficulte": "Difficile",
+    "distance": 8,
+    "duree": "5h",
+    "denivele": 700,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos à l'Îlet Furcy par le Bras Rouge et le Grand Bras de Cilaos",
+    "difficulte": "Très difficile",
+    "distance": 21.1,
+    "duree": "10h30",
+    "denivele": 250,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Une boucle à Cilaos par Bras Sec et la RF de la Roche MerveilleuseFamiliale",
+    "difficulte": "Moyen",
+    "distance": 16.4,
+    "duree": "5h",
+    "denivele": 700,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De la Plate Forme à l'Îlet du Cap Noir par la Roche Pendue et Trois Bras",
+    "difficulte": "Très difficile",
+    "distance": 7.2,
+    "duree": "3h30",
+    "denivele": 420,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos à la Nouvelle par le Taïbit et Marla - GRR1 étape1/3",
+    "difficulte": "Difficile",
+    "distance": 16.6,
+    "duree": "8h30",
+    "denivele": 1350,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Du Brûlé Marron à Cilaos par la Roche Pendue et la remontée du Bras Rouge",
+    "difficulte": "Difficile",
+    "distance": 17.3,
+    "duree": "7h30",
+    "denivele": 850,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos au cœur du Piton des Neiges par le Bassin Bleu et la Tête de Lion",
+    "difficulte": "Très difficile",
+    "distance": 8.5,
+    "duree": "8h30",
+    "denivele": 1250,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La boucle de Cilaos à la Cascade des Fleurs Jaunes par le Bassin Roche",
+    "difficulte": "Très difficile",
+    "distance": 13,
+    "duree": "6h30",
+    "denivele": 1150,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos à l'Îlet à Cordes par la Chapelle et la descente du Bras Rouge",
+    "difficulte": "Très difficile",
+    "distance": 14,
+    "duree": "6h30",
+    "denivele": 1100,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Le Point de vue sur les Îlets du Camp de Puces et la Cascade du Cap Noir par la Plate Forme",
+    "difficulte": "Difficile",
+    "distance": 6,
+    "duree": "3h15",
+    "denivele": 520,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De l'église de Cilaos au Pavillon par Palmiste Rouge et l'Îlet Haute",
+    "difficulte": "Difficile",
+    "distance": 17.4,
+    "duree": "6h30",
+    "denivele": 700,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De la Mare à Joncs à la maison forestière de Bras SecFamiliale",
+    "difficulte": "Facile",
+    "distance": 3,
+    "duree": "1h",
+    "denivele": 250,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La descente à la Chapelle par la Cascade de Bras Rouge depuis la Route de l'Îlet à Cordes",
+    "difficulte": "Très difficile",
+    "distance": 6.5,
+    "duree": "3h30",
+    "denivele": 410,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De Cilaos au Maïdo par le Taïbit et les cascades de Bras Rouge et 3 Roches",
+    "difficulte": "Très difficile",
+    "distance": 25.5,
+    "duree": "9h30",
+    "denivele": 2450,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "De la Plate Forme à la 1ère cascade de la Ravine de la Roche Pendue",
+    "difficulte": "Très difficile",
+    "distance": 4.3,
+    "duree": "3h15",
+    "denivele": 400,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La boucle du sentier de découverte de Cilaos à la Roche MerveilleuseFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.4,
+    "duree": "1h",
+    "denivele": 55,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "La Boucle et la Cascade du Bras Rouge depuis Cilaos",
+    "difficulte": "Difficile",
+    "distance": 14.3,
+    "duree": "5h30",
+    "denivele": 900,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis la ville de Cilaos"
+  },
+  {
+    "nom": "Du Pavillon à Cilaos par les Sentiers Burel, du Reposoir et de la Chapelle",
+    "difficulte": "Difficile",
+    "distance": 13.3,
+    "duree": "7h",
+    "denivele": 1200,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Le Bras de Saint-Paul par le Sentier Burel et l'Îlet Bois de Nèfles",
+    "difficulte": "Difficile",
+    "distance": 12.4,
+    "duree": "8h30",
+    "denivele": 360,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "De Peter Both au Pavillon par l'Îlet HauteFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.6,
+    "duree": "2h",
+    "denivele": 350,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Du Pavillon à l'Îlet Haute par le Petit Bras de Cilaos et la Ravine Clain",
+    "difficulte": "Difficile",
+    "distance": 9.3,
+    "duree": "6h30",
+    "denivele": 650,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Du Pavillon à la Plate Forme par le Sentier Burel et celui de la Roche Pendue",
+    "difficulte": "Moyen",
+    "distance": 7.2,
+    "duree": "3h30",
+    "denivele": 730,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "De la route de Cilaos à l'Ilet à Malheur",
+    "difficulte": "Difficile",
+    "distance": 2.2,
+    "duree": "2h30",
+    "denivele": 380,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Du Pavillon à Cilaos par l'Ilet Haute et Peter Both",
+    "difficulte": "Difficile",
+    "distance": 13,
+    "duree": "5h30",
+    "denivele": 1400,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Le tour du Cirque de Cilaos : Le Pavillon - Ilet à Cordes - Cilaos - Le Pavillon",
+    "difficulte": "Très difficile",
+    "distance": 26,
+    "duree": "10h",
+    "denivele": 2900,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Pavillon"
+  },
+  {
+    "nom": "Une boucle à Palmiste Rouge par le Petit Bras de Cilaos et la Ravine des Calumets",
+    "difficulte": "Difficile",
+    "distance": 3.9,
+    "duree": "2h30",
+    "denivele": 250,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "De Palmiste Rouge au Piton Papangues par le haut du tunnel de Peter Both",
+    "difficulte": "Difficile",
+    "distance": 9,
+    "duree": "4h30",
+    "denivele": 580,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "Le grand tour de Palmiste Rouge et du Gros Galets",
+    "difficulte": "Difficile",
+    "distance": 12.3,
+    "duree": "6h30",
+    "denivele": 1050,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "Une boucle à Palmiste Rouge par les Sentiers la Savane et Bois RougeFamiliale",
+    "difficulte": "Moyen",
+    "distance": 5.1,
+    "duree": "2h",
+    "denivele": 300,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "Le tour du Grand Piton par l'Îlet et le sentier de Gueule Rouge",
+    "difficulte": "Moyen",
+    "distance": 8.1,
+    "duree": "3h30",
+    "denivele": 640,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "La boucle du sentier du Captage et du Bassin Ti Chien à Palmiste Rouge",
+    "difficulte": "Difficile",
+    "distance": 4.3,
+    "duree": "3h",
+    "denivele": 300,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "De Palmiste Rouge au sommet du Piton Gros Galet",
+    "difficulte": "Difficile",
+    "distance": 7.5,
+    "duree": "3h30",
+    "denivele": 750,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "De Peter Both à la Cascade du Cap Noir",
+    "difficulte": "Moyen",
+    "distance": 5.7,
+    "duree": "2h30",
+    "denivele": 500,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "La montée au Grand Piton à partir du sentier des Gaulettes",
+    "difficulte": "Très difficile",
+    "distance": 4.2,
+    "duree": "3h",
+    "denivele": 480,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "De Palmiste Rouge au pied du Bonnet de Prêtre",
+    "difficulte": "Difficile",
+    "distance": 5.6,
+    "duree": "3h",
+    "denivele": 580,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "La boucle de Palmiste Rouge à Bras Sec par la verticale du Rempart des Calumets",
+    "difficulte": "Très difficile",
+    "distance": 17.8,
+    "duree": "10h",
+    "denivele": 1700,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "Une visite à l'Îlet Tommy en aller-retour",
+    "difficulte": "Facile",
+    "distance": 3,
+    "duree": "1h",
+    "denivele": 180,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "Le Tour de Palmiste Rouge par le Piton Gros Galets et l'Îlet à Calebasse",
+    "difficulte": "Moyen",
+    "distance": 10.8,
+    "duree": "4h",
+    "denivele": 750,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis Palmiste Rouge"
+  },
+  {
+    "nom": "La montée au Piton des Neiges depuis le Bloc à Cilaos",
+    "difficulte": "Difficile",
+    "distance": 15.5,
+    "duree": "8h30",
+    "denivele": 1730,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Bloc"
+  },
+  {
+    "nom": "Le Kervéguen et tour de la Forêt de la Mare à Joseph depuis le Bloc",
+    "difficulte": "Difficile",
+    "distance": 12.5,
+    "duree": "7h30",
+    "denivele": 1190,
+    "region": "Cirque de Cilaos",
+    "sousRegion": "Depuis le Bloc"
+  },
+  {
+    "nom": "Le tour des trois îlets des Orangers depuis le Maïdo et retour",
+    "difficulte": "Difficile",
+    "distance": 15.6,
+    "duree": "6h",
+    "denivele": 1450,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "Du Maïdo au Maïdo par l'Îlet et le Rempart des Orangers",
+    "difficulte": "Très difficile",
+    "distance": 12.6,
+    "duree": "8h30",
+    "denivele": 1300,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "Du Maïdo à la Nouvelle par Roche Plate, le Bronchard et retour",
+    "difficulte": "Très difficile",
+    "distance": 25,
+    "duree": "10h",
+    "denivele": 2000,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "Cayenne par Grand-Place et le Sentier Dacerle depuis le Maïdo et retour",
+    "difficulte": "Très difficile",
+    "distance": 27.5,
+    "duree": "10h",
+    "denivele": 2200,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "Le tour du sommet du Bronchard depuis le Maïdo",
+    "difficulte": "Difficile",
+    "distance": 15,
+    "duree": "6h30",
+    "denivele": 1150,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "L'Îlet des Lataniers depuis le Maïdo et retour",
+    "difficulte": "Difficile",
+    "distance": 25.5,
+    "duree": "9h30",
+    "denivele": 1800,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "Du Maïdo à la cascade de Trois Roches par Roche Plate",
+    "difficulte": "Difficile",
+    "distance": 19.2,
+    "duree": "8h",
+    "denivele": 1720,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A partir du Maïdo"
+  },
+  {
+    "nom": "L'Ilet des Orangers depuis Sans Souci par la Canalisation des Orangers",
+    "difficulte": "Difficile",
+    "distance": 32,
+    "duree": "8h30",
+    "denivele": 650,
+    "region": "Cirque de Mafate",
+    "sousRegion": "A Sans Souci"
+  },
+  {
+    "nom": "D'Aurère à Dos d'Ane par le Bras des Merles",
+    "difficulte": "Très difficile",
+    "distance": 10.2,
+    "duree": "8h",
+    "denivele": 740,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis un îlet du cirque"
+  },
+  {
+    "nom": "De la Nouvelle à Hell Bourg par le Col de Fourche - GRR1 étape 2/3",
+    "difficulte": "Difficile",
+    "distance": 22.3,
+    "duree": "8h",
+    "denivele": 950,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis un îlet du cirque"
+  },
+  {
+    "nom": "D'Aurère à l'Ilet à Malheur par Grand Place",
+    "difficulte": "Difficile",
+    "distance": 13.8,
+    "duree": "5h30",
+    "denivele": 1200,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis un îlet du cirque"
+  },
+  {
+    "nom": "De la Nouvelle à la Nouvelle par Roche Plate et la Cascade de Trois Roches",
+    "difficulte": "Difficile",
+    "distance": 15,
+    "duree": "7h30",
+    "denivele": 1400,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis un îlet du cirque"
+  },
+  {
+    "nom": "La montée au Piton des Calumets depuis l'école de Grand Place",
+    "difficulte": "Très difficile",
+    "distance": 9.5,
+    "duree": "6h30",
+    "denivele": 1050,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis un îlet du cirque"
+  },
+  {
+    "nom": "Une boucle autour de La Nouvelle par le Sentier du Tour de l'ÎletFamiliale",
+    "difficulte": "Facile",
+    "distance": 16,
+    "duree": "7h",
+    "denivele": 960,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Le Sentier Scout jusqu'à Aurère et retour par le sentier Augustave",
+    "difficulte": "Difficile",
+    "distance": 16,
+    "duree": "7h",
+    "denivele": 960,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Le sentier Augustave jusqu'à Aurère et retour à Bord Martin",
+    "difficulte": "Moyen",
+    "distance": 12.2,
+    "duree": "6h30",
+    "denivele": 800,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Aurère par le Sentier Scout depuis le Bélier",
+    "difficulte": "Difficile",
+    "distance": 17.8,
+    "duree": "6h30",
+    "denivele": 1200,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Grand Place par le Sentier Scout à partir du Col des Boeufs et retour",
+    "difficulte": "Difficile",
+    "distance": 23.5,
+    "duree": "8h30",
+    "denivele": 1600,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Le Plateau Bémale par le sentier de la Sale et le sentier Scout",
+    "difficulte": "Difficile",
+    "distance": 9.5,
+    "duree": "4h",
+    "denivele": 750,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Du Col des Bœufs à la Rivière des Galets par le sentier Alidor",
+    "difficulte": "Difficile",
+    "distance": 17.3,
+    "duree": "7h30",
+    "denivele": 1200,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "La boucle du Col des Bœufs à Marla par la Nouvelle",
+    "difficulte": "Difficile",
+    "distance": 18.9,
+    "duree": "7h30",
+    "denivele": 1300,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Du Col des Bœufs à la Nouvelle et retour",
+    "difficulte": "Moyen",
+    "distance": 15.1,
+    "duree": "5h",
+    "denivele": 820,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Du Bélier à la Nouvelle par le Col de Fourche et Maison Laclos",
+    "difficulte": "Difficile",
+    "distance": 15,
+    "duree": "6h30",
+    "denivele": 1350,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "Le Plateau de Kerval depuis le Col des Bœufs, par la Nouvelle",
+    "difficulte": "Difficile",
+    "distance": 19.2,
+    "duree": "7h",
+    "denivele": 1400,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Par le Col des Boeufs, le Bélier"
+  },
+  {
+    "nom": "De Deux Bras aux cascades de la Roche Ancrée par Cayenne et les Lataniers",
+    "difficulte": "Difficile",
+    "distance": 19.2,
+    "duree": "8h30",
+    "denivele": 850,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "La Rivière des Galets en amont de la passerelle des Lataniers",
+    "difficulte": "Difficile",
+    "distance": 13.8,
+    "duree": "5h30",
+    "denivele": 250,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "Aurère, le Bras Bémale et le Bassin La Noix depuis Deux Bras",
+    "difficulte": "Difficile",
+    "distance": 14.7,
+    "duree": "7h",
+    "denivele": 1250,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "La remontée du Bras d'Oussy depuis Deux Bras",
+    "difficulte": "Très difficile",
+    "distance": 11.3,
+    "duree": "9h",
+    "denivele": 620,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "De Deux Bras à l'Îlet Moutou par la passerelle du Bras d'Oussy",
+    "difficulte": "Difficile",
+    "distance": 16.5,
+    "duree": "7h30",
+    "denivele": 980,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "De la Rivière des Galets à l'Ilet Natte par Deux Bras",
+    "difficulte": "Moyen",
+    "distance": 23.6,
+    "duree": "8h",
+    "denivele": 330,
+    "region": "Cirque de Mafate",
+    "sousRegion": "De la Rivière des Galets"
+  },
+  {
+    "nom": "De Dos d'Ane à Aurère par Deux Bras et Bord Bazar",
+    "difficulte": "Difficile",
+    "distance": 11.5,
+    "duree": "4h30",
+    "denivele": 750,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis Dos D'Ane"
+  },
+  {
+    "nom": "De Dos d'Ane à l'Îlet à Patates le long du Bras de Sainte-Suzanne",
+    "difficulte": "Très difficile",
+    "distance": 22.8,
+    "duree": "11h",
+    "denivele": 1400,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis Dos D'Ane"
+  },
+  {
+    "nom": "De Dos d'Ane au Piton Cabris par la Crête d'Aurère",
+    "difficulte": "Très difficile",
+    "distance": 16.4,
+    "duree": "12h",
+    "denivele": 1850,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis Dos D'Ane"
+  },
+  {
+    "nom": "Dos d'Ane à Cayenne par Deux Bras et retour par la Passerelle du Bras d'Oussy",
+    "difficulte": "Difficile",
+    "distance": 23,
+    "duree": "8h30",
+    "denivele": 1450,
+    "region": "Cirque de Mafate",
+    "sousRegion": "Depuis Dos D'Ane"
+  },
+  {
+    "nom": "Le captage sur la Ravine José Lebeau par Mare d'Affouche et Trou Blanc",
+    "difficulte": "Difficile",
+    "distance": 7.3,
+    "duree": "5h30",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "De Hell Bourg au Bras de Caverne par l'ancien sentier de la Fenêtre",
+    "difficulte": "Très difficile",
+    "distance": 7.2,
+    "duree": "6h",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "De l'Îlet à Vidot au sommet du Piton Tambour",
+    "difficulte": "Très difficile",
+    "distance": 4.1,
+    "duree": "6h30",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "La Rivière du Mât et les Sources Manouilh par Terre Plate",
+    "difficulte": "Moyen",
+    "distance": 11.7,
+    "duree": "6h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Le Piton d'Anchain par l'Îlet à Vidot depuis Hell Bourg",
+    "difficulte": "Difficile",
+    "distance": 14,
+    "duree": "5h30",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Le tour des trois pitons au cœur du Cirque de Salazie",
+    "difficulte": "Difficile",
+    "distance": 16.5,
+    "duree": "7h",
+    "denivele": 1420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Le tour du Piton Lélesse par Grand Sable depuis Bras Marron",
+    "difficulte": "Difficile",
+    "distance": 12.5,
+    "duree": "5h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "De Hell Bourg au Trou de Fer par le Gîte de Bélouve",
+    "difficulte": "Difficile",
+    "distance": 15.6,
+    "duree": "6h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Le tour du Piton de la Mare d'Affouches",
+    "difficulte": "Moyen",
+    "distance": 8.7,
+    "duree": "3h15",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "De Hell Bourg à Cilaos par le Gîte de la Caverne Dufour - GRR1 étape 3/3",
+    "difficulte": "Très difficile",
+    "distance": 20.5,
+    "duree": "9h30",
+    "denivele": 1850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "La boucle des Anciens Thermes à Hell BourgFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.4,
+    "duree": "1h",
+    "denivele": 90,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "De Hell Bourg au Gîte de Bélouve",
+    "difficulte": "Moyen",
+    "distance": 7.4,
+    "duree": "3h",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Les Trois Cascades à Hell BourgFamiliale",
+    "difficulte": "Moyen",
+    "distance": 2.5,
+    "duree": "1h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Deux boucles à la Mare à Poule d'Eau près de SalazieFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.6,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "Le tour de Terre Plate par Bélouve et Cap Anglais",
+    "difficulte": "Difficile",
+    "distance": 15.5,
+    "duree": "6h30",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "La montée au Piton des Neiges depuis Hell-Bourg",
+    "difficulte": "Difficile",
+    "distance": 18,
+    "duree": "7h",
+    "denivele": 2350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A partir de Hell-Bourg ou de l'Ilet à Vidot"
+  },
+  {
+    "nom": "La montée au Cimendef depuis Grand Ilet",
+    "difficulte": "Très difficile",
+    "distance": 7.2,
+    "duree": "6h30",
+    "denivele": 1350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Le tour du Piton d'Anchain par la Rivière du Mât",
+    "difficulte": "Difficile",
+    "distance": 12.8,
+    "duree": "6h30",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Le Belvédère de la Fenêtre depuis Grand Ilet",
+    "difficulte": "Moyen",
+    "distance": 5.4,
+    "duree": "2h15",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "L'Îlet Bémassoune par la Rivière des Fleurs Jaunes",
+    "difficulte": "Difficile",
+    "distance": 9.3,
+    "duree": "6h30",
+    "denivele": 330,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Le tour du Piton Maillot depuis la Mare à Vieille Place",
+    "difficulte": "Moyen",
+    "distance": 8,
+    "duree": "3h30",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "La canalisation de la Ravine des Fleurs Jaunes depuis le Bélier",
+    "difficulte": "Difficile",
+    "distance": 8.7,
+    "duree": "4h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Le sentier du point de vue du Piton MarmiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.3,
+    "duree": "6h",
+    "denivele": 1280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "La Roche Ecrite depuis Grand Ilet",
+    "difficulte": "Difficile",
+    "distance": 8.3,
+    "duree": "6h",
+    "denivele": 1280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "La Rivière des Fleurs Jaunes entre la Ravine Roche à Jacquot et la Ravine Sèche",
+    "difficulte": "Très difficile",
+    "distance": 10.5,
+    "duree": "7h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "La boucle Fartlek à Grand ÎletFamiliale",
+    "difficulte": "Très facile",
+    "distance": 13.2,
+    "duree": "10h",
+    "denivele": 610,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "De Grand Îlet à Deux Bras par la descente du Bras de Sainte-Suzanne",
+    "difficulte": "Très difficile",
+    "distance": 13.2,
+    "duree": "10h",
+    "denivele": 610,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "De la Rivière Fleurs Jaunes à la Mare à Martin et à Mathurin",
+    "difficulte": "Difficile",
+    "distance": 6.3,
+    "duree": "3h45",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Boucle du Bélier au Col de Fourche par Grand Sable",
+    "difficulte": "Difficile",
+    "distance": 14.5,
+    "duree": "6h30",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "Le Piton Bé Massoune depuis la Mare à Martin",
+    "difficulte": "Difficile",
+    "distance": 19,
+    "duree": "6h30",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Grand Ilet ou la mare à Martin"
+  },
+  {
+    "nom": "De Bois de Pomme à l'Îlet Micot par le confluent de la Rivière des Fleurs Jaunes",
+    "difficulte": "Difficile",
+    "distance": 4.3,
+    "duree": "4h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "De Salazie à l'Ilet Fleurs Jaunes par Bois de PommeFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.7,
+    "duree": "1h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "La remontée de la cascade La Faim depuis le pont de l'Escalier",
+    "difficulte": "Très difficile",
+    "distance": 3.7,
+    "duree": "3h",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "La remontée du Voile de la Mariée depuis l'Îlet Bananiers",
+    "difficulte": "Difficile",
+    "distance": 3.7,
+    "duree": "3h30",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "La descente du Bras de Caverne de Plateau Wickers à la Cascade Blanche",
+    "difficulte": "Très difficile",
+    "distance": 11,
+    "duree": "6h30",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "Le sentier du Bras de Caverne à Salazie vers le Trou de Fer",
+    "difficulte": "Très difficile",
+    "distance": 5.3,
+    "duree": "6h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "Le deuxième bassin de la Cascade Blanche depuis la Chapelle de l'Escalier",
+    "difficulte": "Moyen",
+    "distance": 4,
+    "duree": "1h45",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "De la Cayenne à l'Îlet Eperon, retour (sportif en option) par l'Îlet Bananiers",
+    "difficulte": "Moyen",
+    "distance": 3.2,
+    "duree": "1h30",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "Le tour du Piton Maillot par la Mare à Citrons et la Cascade des Demoiselles",
+    "difficulte": "Difficile",
+    "distance": 12.2,
+    "duree": "6h",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "Les Voiles de la Mariée et la Cascade des Demoiselles sur la Rivière du Mât",
+    "difficulte": "Difficile",
+    "distance": 6.4,
+    "duree": "3h15",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Salazie"
+  },
+  {
+    "nom": "Les cascades de la Grande Ravine de l'Eden depuis Libéria",
+    "difficulte": "Difficile",
+    "distance": 17.5,
+    "duree": "7h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "De la Ligne Bambou à l'Eden par le Bras Pauline",
+    "difficulte": "Très difficile",
+    "distance": 7.1,
+    "duree": "5h30",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "De l'Eden au Grand Rein par La Ligne des Bambous",
+    "difficulte": "Difficile",
+    "distance": 4.6,
+    "duree": "4h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "Quelques cascades du Bras Piton et du Bras des Lianes depuis l'Eden",
+    "difficulte": "Très difficile",
+    "distance": 8.4,
+    "duree": "6h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "Les cascades de la Ravine de Terre Rouge à Bellevue les Hauts",
+    "difficulte": "Difficile",
+    "distance": 1.6,
+    "duree": "1h45",
+    "denivele": 170,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "La boucle de la Caroline par le site de l'EdenFamiliale",
+    "difficulte": "Moyen",
+    "distance": 17.7,
+    "duree": "6h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "Du Bassin la Paix à Camp Michel par les berges de la Rivière des Roches",
+    "difficulte": "Très difficile",
+    "distance": 9.2,
+    "duree": "5h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "La boucle du Sentier de l'Eden depuis la Cascade du ChienFamiliale",
+    "difficulte": "Moyen",
+    "distance": 9.5,
+    "duree": "2h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "La dernière cascade du Bras Sec depuis la Route de Takamaka",
+    "difficulte": "Très difficile",
+    "distance": 4.2,
+    "duree": "3h30",
+    "denivele": 520,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "Une boucle de la Cascade du Chien à l'Eden par le sentier de Terre Rouge",
+    "difficulte": "Moyen",
+    "distance": 10,
+    "duree": "3h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "De l'Eden vers la Ravine Blanche par le Pic des Lianes",
+    "difficulte": "Très difficile",
+    "distance": 9.6,
+    "duree": "5h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "La Cascade de la Grande Ravine à l'ancienne Cité du P.K. 12Familiale",
+    "difficulte": "Très facile",
+    "distance": 21.5,
+    "duree": "7h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Bras Panon"
+  },
+  {
+    "nom": "Le Trail de Saint-André par la boucle du Dioré",
+    "difficulte": "Moyen",
+    "distance": 21.5,
+    "duree": "7h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "La boucle de la Tropica Dingue au Parc du ColosseFamiliale",
+    "difficulte": "Très facile",
+    "distance": 6,
+    "duree": "2h",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "De l'Escalier à la Rivière du Mât les Hauts par le lit de la rivière",
+    "difficulte": "Moyen",
+    "distance": 10.2,
+    "duree": "5h30",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "De Paniandy au Chemin Carreau Morin par la Ravine Terre Rouge",
+    "difficulte": "Difficile",
+    "distance": 9.5,
+    "duree": "5h30",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "La remontée du Bras des Lianes à partir de Bellevue les Hauts",
+    "difficulte": "Très difficile",
+    "distance": 7.7,
+    "duree": "6h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "Le Parc du Colosse pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.5,
+    "duree": "1h30",
+    "denivele": 8,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "Le tour de la Rivière du Mât les Bas par la Route Coloniale et le sentier des bergesFamiliale",
+    "difficulte": "Facile",
+    "distance": 11.5,
+    "duree": "2h30",
+    "denivele": 90,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "De la Rivière du Mât au Bassin de la MerFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.7,
+    "duree": "1h30",
+    "denivele": 80,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "De l'Eden au Coteau Monique par la Forêt des Lianes",
+    "difficulte": "Difficile",
+    "distance": 14.2,
+    "duree": "7h",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "De Champ Borne à Saint-Benoit par le littoral et les 3 rivièresFamiliale",
+    "difficulte": "Très facile",
+    "distance": 10,
+    "duree": "3h30",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Saint-André"
+  },
+  {
+    "nom": "L'ascension du Piton Bleu de la Plaine des Cafres par le Piton Lepervanche",
+    "difficulte": "Très difficile",
+    "distance": 8.3,
+    "duree": "5h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Une boucle par le Piton de la Source et Notre Dame des Fougères",
+    "difficulte": "Très difficile",
+    "distance": 3.6,
+    "duree": "3h30",
+    "denivele": 240,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Le tour de la Plaine des Cafres par le Col de Bébour et Duvernay",
+    "difficulte": "Difficile",
+    "distance": 17.2,
+    "duree": "6h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Le tour et la montée au Piton Darid à Bourg MuratFamiliale",
+    "difficulte": "Très facile",
+    "distance": 6.5,
+    "duree": "2h",
+    "denivele": 190,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Le tour de la Mare à Boue par le Piton Doré et LepervancheFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.5,
+    "duree": "2h",
+    "denivele": 190,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Point de vue du Nez de Bœuf par la piste pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 19,
+    "duree": "8h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "La boucle de la Source Reilhac au Piton Bory de Saint-VincentFamiliale",
+    "difficulte": "Très facile",
+    "distance": 19,
+    "duree": "8h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "De Bourg Murat au Gîte de Bélouve par le Col de Bellevue et la Plaine des Marsouins",
+    "difficulte": "Moyen",
+    "distance": 19,
+    "duree": "8h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "De Bourg Murat au Gite du Pas de Bellecombe par le GR",
+    "difficulte": "Difficile",
+    "distance": 16.3,
+    "duree": "5h30",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "La boucle du Piton Rouge au Lac Argamasse depuis la RN3",
+    "difficulte": "Moyen",
+    "distance": 16.5,
+    "duree": "5h30",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "De Bourg-Murat au pied du Piton des Neiges",
+    "difficulte": "Difficile",
+    "distance": 16.5,
+    "duree": "6h30",
+    "denivele": 1150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Du côté de Bourg Murat"
+  },
+  {
+    "nom": "Le Barrage et le Bassin Gingembre depuis le belvédère de l'usine",
+    "difficulte": "Moyen",
+    "distance": 4.9,
+    "duree": "2h30",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Les cascades du Bras de Zayonne depuis l'Eden et le Bras des Lianes",
+    "difficulte": "Difficile",
+    "distance": 8,
+    "duree": "7h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "De la Rivière des Marsouins à celle des Roches par Bethléem et le Bassin la Paix",
+    "difficulte": "Moyen",
+    "distance": 11.5,
+    "duree": "5h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "L'exploration de l'Îlet du Milieu à partir de la RF de Takamaka",
+    "difficulte": "Moyen",
+    "distance": 3.2,
+    "duree": "3h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le captage du Grand Bras et de la Ravine des Congres depuis l'Abondance",
+    "difficulte": "Moyen",
+    "distance": 9.2,
+    "duree": "3h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Une balade historique le long du canal de l'Harmonie depuis Abondance",
+    "difficulte": "Moyen",
+    "distance": 6.8,
+    "duree": "4h",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "La plus grande marmite de géant de La Réunion à Chemin de Ceinture",
+    "difficulte": "Très difficile",
+    "distance": 0.8,
+    "duree": "1h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Du circuit des Ravenales à la source de la Ravine Batardeau",
+    "difficulte": "Très difficile",
+    "distance": 9,
+    "duree": "9h",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Une courte remontée de la Rivière des Marsouins à l'Ilet CocoFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.5,
+    "duree": "2h30",
+    "denivele": 80,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le sentier Sainte-Marguerite au Chemin de CeintureFamiliale",
+    "difficulte": "Facile",
+    "distance": 6,
+    "duree": "2h15",
+    "denivele": 270,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le circuit des Ravenales au Chemin de CeintureFamiliale",
+    "difficulte": "Facile",
+    "distance": 3,
+    "duree": "1h",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "La boucle de l'Îlet Bethléem depuis l'AbondanceFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.2,
+    "duree": "1h",
+    "denivele": 190,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le sentier et les cascades de Takamaka depuis l'usine hydroélectrique",
+    "difficulte": "Difficile",
+    "distance": 20.5,
+    "duree": "7h",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le Bassin La Paix et Bassin La Mer depuis AbondanceFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.5,
+    "duree": "2h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le Barrage de Bras Patience depuis la centrale électrique de TakamakaFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.5,
+    "duree": "1h15",
+    "denivele": 220,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de St Benoit"
+  },
+  {
+    "nom": "Le tour de la Forêt de Bois Blanc",
+    "difficulte": "Difficile",
+    "distance": 12.6,
+    "duree": "5h",
+    "denivele": 520,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "De l'église de Sainte-Rose à Notre Dame des Laves par le littoralFamiliale",
+    "difficulte": "Facile",
+    "distance": 10,
+    "duree": "3h30",
+    "denivele": 110,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Du Piton Balmann au Piton Sinific",
+    "difficulte": "Difficile",
+    "distance": 4.9,
+    "duree": "3h",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "La Forêt Mourouvin en rive droite de la Rivière de l'Est depuis les Radiers",
+    "difficulte": "Difficile",
+    "distance": 6.6,
+    "duree": "4h",
+    "denivele": 680,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Le parcours de l'Anse des Cascades pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 1.4,
+    "duree": "1h",
+    "denivele": 10,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Les 10 arches du Quai de l'Eglise à Notre Dame des Laves",
+    "difficulte": "Moyen",
+    "distance": 11.8,
+    "duree": "5h",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Deux boucles de Bois Blanc à l'Anse des Cascades par le Gros Piton",
+    "difficulte": "Moyen",
+    "distance": 10.4,
+    "duree": "2h30",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "De la Forêt de Bois Blanc à la Pointe Corail par le littoral",
+    "difficulte": "Moyen",
+    "distance": 14.3,
+    "duree": "5h30",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Le tour du Piton Galets depuis la route des RadiersFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.3,
+    "duree": "1h30",
+    "denivele": 260,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "La remontée de la coulée de 1977 depuis le Chemin Touzet",
+    "difficulte": "Très difficile",
+    "distance": 7.8,
+    "duree": "5h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "La remontée de la Rivière de l'Est jusqu'à la 1ère cascade",
+    "difficulte": "Très difficile",
+    "distance": 23.1,
+    "duree": "9h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Le sentier d'Interprétation de Bois Blanc et celui de la Coulée de 1977",
+    "difficulte": "Moyen",
+    "distance": 6,
+    "duree": "2h",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "De Bois Blanc au Piton Nelson par la RF18 et la Ravine de Bois Blanc",
+    "difficulte": "Difficile",
+    "distance": 10.4,
+    "duree": "4h30",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "De l'Îlet Leroux au point de vue sur le Trou de Sable par le Sentier de la Cage aux Lions",
+    "difficulte": "Difficile",
+    "distance": 10.5,
+    "duree": "6h",
+    "denivele": 830,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Une boucle au Piton Sainte-Rose par le Chemin Touzet et la Coulée de 1977",
+    "difficulte": "Moyen",
+    "distance": 18.4,
+    "duree": "5h",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Le tour du Piton Indivis par le littoral et le Chemin IndivisFamiliale",
+    "difficulte": "Moyen",
+    "distance": 10.5,
+    "duree": "3h15",
+    "denivele": 370,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "De la Rivière de l'Est à Saint-Benoît par le Sentier Littoral Est",
+    "difficulte": "Moyen",
+    "distance": 16.2,
+    "duree": "5h15",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Bois Blanc et Sainte-Rose"
+  },
+  {
+    "nom": "Du Pas des Sables au Piton de l'Eau par l'Oratoire Sainte-Thérèse",
+    "difficulte": "Difficile",
+    "distance": 20.1,
+    "duree": "7h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours du volcan"
+  },
+  {
+    "nom": "Le Piton de l'Eau depuis le Textor par la piste et retour par le sentier",
+    "difficulte": "Moyen",
+    "distance": 16.8,
+    "duree": "5h",
+    "denivele": 510,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours du volcan"
+  },
+  {
+    "nom": "Le Piton de l'Eau depuis le Textor par l'Oratoire Ste-Thérèse et le Rempart de la Rivière de l'est",
+    "difficulte": "Moyen",
+    "distance": 17,
+    "duree": "5h30",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours du volcan"
+  },
+  {
+    "nom": "Du sentier de la Rivière au Piton Bébour par le Bras Chansons",
+    "difficulte": "Difficile",
+    "distance": 5.9,
+    "duree": "4h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "De la Plaine des Palmistes à Bourg Murat par le Piton Textor",
+    "difficulte": "Difficile",
+    "distance": 18.8,
+    "duree": "7h",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "De la Ravine Sèche au Grand Bras Piton par l'Ancienne Nationale",
+    "difficulte": "Difficile",
+    "distance": 7.2,
+    "duree": "5h",
+    "denivele": 160,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le tour de La Plaine des Palmistes au plus près de la Ronde des Goyaviers",
+    "difficulte": "Moyen",
+    "distance": 18.3,
+    "duree": "5h30",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Une courte boucle par le cratère du Piton DoréFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.7,
+    "duree": "1h15",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le grand tour du Piton Textor au Piton de l'Eau depuis la Plaine des Palmistes",
+    "difficulte": "Très difficile",
+    "distance": 24.3,
+    "duree": "9h",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le Piton des Cabris par la Route Omega et le Sentier Ligne 500",
+    "difficulte": "Difficile",
+    "distance": 13.1,
+    "duree": "5h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le Piton de l'Eau par le Piton des Cabris depuis la Plaine des Palmistes",
+    "difficulte": "Difficile",
+    "distance": 16.6,
+    "duree": "7h30",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Du Piton Doré au Piton Textor",
+    "difficulte": "Moyen",
+    "distance": 10.3,
+    "duree": "4h30",
+    "denivele": 940,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Deux courtes boucles au Bassin CadetFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.5,
+    "duree": "1h",
+    "denivele": 45,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "La Cascade Biberon depuis la Plaine des PalmistesFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.8,
+    "duree": "1h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "La boucle du sentier de la Petite PlaineFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.1,
+    "duree": "1h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le tour du Piton des Songes au Bras des CalumetsFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.3,
+    "duree": "1h15",
+    "denivele": 220,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le point de vue sur l'usine de Takamaka par la montée à la Fenêtre de Grand Etang",
+    "difficulte": "Très difficile",
+    "distance": 6.4,
+    "duree": "4h",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le tour des Bassins du Bras Noir à la Petite Plaine",
+    "difficulte": "Difficile",
+    "distance": 3.7,
+    "duree": "3h15",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "La montée au Gros Piton Rond depuis la Route des PlainesFamiliale",
+    "difficulte": "Très facile",
+    "distance": 7.8,
+    "duree": "2h",
+    "denivele": 80,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le tour de Grand Etang et les cascades du Bras d'AnnetteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 7.8,
+    "duree": "2h",
+    "denivele": 80,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le captage du Bras Magasin depuis la Plaine des Palmistes",
+    "difficulte": "Difficile",
+    "distance": 8.9,
+    "duree": "5h",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Vers les Sources de Bras Cabot depuis la Plaine des Palmistes",
+    "difficulte": "Difficile",
+    "distance": 12,
+    "duree": "4h15",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Deux escapades entre lacs et cassés dans la forêt de Bébour",
+    "difficulte": "Moyen",
+    "distance": 5.2,
+    "duree": "3h15",
+    "denivele": 90,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le Sentier Botanique de la Petite PlaineFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.5,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Le point de vue sur Grand Etang depuis la RN3",
+    "difficulte": "Difficile",
+    "distance": 5.5,
+    "duree": "3h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de la Plaine des Palmistes"
+  },
+  {
+    "nom": "Une escapade en Forêt de Bébour vers le Bras Chansons à partir de la RF22",
+    "difficulte": "Très difficile",
+    "distance": 6.7,
+    "duree": "6h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le tour du Piton des Trois Mares par le Plateau de Thym et le sentier des Mares",
+    "difficulte": "Très difficile",
+    "distance": 5.6,
+    "duree": "5h",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le long du Bras Patience à partir du téléphérique de Takamaka",
+    "difficulte": "Très difficile",
+    "distance": 10.4,
+    "duree": "7h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "De Bébour à la Rivière des Marsouins par le rempart en rive gauche",
+    "difficulte": "Très difficile",
+    "distance": 7.3,
+    "duree": "4h15",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "De la Grotte des Hirondelles au téléphérique de TakamakaFamiliale",
+    "difficulte": "Moyen",
+    "distance": 9.9,
+    "duree": "3h15",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le petit sentier de la mare du Plateau de ThymFamiliale",
+    "difficulte": "Très facile",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le Sentier Botanique de Bébour au Sentier de Bras CabotFamiliale",
+    "difficulte": "Très facile",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le tour du Piton BébourFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "La traversée de la Plaine des Marsouins par les Sentiers de la Rivière, des Mares et Bois de Couleur",
+    "difficulte": "Moyen",
+    "distance": 13.2,
+    "duree": "5h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "La grande boucle du Trou de Fer par le sentier de la ViergeFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.6,
+    "duree": "4h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Du Col de Bébour au Gîte de la Caverne Dufour par le Bras Chansons",
+    "difficulte": "Difficile",
+    "distance": 24,
+    "duree": "9h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le Mini Trou de Fer et la cascade de la Rivière des Marsouins depuis Bébour",
+    "difficulte": "Très difficile",
+    "distance": 5.8,
+    "duree": "6h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le premier point de vue sur le Trou de Fer depuis le Gîte de BelouveFamiliale",
+    "difficulte": "Facile",
+    "distance": 10,
+    "duree": "2h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Les trois points de vue sur le Trou de Fer par le Sentier de l'Ecole Normale",
+    "difficulte": "Très difficile",
+    "distance": 16.8,
+    "duree": "8h30",
+    "denivele": 660,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le parcours de Bélouve pour personnes à mobilité réduite ou malvoyantsFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.3,
+    "duree": "2h45",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Du Gîte de Bélouve au Trou de Fer, circuit facile par les pistesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 9.3,
+    "duree": "2h45",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "La Forêt des Lianes et Cascade du Chien depuis le Gîte de Bélouve",
+    "difficulte": "Très difficile",
+    "distance": 26,
+    "duree": "12h",
+    "denivele": 1450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "La Source et le barrage du Bras Cabot depuis la Forêt de Bébour",
+    "difficulte": "Très difficile",
+    "distance": 10.4,
+    "duree": "7h30",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "Le Cassé de Takamaka et le Bassin des Hirondelles depuis BébourFamiliale",
+    "difficulte": "Moyen",
+    "distance": 8.5,
+    "duree": "3h",
+    "denivele": 310,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "La Cascade du Bras de Caverne et son point de vue sur le Trou de Fer depuis Bélouve",
+    "difficulte": "Difficile",
+    "distance": 12.4,
+    "duree": "5h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "De Bébour au barrage de Takamaka par l'Îlet à Bananes",
+    "difficulte": "Difficile",
+    "distance": 11,
+    "duree": "5h15",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Bébour - Bélouve"
+  },
+  {
+    "nom": "De Grand Coin au Piton de la Ravine à Marquet par le Piton Bâtard",
+    "difficulte": "Difficile",
+    "distance": 6.4,
+    "duree": "4h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "La boucle du Piton de Sucre à Dos d'AneFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.3,
+    "duree": "1h30",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "Le Cap Noir et Roche Verre Bouteille depuis Dos d'AneFamiliale",
+    "difficulte": "Moyen",
+    "distance": 3,
+    "duree": "1h30",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "Le grand tour de la Plaine d'Affouches depuis Dos d'Ane",
+    "difficulte": "Difficile",
+    "distance": 18.1,
+    "duree": "7h",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "Une boucle à Dos d'Ane par le sentier du Piton Batard et la Roche Verre Bouteille",
+    "difficulte": "Moyen",
+    "distance": 6.2,
+    "duree": "2h45",
+    "denivele": 460,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "Du Kiosque d'Affouches au Cap Noir par le Piton Batard et le Piton FougèresFamiliale",
+    "difficulte": "Moyen",
+    "distance": 8.3,
+    "duree": "3h15",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "Le Sentier des Lataniers à partir de Dos d'Ane",
+    "difficulte": "Moyen",
+    "distance": 19.5,
+    "duree": "7h",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Dos d'Ane"
+  },
+  {
+    "nom": "De Mamode Camp aux longues dents de la Plaine des Chicots",
+    "difficulte": "Difficile",
+    "distance": 19.2,
+    "duree": "7h30",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "De Mamode Camp au Morne Saint-FrançoisFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.2,
+    "duree": "2h15",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "Du Brûlé à Mamode Camp par tous les sentiers de raccourcisFamiliale",
+    "difficulte": "Moyen",
+    "distance": 5.2,
+    "duree": "1h45",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "La boucle de l'ancien parcours sportif de Mamode CampFamiliale",
+    "difficulte": "Très facile",
+    "distance": 16,
+    "duree": "6h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "De Maniquet au Morne Saint-François par le Sentier Laverdure",
+    "difficulte": "Moyen",
+    "distance": 16,
+    "duree": "6h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "Le point de vue sur l'Îlet à Guillaume par la Cascade Maniquet",
+    "difficulte": "Moyen",
+    "distance": 7.5,
+    "duree": "2h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis le Brûlé"
+  },
+  {
+    "nom": "Du Bassin Marie-Louise au Bassin Chouchou par le lit de la Ravine Sèche",
+    "difficulte": "Difficile",
+    "distance": 3.5,
+    "duree": "3h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "Cinq bassins et cascades de la Ravine Sèche à l'Espérance les Bas",
+    "difficulte": "Moyen",
+    "distance": 2.5,
+    "duree": "1h30",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "Les cascades et le tunnel du Bras Laurent depuis Decotte",
+    "difficulte": "Très difficile",
+    "distance": 6,
+    "duree": "6h45",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "La remontée de la Rivière Ste-Suzanne à partir de Decotte",
+    "difficulte": "Difficile",
+    "distance": 6.7,
+    "duree": "9h30",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "La Rivière Sainte-Suzanne en amont du Bassin Carrosse",
+    "difficulte": "Très difficile",
+    "distance": 7.8,
+    "duree": "6h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "Une balade aux Bassins Bœuf, Nicole et Grondin sur la Rivière Ste-SuzanneFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.2,
+    "duree": "1h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "La randonnée des dix cascades sur la Rivière Sainte-Suzanne",
+    "difficulte": "Difficile",
+    "distance": 8.7,
+    "duree": "4h15",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "De la Grande Cascade au Bassin Pilon sur la Rivière Sainte-Suzanne",
+    "difficulte": "Moyen",
+    "distance": 3.9,
+    "duree": "2h",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "La remontée de la Cascade Niagara jusqu'à la Grande Ravine",
+    "difficulte": "Moyen",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "De Sainte-Suzanne à Champ Borne par le littoral et les étangs de Bois Rouge",
+    "difficulte": "Moyen",
+    "distance": 17.8,
+    "duree": "5h",
+    "denivele": 20,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Depuis Sainte-Suzanne"
+  },
+  {
+    "nom": "La boucle du Moulin Kader à la Montagne par le sentier des Cordistes",
+    "difficulte": "Moyen",
+    "distance": 5.6,
+    "duree": "2h30",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Le tour du Piton de la Ravine à Malheur depuis la Possession",
+    "difficulte": "Difficile",
+    "distance": 13,
+    "duree": "5h",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Le Sentier de Cap Bernard et le point de vue de la VigieFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.8,
+    "duree": "1h",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Les cascades de la Grande Ravine depuis Moulin Cader",
+    "difficulte": "Difficile",
+    "distance": 2.7,
+    "duree": "2h15",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Du Colorado au Chemin des Anglais par les terres rouges de Fleurié",
+    "difficulte": "Moyen",
+    "distance": 16.9,
+    "duree": "5h30",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "L'Ilet à Guillaume par la boucle de la Route Forestière Plaine d'Affouches",
+    "difficulte": "Difficile",
+    "distance": 16.3,
+    "duree": "5h15",
+    "denivele": 840,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "De Saint-Bernard au captage du Bras Citron par l'Îlet à Guillaume",
+    "difficulte": "Moyen",
+    "distance": 16.5,
+    "duree": "4h30",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Le Tour du Quinzième à Saint-Bernard par le Sentier des Goyaviers et la R.F. de la Plaine d'AffouchesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 13.6,
+    "duree": "4h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "De Saint Bernard à l'Ilet à Guillaume",
+    "difficulte": "Moyen",
+    "distance": 12,
+    "duree": "4h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Une boucle au Domaine Telmard à partir du ColoradoFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.3,
+    "duree": "2h15",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "La boucle de Saint-Bernard au Chemin des AnglaisFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.4,
+    "duree": "1h45",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Montagne ou Saint-Bernard"
+  },
+  {
+    "nom": "Du Port Est au Port Ouest par le littoral de la Pointe des GaletsFamiliale",
+    "difficulte": "Très facile",
+    "distance": 8,
+    "duree": "2h",
+    "denivele": 15,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Une boucle du Verger Rosthon aux carrières entre les deux ravines des Lataniers",
+    "difficulte": "Moyen",
+    "distance": 6.5,
+    "duree": "3h",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "La boucle du Parc Boisé au Port pour personnes à mobilité réduite",
+    "difficulte": "Facile",
+    "distance": 13.6,
+    "duree": "5h",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "De la Ravine à Jacques à la Ravine à Malheur par le Chemin Crémont",
+    "difficulte": "Difficile",
+    "distance": 13.6,
+    "duree": "5h",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Le Chemin des Anglais et Chemin Crémont depuis la PossessionFamiliale",
+    "difficulte": "Moyen",
+    "distance": 18.8,
+    "duree": "6h",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Le grand tour de Sainte Thérèse par Lataniers, Kalla et Sentier de Bord",
+    "difficulte": "Difficile",
+    "distance": 19.2,
+    "duree": "7h",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Boucle familiale le long de la Ravine Balthazar à La PossessionFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.4,
+    "duree": "1h30",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "La boucle de la Possession par le tour de La Mare et le sentier KallaFamiliale",
+    "difficulte": "Moyen",
+    "distance": 12.5,
+    "duree": "3h30",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Une balade au Port pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Moyen",
+    "distance": 5.3,
+    "duree": "2h",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "De la Promenade des Banians à la Grande Ravine des Lataniers par le rempart",
+    "difficulte": "Difficile",
+    "distance": 7.1,
+    "duree": "3h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Le tour du Port par le Cimetière Paysager et le Parc BoiséFamiliale",
+    "difficulte": "Facile",
+    "distance": 15.2,
+    "duree": "4h",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "La remontée de la Crête des Lataniers depuis la Possession",
+    "difficulte": "Moyen",
+    "distance": 10.8,
+    "duree": "4h",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Le verger Rosthon de la Possession à la route de la MontagneFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.9,
+    "duree": "1h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "De la Rivière des Galets à Dos d'Ane par le sentier de BordFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.7,
+    "duree": "2h30",
+    "denivele": 880,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Le tour de la Ravine la Mare à partir du Chemin Ratinaud et retour par le sentier Joncourt",
+    "difficulte": "Difficile",
+    "distance": 14.5,
+    "duree": "7h",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "La boucle de la Possession à Dos d'Ane par le Sentier Joncourt",
+    "difficulte": "Très difficile",
+    "distance": 26.4,
+    "duree": "10h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "De la Rivière des Galets à Saint-Paul par la rivière et le littoralFamiliale",
+    "difficulte": "Facile",
+    "distance": 6,
+    "duree": "1h15",
+    "denivele": 10,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "De la Rivière des Galets à Deux Bras par le Sentier Malidé et Dos d'Ane",
+    "difficulte": "Difficile",
+    "distance": 21.2,
+    "duree": "8h",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Possession"
+  },
+  {
+    "nom": "Boucle Redoute-Colorado-Grande Chaloupe et ancienne Route du Littoral",
+    "difficulte": "Difficile",
+    "distance": 22.6,
+    "duree": "7h",
+    "denivele": 860,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le point de vue sur le Grand Eboulis de Quinquina par le Grand Figuier",
+    "difficulte": "Difficile",
+    "distance": 13.9,
+    "duree": "7h",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Du Stade de la Redoute au Colorado",
+    "difficulte": "Moyen",
+    "distance": 10.6,
+    "duree": "3h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Une déclinaison du parcours du Challenge Papang à partir de Saint-DenisFamiliale",
+    "difficulte": "Facile",
+    "distance": 15.9,
+    "duree": "4h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De l'Espérance les Hauts au Piton Bémassoune par le Bassin Rond",
+    "difficulte": "Difficile",
+    "distance": 18.5,
+    "duree": "9h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La boucle familiale de Comète à Saint-FrançoisFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 90,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour du Piton de St-François par le Chemin Macassis et le Piton du Butor",
+    "difficulte": "Difficile",
+    "distance": 11,
+    "duree": "4h30",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De l'Îlet habité de Quinquina les Bas à l'Îlet oublié de Quinquina les Hauts",
+    "difficulte": "Très difficile",
+    "distance": 16.5,
+    "duree": "6h30",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De Terrain Elisa à la Rivière Ste-Suzanne par le Piton Charpentier",
+    "difficulte": "Difficile",
+    "distance": 12.2,
+    "duree": "8h30",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La petite boucle du Pic Adam pour marcheurs pressésFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.3,
+    "duree": "2h15",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La montée au Piton Charpentier depuis Terrain Elisa",
+    "difficulte": "Moyen",
+    "distance": 8.9,
+    "duree": "4h",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour du Pic Adam à partir du Bois de NèflesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.5,
+    "duree": "3h15",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Les cascades et la canalisation du Pic AdamFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.5,
+    "duree": "1h30",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le Piton Patates et le Piton de St-François depuis MontgaillardFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.5,
+    "duree": "5h",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Bassins et cascades de la Ravine Mère Canal à partir de l'Espérance les Hauts",
+    "difficulte": "Moyen",
+    "distance": 6.2,
+    "duree": "2h30",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De l'Espérance à la Confiance par le Sentier de l'EchelleFamiliale",
+    "difficulte": "Moyen",
+    "distance": 2.9,
+    "duree": "1h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Des Quatre Canons au Cap Bernard et à Notre Dame de la MontagneFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.7,
+    "duree": "2h45",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De St-Denis à St-Benoît par l'ancien tracé du Chemin de Fer",
+    "difficulte": "Moyen",
+    "distance": 38.9,
+    "duree": "18h30",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De la Providence au Brûlé et retourFamiliale",
+    "difficulte": "Moyen",
+    "distance": 11,
+    "duree": "3h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Une boucle de la Providence au Brûlé par le sentier MercureFamiliale",
+    "difficulte": "Moyen",
+    "distance": 12.6,
+    "duree": "4h15",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Du Bas de la Rivière à Bellepierre par le Bassin du Diable",
+    "difficulte": "Très difficile",
+    "distance": 15,
+    "duree": "9h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La remontée de la Rivière Saint-Denis à partir du Pont Vinh SanFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.7,
+    "duree": "2h",
+    "denivele": 85,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour de l'aéroport Roland Garros à Saint-DenisFamiliale",
+    "difficulte": "Facile",
+    "distance": 12.4,
+    "duree": "3h15",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La remontée de la Ravine du Butor à partir de la Providence",
+    "difficulte": "Moyen",
+    "distance": 6.7,
+    "duree": "5h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De la Bretagne à la Cascade du Chaudron",
+    "difficulte": "Facile",
+    "distance": 6.7,
+    "duree": "2h",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Descente au Piton Bénoune depuis la Mare à Martin",
+    "difficulte": "Difficile",
+    "distance": 11,
+    "duree": "6h30",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Longue boucle touristique dans Saint-DenisFamiliale",
+    "difficulte": "Facile",
+    "distance": 11.1,
+    "duree": "4h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le sentier botanique de la ProvidenceFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.6,
+    "duree": "1h",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le long de la Ravine des Figues à partir du Cimetière des Jésuites",
+    "difficulte": "Très facile",
+    "distance": 2.7,
+    "duree": "1h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Une boucle au Bassin du Diable depuis Bellepierre",
+    "difficulte": "Difficile",
+    "distance": 9.4,
+    "duree": "4h30",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour des parcs de la Trinité et de la Médiathèque depuis VaubanFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.8,
+    "duree": "1h",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour de la forêt de Sainte-Marie, de Montée Sano à la Maison Martin",
+    "difficulte": "Très difficile",
+    "distance": 18.9,
+    "duree": "8h30",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Boucle de la Redoute au Colorado par le Lycée Technique de la Montagne",
+    "difficulte": "Moyen",
+    "distance": 11.4,
+    "duree": "3h30",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Le tour du Grand Eboulis de l'Îlet Quinquina jusqu'à la Ravine du Grand Bénoune",
+    "difficulte": "Difficile",
+    "distance": 17.5,
+    "duree": "8h30",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "De la Redoute à la Montagne par le Sentier Pavé des Rampes en face Nord",
+    "difficulte": "Moyen",
+    "distance": 4.7,
+    "duree": "1h15",
+    "denivele": 330,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "La boucle de la Redoute au Colorado par la Montagne et le Chemin des Anglais",
+    "difficulte": "Difficile",
+    "distance": 10.4,
+    "duree": "4h",
+    "denivele": 680,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Du Barachois à Sainte Suzanne par le littoral et le Sentier du TriFamiliale",
+    "difficulte": "Facile",
+    "distance": 22,
+    "duree": "5h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de Saint-Denis"
+  },
+  {
+    "nom": "Du Pic Adam au Gîte des Chicots par l'ancien sentier de la Roche Ecrite",
+    "difficulte": "Difficile",
+    "distance": 8.6,
+    "duree": "7h",
+    "denivele": 1180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "De Saint-Denis à Grand Ilet par Mamode Camp et la Roche Ecrite",
+    "difficulte": "Très difficile",
+    "distance": 22.2,
+    "duree": "9h30",
+    "denivele": 2300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "Hors des sentiers classiques de la Roche Ecrite à partir du gîte",
+    "difficulte": "Difficile",
+    "distance": 21.5,
+    "duree": "7h30",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "La Roche Ecrite depuis Mamode Camp",
+    "difficulte": "Moyen",
+    "distance": 18.6,
+    "duree": "6h30",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "La Roche Ecrite par la Ravine Blanche depuis Bois de Nèfles",
+    "difficulte": "Difficile",
+    "distance": 29.5,
+    "duree": "9h30",
+    "denivele": 1700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "La Roche Ecrite depuis la Bretagne",
+    "difficulte": "Difficile",
+    "distance": 20.4,
+    "duree": "8h30",
+    "denivele": 1780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "Une boucle autour de la Ravine Montauban vers le Grand Figuier et la Roche Ecrite",
+    "difficulte": "Difficile",
+    "distance": 14,
+    "duree": "4h45",
+    "denivele": 980,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "La Roche Ecrite par l'Ilet à Guillaume et la Plaine d'Affouches",
+    "difficulte": "Très difficile",
+    "distance": 36.5,
+    "duree": "9h30",
+    "denivele": 2100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "La Roche Ecrite depuis Dos d'Ane",
+    "difficulte": "Difficile",
+    "distance": 22.5,
+    "duree": "9h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Plusieurs directions vers la Roche Ecrite"
+  },
+  {
+    "nom": "Une courte boucle au Parc des Berges de la Rivière du MâtFamiliale",
+    "difficulte": "Très facile",
+    "distance": 6.8,
+    "duree": "2h15",
+    "denivele": 390,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Saint-André"
+  },
+  {
+    "nom": "La boucle du Dioré dans la forêt de Saint-AndréFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.8,
+    "duree": "2h15",
+    "denivele": 390,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Saint-André"
+  },
+  {
+    "nom": "Le Piton Plaine des Fougères depuis la Maison Martin",
+    "difficulte": "Moyen",
+    "distance": 16.5,
+    "duree": "5h30",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Saint-André"
+  },
+  {
+    "nom": "Du Bocage à la Cascade et au Bassin PichonFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.8,
+    "duree": "1h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Saint-André"
+  },
+  {
+    "nom": "Le Piton Bé Massoune par le Petit et Grand Plate depuis l'Aire du Dioré",
+    "difficulte": "Difficile",
+    "distance": 24.8,
+    "duree": "9h",
+    "denivele": 1360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Saint-André"
+  },
+  {
+    "nom": "Le Piton des Orangers par la Piste Forestière des 1800 NordFamiliale",
+    "difficulte": "Facile",
+    "distance": 8,
+    "duree": "3h",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "De la bambusaie du Guillaume à la Tamarinaie du Maïdo",
+    "difficulte": "Difficile",
+    "distance": 14.3,
+    "duree": "5h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "La boucle des 34 Boucans depuis la RF des CryptomeriasFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7,
+    "duree": "2h45",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Une boucle par les Sentiers Lebreton, Cresson et de Cambour",
+    "difficulte": "Moyen",
+    "distance": 10.1,
+    "duree": "4h30",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Le Piton des Orangers depuis la Piste Forestière BaptisteFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.2,
+    "duree": "2h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Une boucle par la piste de Bois de Nèfles dans les Hauts de Mon Repos",
+    "difficulte": "Moyen",
+    "distance": 13,
+    "duree": "3h30",
+    "denivele": 460,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Une boucle autour de la Tamarinaie du Maïdo par les pistes Bernica et Bolon",
+    "difficulte": "Moyen",
+    "distance": 10.8,
+    "duree": "4h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "La traversée du Brûlé de Saint-Paul",
+    "difficulte": "Facile",
+    "distance": 13.5,
+    "duree": "3h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Les 4 grottes du Roi Phaonce et autres curiosités autour du Piton RougeFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.4,
+    "duree": "6h",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "L'Ilet Alcipe par le tour du Bois de Sans Souci et le sentier l'AffoucheFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.5,
+    "duree": "2h30",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "La boucle Louis Emile et Françoise Francia depuis la RF des Cryptomerias",
+    "difficulte": "Moyen",
+    "distance": 9,
+    "duree": "2h30",
+    "denivele": 510,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "La boucle Sentier Îlet Alcipe, Sentier de Cambour, Sentier Françoise FranciaFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.3,
+    "duree": "2h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Six pistes et six sentiers autour du Piton Bernica",
+    "difficulte": "Difficile",
+    "distance": 18.1,
+    "duree": "6h",
+    "denivele": 830,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Du Maïdo à la Glacière, circuit familial par la pisteFamiliale",
+    "difficulte": "Facile",
+    "distance": 11.2,
+    "duree": "3h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Le Grand Bénare à partir du Sentier Mario",
+    "difficulte": "Difficile",
+    "distance": 23.3,
+    "duree": "7h",
+    "denivele": 1280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Du Gîte des Tamarins au Grand Bénare par le Bras Sud de la Grande Ravine et la Glacière",
+    "difficulte": "Difficile",
+    "distance": 20,
+    "duree": "8h30",
+    "denivele": 1240,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Le Grand Bénare par le Grand Bord et la Glacière depuis le Maïdo",
+    "difficulte": "Difficile",
+    "distance": 18,
+    "duree": "6h",
+    "denivele": 930,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Du Piton de la Ravine St-Gilles au Piton des Orangers par la Caverne du Maïdo",
+    "difficulte": "Difficile",
+    "distance": 17.4,
+    "duree": "6h",
+    "denivele": 630,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "L'Ilet Alcipe par le Piton des Orangers et la Route Oméga depuis le Maïdo",
+    "difficulte": "Moyen",
+    "distance": 19,
+    "duree": "6h30",
+    "denivele": 820,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour du Maïdo et RF Cryptomerias"
+  },
+  {
+    "nom": "Le tour du Tévélave depuis les Bananes",
+    "difficulte": "Moyen",
+    "distance": 10.8,
+    "duree": "3h30",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Le tour des Sources du Grand Bras par le Piton des Merles",
+    "difficulte": "Difficile",
+    "distance": 6.3,
+    "duree": "6h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "La boucle du Tévelave au Sentier des Ouvriers par le Piton Deveaux",
+    "difficulte": "Difficile",
+    "distance": 7.2,
+    "duree": "5h",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Le Sentier des Ouvriers et le sentier de Grande Terre",
+    "difficulte": "Moyen",
+    "distance": 10.5,
+    "duree": "4h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Du Tévelave à la Ferme Deveaux",
+    "difficulte": "Difficile",
+    "distance": 3.6,
+    "duree": "1h45",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Du Piton Lacroix au Tévelave par Piton des Merles et Sentier des Ouvriers",
+    "difficulte": "Difficile",
+    "distance": 11.6,
+    "duree": "4h45",
+    "denivele": 920,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "La ravine souterraine du Piton Deveaux depuis le Tévelave",
+    "difficulte": "Difficile",
+    "distance": 5.2,
+    "duree": "2h45",
+    "denivele": 520,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "La Source Deveaux depuis l'église du Tévelave",
+    "difficulte": "Moyen",
+    "distance": 2,
+    "duree": "1h",
+    "denivele": 175,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Les sources du Ruisseau Amont par les sources la Moque et la Fouche",
+    "difficulte": "Moyen",
+    "distance": 3.9,
+    "duree": "1h45",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Le circuit des cinq sources autour de la Source Dussac",
+    "difficulte": "Facile",
+    "distance": 3.6,
+    "duree": "1h15",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Du Tévelave à l'Ilet du Noir Mort",
+    "difficulte": "Difficile",
+    "distance": 3.9,
+    "duree": "1h45",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Environs du Tévelave"
+  },
+  {
+    "nom": "Le tour des Avirons et de la Ravine Sèche par la Chapelle",
+    "difficulte": "Moyen",
+    "distance": 16.9,
+    "duree": "5h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "La boucle des Chemins Mélina et Queue de Cheval aux AvironsFamiliale",
+    "difficulte": "Facile",
+    "distance": 9,
+    "duree": "2h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "De l'Etang-Salé à Saint Leu par le littoralFamiliale",
+    "difficulte": "Moyen",
+    "distance": 12,
+    "duree": "4h30",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "Le sentier de Grand Case par la Pièce Jeanne et la D3",
+    "difficulte": "Moyen",
+    "distance": 12,
+    "duree": "4h",
+    "denivele": 740,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "La source captée de Bois Blanc par le tour du Piton la MareFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.7,
+    "duree": "5h",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "Le tour de Bois Blanc par le Plateau et le littoral",
+    "difficulte": "Moyen",
+    "distance": 14.5,
+    "duree": "4h30",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "Piton de la Croix, Source Nouvelle et le Sentier du Malabar Mort",
+    "difficulte": "Difficile",
+    "distance": 18,
+    "duree": "6h30",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "La source et le captage de Grand Bras depuis les Canots",
+    "difficulte": "Moyen",
+    "distance": 8.4,
+    "duree": "2h45",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "La boucle de la Pièce Jeanne",
+    "difficulte": "Moyen",
+    "distance": 16,
+    "duree": "5h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Etang Salé les Hauts ou Avirons"
+  },
+  {
+    "nom": "Le tour de Chemin Diale par le Sentier de Grand Étang et le Chemin de la Surprise",
+    "difficulte": "Moyen",
+    "distance": 7.8,
+    "duree": "3h",
+    "denivele": 460,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Boucle de Cayenne à Notre Dame des Champs autour du Bras Mouton",
+    "difficulte": "Difficile",
+    "distance": 11.6,
+    "duree": "3h30",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De la Fontaine à la Chaloupe St-Leu depuis le tunnel de la Ravine de la Chaloupe",
+    "difficulte": "Moyen",
+    "distance": 8.5,
+    "duree": "4h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De Cayenne vers les Colimaçons par les trois musées nature",
+    "difficulte": "Moyen",
+    "distance": 13.3,
+    "duree": "4h30",
+    "denivele": 560,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le Cap Camélia par le Sentier de Grand Etang et Sentier Canal",
+    "difficulte": "Moyen",
+    "distance": 14.4,
+    "duree": "5h",
+    "denivele": 830,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le tour et l'exploration du Trou de Jarre par les RF Vaudeville et TamarinsFamiliale",
+    "difficulte": "Facile",
+    "distance": 13.4,
+    "duree": "5h",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le tour de la Ravine de La Fontaine depuis le Chemin de La Salette",
+    "difficulte": "Moyen",
+    "distance": 16.3,
+    "duree": "5h",
+    "denivele": 880,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De la Pointe au Sel au Musée de Stella Matutina par la boucle Sucre et SelFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.3,
+    "duree": "2h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "La Grande Ravine, portion centrale depuis Trois Bassins",
+    "difficulte": "Difficile",
+    "distance": 3.9,
+    "duree": "5h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "La remontée de la Grande Ravine depuis Trois Bassins",
+    "difficulte": "Difficile",
+    "distance": 5.7,
+    "duree": "5h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De l'Eglise Requins à Bois de Nèfles par le Piton des Roches TendresFamiliale",
+    "difficulte": "Facile",
+    "distance": 10,
+    "duree": "3h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "La boucle du Grand Huit à Saint-Leu par les huit sentiers",
+    "difficulte": "Moyen",
+    "distance": 14.4,
+    "duree": "6h",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le tour de la Cité des Pêcheurs à partir du cimetière de St-Leu",
+    "difficulte": "Moyen",
+    "distance": 12.2,
+    "duree": "3h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le tour de Saint-Leu par les sentiers de traverse et les quatre gués",
+    "difficulte": "Moyen",
+    "distance": 6.9,
+    "duree": "2h30",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De St-Leu au Plate sur les traces d'Elie et des Révoltés",
+    "difficulte": "Difficile",
+    "distance": 27.4,
+    "duree": "8h",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De Saint Leu (Cayenne) au Grand Bénare par Notre Dame des Champs",
+    "difficulte": "Difficile",
+    "distance": 24,
+    "duree": "9h",
+    "denivele": 3000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De la Veuve au Piton Calvaire du Plate",
+    "difficulte": "Moyen",
+    "distance": 16.2,
+    "duree": "4h30",
+    "denivele": 820,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le tour de la Ravine des Colimaçons depuis Notre Dame des Champs",
+    "difficulte": "Moyen",
+    "distance": 13.8,
+    "duree": "4h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De la Saline les Bains au port de Saint-Leu par le littoral",
+    "difficulte": "Moyen",
+    "distance": 11.4,
+    "duree": "3h30",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Une boucle à Saint-Leu par le Sentier Canal et le Sentier de la Salette",
+    "difficulte": "Moyen",
+    "distance": 10.4,
+    "duree": "2h30",
+    "denivele": 430,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le Piton La Boue et le tour de Montausé à Grand Fond",
+    "difficulte": "Moyen",
+    "distance": 20.4,
+    "duree": "6h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "De Cayenne à Châteauvieux par Bras Mouton et les Colimaçons",
+    "difficulte": "Moyen",
+    "distance": 9.2,
+    "duree": "3h",
+    "denivele": 530,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "La remontée de la Grande Ravine jusqu'à la première cascade",
+    "difficulte": "Difficile",
+    "distance": 6.6,
+    "duree": "3h30",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "La boucle de la Grande Ravine jusqu'à Cocâtre",
+    "difficulte": "Moyen",
+    "distance": 19.5,
+    "duree": "6h30",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint-Leu"
+  },
+  {
+    "nom": "Le Piton Cabris par les raccourcis de la RF 11 des MakesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.4,
+    "duree": "3h",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Du Chemin des Platanes à Pièce Jeanne par le Malabar Mort",
+    "difficulte": "Difficile",
+    "distance": 19,
+    "duree": "8h",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Des Makes à Saint-Louis par la cascade du Bras du Malabar Mort",
+    "difficulte": "Difficile",
+    "distance": 20.7,
+    "duree": "8h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le tour de la Scierie et des Fleurs Jaunes depuis le Bras Patates",
+    "difficulte": "Moyen",
+    "distance": 11.1,
+    "duree": "4h",
+    "denivele": 790,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Du Grand Serré aux Canaux par le Bras MontplaisirFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.2,
+    "duree": "1h45",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Une boucle de Bon Accueil à Camp 2000, retour par la 11ème ligne",
+    "difficulte": "Très difficile",
+    "distance": 12.1,
+    "duree": "8h",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Une balade aux Makes dans le Parc des Platanes de Bon AccueilFamiliale",
+    "difficulte": "Très facile",
+    "distance": 7.8,
+    "duree": "3h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le Sentier de la Découverte et le Bois de Bon Accueil aux MakesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.8,
+    "duree": "3h",
+    "denivele": 600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "La boucle des Makes par Camp 2000, le Piton des Merles et le Malabar Mort",
+    "difficulte": "Très difficile",
+    "distance": 21.3,
+    "duree": "8h",
+    "denivele": 1350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le tour de la Forêt Domaniale des Makes depuis l'observatoire astronomique",
+    "difficulte": "Difficile",
+    "distance": 18.4,
+    "duree": "7h",
+    "denivele": 1420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Des Makes au point de vue sur les Makes par les Sentier du Malabar Mort et le Piton des Merles",
+    "difficulte": "Très difficile",
+    "distance": 19.2,
+    "duree": "8h",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le tunnel de la ravine souterraine de la Plaine Bois de Nèfles depuis le Grand Serré",
+    "difficulte": "Difficile",
+    "distance": 13.6,
+    "duree": "5h30",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "De la Fenêtre des Makes aux Canaux par le Bras Patate et la Chaîne du Bois de Nèfles",
+    "difficulte": "Difficile",
+    "distance": 19,
+    "duree": "6h30",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "De la Fenêtre des Makes au Maïdo par le Grand Bénare",
+    "difficulte": "Très difficile",
+    "distance": 22.5,
+    "duree": "9h",
+    "denivele": 1600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le Petit Bénare et le Grand Bénare depuis la Fenêtre des Makes",
+    "difficulte": "Difficile",
+    "distance": 27,
+    "duree": "10h",
+    "denivele": 1560,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région des Makes"
+  },
+  {
+    "nom": "Le tour du Piton Vera et du Piton Rouge par la Ravine des Colimaçons",
+    "difficulte": "Difficile",
+    "distance": 12.6,
+    "duree": "5h30",
+    "denivele": 660,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "De la RF 9a à l'Observatoire Atmosphérique par la Ravine la Source",
+    "difficulte": "Difficile",
+    "distance": 8.5,
+    "duree": "4h",
+    "denivele": 460,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le sentier de découverte de la Tamarinaie au MaïdoFamiliale",
+    "difficulte": "Facile",
+    "distance": 15.5,
+    "duree": "5h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "La plage de la Saline depuis l'aire du TabacFamiliale",
+    "difficulte": "Moyen",
+    "distance": 15.5,
+    "duree": "5h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le tour de la Ravine Laforge par le sentier de Grande Terre",
+    "difficulte": "Moyen",
+    "distance": 6.8,
+    "duree": "2h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "La boucle par le sentier Bras Mouton - ColimaçonsFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.2,
+    "duree": "1h",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Du Gîte des Tamarins au Grand Bénare entre les bras de la Grande Ravine",
+    "difficulte": "Difficile",
+    "distance": 15.7,
+    "duree": "6h",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Du Petit Bénare jusqu'à la Route Forestière de la Scierie par le bord du rempart",
+    "difficulte": "Difficile",
+    "distance": 15,
+    "duree": "5h30",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "De le RF Vaudeville au gîte des Tamarins par Calebasse et Simambry",
+    "difficulte": "Difficile",
+    "distance": 11.6,
+    "duree": "4h30",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Du gîte des Tamarins au Piton Rouge par les pistes, retour par la Grande Ravine",
+    "difficulte": "Difficile",
+    "distance": 17.3,
+    "duree": "8h",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "La Glacière par le tour de la Forêt des Bénares",
+    "difficulte": "Moyen",
+    "distance": 20,
+    "duree": "5h30",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le Sentier des Tamarins et le Sentier du Gol au-dessus du Tévelave",
+    "difficulte": "Facile",
+    "distance": 8.8,
+    "duree": "2h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le tour de la Forêt des Bénares par les Ravines des Colimaçons et Simambry",
+    "difficulte": "Difficile",
+    "distance": 12,
+    "duree": "4h45",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Une boucle dans les Hauts du Tévelave par le Sentier de Grande Terre",
+    "difficulte": "Moyen",
+    "distance": 10.6,
+    "duree": "2h45",
+    "denivele": 480,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Très courte boucle à l'Observatoire des PapanguesFamiliale",
+    "difficulte": "Très facile",
+    "distance": 22.1,
+    "duree": "6h",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le tour du Brûlé de Saint-Leu au-dessus du Tévelave",
+    "difficulte": "Moyen",
+    "distance": 22.1,
+    "duree": "6h",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Le tour du Crédit Foncier par Simambry et la ligne de la Grande Ravine",
+    "difficulte": "Moyen",
+    "distance": 8.7,
+    "duree": "3h",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Le long de la RF des Tamarins"
+  },
+  {
+    "nom": "Une boucle dans la Réserve Naturelle de l'Etang de Saint-PaulFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.4,
+    "duree": "1h",
+    "denivele": 15,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "De Saint-Paul au Rocher de Chien par Plateau Caillou et la Savane",
+    "difficulte": "Difficile",
+    "distance": 17.3,
+    "duree": "6h",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le grand tour du Bassin Vital par les sentiers Laperrière et Cheval",
+    "difficulte": "Moyen",
+    "distance": 9.9,
+    "duree": "5h",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "La piste du parcours sportif de St-Paul pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.1,
+    "duree": "1h",
+    "denivele": 3,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le tour de l'étang et de la Forêt domaniale de Saint-PaulFamiliale",
+    "difficulte": "Très facile",
+    "distance": 11.4,
+    "duree": "3h",
+    "denivele": 10,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le tour de Savannah par la Ravine La Plaine et la Réserve Naturelle de l'Etang",
+    "difficulte": "Moyen",
+    "distance": 10.3,
+    "duree": "4h",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "De Sans Souci à l'Îlet Alcipe, retour par la Cressonnière",
+    "difficulte": "Difficile",
+    "distance": 17.2,
+    "duree": "6h30",
+    "denivele": 1450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le front de mer de Saint-Paul pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.4,
+    "duree": "1h",
+    "denivele": 1,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le grand tour de la savane du Cap la HoussayeFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.2,
+    "duree": "2h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Une boucle au Cap la Houssaye par le Sentier Pavé de la BarrièreFamiliale",
+    "difficulte": "Moyen",
+    "distance": 11.5,
+    "duree": "3h",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le tour de Maison Rouge et Macabit à Bellemène depuis le Tour des Roches",
+    "difficulte": "Moyen",
+    "distance": 10.7,
+    "duree": "2h45",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le Chemin Pavé Lougnon ou de Bellemène depuis le Tour des RochesFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.3,
+    "duree": "1h",
+    "denivele": 235,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le Bassin Vital et le Sentier Cheval depuis le Tour des RochesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 4.3,
+    "duree": "1h30",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "La Ravine Divon et Bassin Long depuis le Tour des RochesFamiliale",
+    "difficulte": "Facile",
+    "distance": 17.5,
+    "duree": "5h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "La Ravine Bernica et le Bassin Pigeons à Saint-PaulFamiliale",
+    "difficulte": "Très facile",
+    "distance": 17.5,
+    "duree": "5h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le tour des Roches à partir du Cimetière MarinFamiliale",
+    "difficulte": "Facile",
+    "distance": 17.5,
+    "duree": "5h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le tour du Bassin Vital par le Fond Déboulé et la PlaineFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.6,
+    "duree": "2h30",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Le Canal Lemarchand et la Ravine la Plaine entre deux cassés",
+    "difficulte": "Moyen",
+    "distance": 2.4,
+    "duree": "1h30",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "De la Grande Fontaine au Bassin Sandrine par le Chemin Charrette BœufFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.7,
+    "duree": "2h30",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Une boucle de la Rivière des Galets à Sans SouciFamiliale",
+    "difficulte": "Moyen",
+    "distance": 11.7,
+    "duree": "3h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "La remontée de la Ravine la Plaine depuis la passerelle de Sans Souci",
+    "difficulte": "Moyen",
+    "distance": 5.8,
+    "duree": "2h30",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "De Saint-Paul à la Saline les Bains par le littoral",
+    "difficulte": "Moyen",
+    "distance": 16.5,
+    "duree": "4h30",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint Paul"
+  },
+  {
+    "nom": "Saint-Gilles et le Verger Bottard depuis le Théâtre de Plein AirFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.3,
+    "duree": "1h30",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Le tour de Moulin Kader par la remontée de la Ravine Saint-Gilles",
+    "difficulte": "Difficile",
+    "distance": 15.4,
+    "duree": "5h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Une variante de la Randonnée de La Saline à partir du stade",
+    "difficulte": "Moyen",
+    "distance": 16.3,
+    "duree": "4h45",
+    "denivele": 560,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Une partie de la boucle du Trail des 3 Salines depuis la Saline les Hauts",
+    "difficulte": "Moyen",
+    "distance": 16.1,
+    "duree": "5h30",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Le tour de Bois de Nèfles à Trois Bassins depuis la RD14",
+    "difficulte": "Moyen",
+    "distance": 4.8,
+    "duree": "1h45",
+    "denivele": 260,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Le Chemin Bruniquel et le tour du Piton de l'Ermitage",
+    "difficulte": "Moyen",
+    "distance": 13.9,
+    "duree": "3h45",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Les trois marmites de la Ravine des Trois BassinsFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.2,
+    "duree": "2h",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "De l'Eperon au Moulin Kader par le Bassin MalheurFamiliale",
+    "difficulte": "Moyen",
+    "distance": 5.9,
+    "duree": "2h",
+    "denivele": 240,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "La remontée de la Ravine des Trois Bassins",
+    "difficulte": "Très difficile",
+    "distance": 12.7,
+    "duree": "9h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "De Roquefeuille à Vue-Belle par Fond de Puits",
+    "difficulte": "Difficile",
+    "distance": 18.5,
+    "duree": "5h30",
+    "denivele": 510,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Le tour de la Ravine de la Saline depuis l'aire de repos de la Ravine TabacFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.4,
+    "duree": "1h45",
+    "denivele": 220,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "Les bassins et cascades de Saint-GillesFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.5,
+    "duree": "1h",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Gilles et Ermitage"
+  },
+  {
+    "nom": "L'usine sucrière de Pierrefonds par la nouvelle passerelleFamiliale",
+    "difficulte": "Très facile",
+    "distance": 2.3,
+    "duree": "1h",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Un tour au Canal des Aloès depuis le radier du OuakiFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.1,
+    "duree": "1h30",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Le tour des trois étangs du Gol par la passerelleFamiliale",
+    "difficulte": "Très facile",
+    "distance": 5.4,
+    "duree": "1h30",
+    "denivele": 12,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Des gravières du Gol au Cimetière des Ames Perdues depuis le stade de Bel AirFamiliale",
+    "difficulte": "Très facile",
+    "distance": 6.4,
+    "duree": "2h",
+    "denivele": 15,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Le tour des Etangs du Gol par l'allée des cocotiersFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.9,
+    "duree": "3h",
+    "denivele": 20,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Une courte sortie à l'Etang du GolFamiliale",
+    "difficulte": "Très facile",
+    "distance": 9.8,
+    "duree": "2h30",
+    "denivele": 20,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "La remontée complète de la Ravine Goyaves depuis Roche Maigre",
+    "difficulte": "Difficile",
+    "distance": 10.3,
+    "duree": "7h",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "13 bassins et 10 cascades de la Ravine Goyaves à Roche Maigre",
+    "difficulte": "Difficile",
+    "distance": 3.6,
+    "duree": "3h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "La grotte de la ravine Maison Rouge depuis Pont Neuf",
+    "difficulte": "Moyen",
+    "distance": 5.3,
+    "duree": "2h30",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Le tour de l'usine du Gol par les petits étangs et la Ravine du Gol",
+    "difficulte": "Facile",
+    "distance": 9.2,
+    "duree": "3h",
+    "denivele": 90,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "Une grande boucle à l'Etang du Gol depuis Bel Air",
+    "difficulte": "Facile",
+    "distance": 9.5,
+    "duree": "2h30",
+    "denivele": 10,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois d'Olive et Saint-Louis"
+  },
+  {
+    "nom": "De l'Etang Salé à la Ravine du Ruisseau par les cinq tunnels de la RN1",
+    "difficulte": "Difficile",
+    "distance": 9.5,
+    "duree": "3h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "De l'Etang Salé au Piton de la Croix par le Chemin de l'Entre-Deux",
+    "difficulte": "Difficile",
+    "distance": 11.6,
+    "duree": "4h",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "De l'Etang Salé à Saint-Pierre par le littoral",
+    "difficulte": "Moyen",
+    "distance": 18.3,
+    "duree": "5h30",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "Le grand tour de la Forêt de l'Etang SaléFamiliale",
+    "difficulte": "Facile",
+    "distance": 15,
+    "duree": "4h",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "Le tour du village de l'Etang Salé les Bains depuis l'échangeur des AvironsFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.8,
+    "duree": "4h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "La boucle des quatre pitons de la Forêt de l'Etang SaléFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.5,
+    "duree": "3h30",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "Une boucle du Gol à l'Etang Salé par le domaine de la Roche CarangueFamiliale",
+    "difficulte": "Moyen",
+    "distance": 15.9,
+    "duree": "4h30",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "De la Pointe des Avirons au Piton Forcade",
+    "difficulte": "Moyen",
+    "distance": 19.5,
+    "duree": "6h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "La descente de la Ravine Mila et la remontée de la Ravine des Avirons",
+    "difficulte": "Difficile",
+    "distance": 9.9,
+    "duree": "4h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Vers l' Etang Salé"
+  },
+  {
+    "nom": "Du Tapage aux Makes par le Piton Cabris, la Fenêtre et Fleurs Jaunes",
+    "difficulte": "Moyen",
+    "distance": 17.7,
+    "duree": "6h",
+    "denivele": 1150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Rivière"
+  },
+  {
+    "nom": "Le tour de la Chaîne du Bois de Nèfles depuis le Gol les Hauts",
+    "difficulte": "Difficile",
+    "distance": 18.5,
+    "duree": "6h30",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Rivière"
+  },
+  {
+    "nom": "Le tour du Ruisseau les Hauts jusqu'à la Pente des VacoasFamiliale",
+    "difficulte": "Moyen",
+    "distance": 14.7,
+    "duree": "3h30",
+    "denivele": 490,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Rivière"
+  },
+  {
+    "nom": "Le tour du Gol les Hauts par le bassin de la Ravine Richard et les anciennes ruellesFamiliale",
+    "difficulte": "Facile",
+    "distance": 10.1,
+    "duree": "2h30",
+    "denivele": 310,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Rivière"
+  },
+  {
+    "nom": "Le tour de Curepipe à partir du Ruisseau les Hauts par les Chemins Bois Noir et du Grand DétourFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.1,
+    "duree": "2h",
+    "denivele": 270,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La Rivière"
+  },
+  {
+    "nom": "Point de vue sur la Plaine des Sables par le sentier marron de Grand Coude",
+    "difficulte": "Difficile",
+    "distance": 16.2,
+    "duree": "7h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Le tour des Pentes de Grand Coude par les trous de Cissia",
+    "difficulte": "Difficile",
+    "distance": 9.6,
+    "duree": "5h30",
+    "denivele": 680,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Roche Plate depuis Grand Coude et par l'Ilet Dimitile",
+    "difficulte": "Difficile",
+    "distance": 17,
+    "duree": "6h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Le Grand tour de Grand Coude par le Bérénice et le Corymbis",
+    "difficulte": "Difficile",
+    "distance": 21.1,
+    "duree": "8h",
+    "denivele": 1450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "La boucle des trous de Cissia à Grand Coude",
+    "difficulte": "Facile",
+    "distance": 5.1,
+    "duree": "1h45",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Le sentier de Découverte de Grand Coude",
+    "difficulte": "Facile",
+    "distance": 5.6,
+    "duree": "1h45",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Le petit tour de Grand Coude",
+    "difficulte": "Difficile",
+    "distance": 9.5,
+    "duree": "5h",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "La Cascade de Mahavel depuis Grand Coude",
+    "difficulte": "Difficile",
+    "distance": 19.8,
+    "duree": "8h",
+    "denivele": 1600,
+    "region": "Cirque de Salazie",
+    "sousRegion": "A Grand Coude"
+  },
+  {
+    "nom": "Une boucle à Piton des Goyaves par la Source VivierFamiliale",
+    "difficulte": "Facile",
+    "distance": 8.1,
+    "duree": "2h15",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "La ravine et cinq points de vue sur la Petite ÎleFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.9,
+    "duree": "2h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Au plus près du tour de Grands Bois par la Course du Patrimoine",
+    "difficulte": "Moyen",
+    "distance": 15,
+    "duree": "4h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le Piton Isautier à partir de la poste de Piton des GoyavesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.9,
+    "duree": "3h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Du Piton du Relais à la boucle des MargosiersFamiliale",
+    "difficulte": "Moyen",
+    "distance": 12.1,
+    "duree": "4h",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le Sentier des Agriculteurs à partir du Domaine du Relais de Petite ÎleFamiliale",
+    "difficulte": "Très facile",
+    "distance": 2.4,
+    "duree": "1h15",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "La boucle de la Randonnée de l'Ail à Petite ÎleFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.6,
+    "duree": "3h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "De Grande Anse à Petite Île par Manapany les Hauts et le Relais",
+    "difficulte": "Moyen",
+    "distance": 19.7,
+    "duree": "6h30",
+    "denivele": 820,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle de Grande Anse à Petite Île par Manapany les Bas",
+    "difficulte": "Moyen",
+    "distance": 15.3,
+    "duree": "4h30",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "L'ascension et le tour du Piton de Mont-VertFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.5,
+    "duree": "2h30",
+    "denivele": 260,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Balade à la Pointe du Diable pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.6,
+    "duree": "1h30",
+    "denivele": 25,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Les Jardins de la Plage de Saint-Pierre pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.1,
+    "duree": "1h",
+    "denivele": 1,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le parcours de Grande Anse pour personnes à mobilité réduiteFamiliale",
+    "difficulte": "Facile",
+    "distance": 1.1,
+    "duree": "1h",
+    "denivele": 1,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle vers la Ligne d'Equerre depuis le Piton Nathalie",
+    "difficulte": "Moyen",
+    "distance": 8.3,
+    "duree": "3h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le Sentier La Corde à Bois d'OliveFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.9,
+    "duree": "1h",
+    "denivele": 110,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "De St-Pierre à St-Denis par l'ancien tracé du Chemin de Fer",
+    "difficulte": "Moyen",
+    "distance": 88,
+    "duree": "40h",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "La remontée de la Ravine des Cafres depuis le Domaine Vidot à Montvert les Hauts",
+    "difficulte": "Difficile",
+    "distance": 10,
+    "duree": "4h30",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle par la Ravine des Cafres et le circuit de la Foulée de la Fraise",
+    "difficulte": "Difficile",
+    "distance": 18.9,
+    "duree": "8h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le Piton de Grande Anse et le point de vue sur la petite îleFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.2,
+    "duree": "1h30",
+    "denivele": 25,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le circuit des Foulées de Bois d'OlivesFamiliale",
+    "difficulte": "Facile",
+    "distance": 12.8,
+    "duree": "3h30",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "La boucle du Sentier de Bord de Terre Rouge à Terre SainteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 33,
+    "duree": "10h",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "De Grande Anse au Cap Méchant au plus près du littoral",
+    "difficulte": "Difficile",
+    "distance": 33,
+    "duree": "10h",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le tour du Relais de Petite Île depuis Manapany les HautsFamiliale",
+    "difficulte": "Moyen",
+    "distance": 7.3,
+    "duree": "2h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle à la Pointe du DiableFamiliale",
+    "difficulte": "Très facile",
+    "distance": 4.6,
+    "duree": "1h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le tour du Domaine Vidot à Mont Vert les HautsFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.4,
+    "duree": "1h",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle depuis le Relais de Petite Île jusqu'à la Mare",
+    "difficulte": "Difficile",
+    "distance": 16.2,
+    "duree": "5h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le tour de l'aéroport de PierrefondsFamiliale",
+    "difficulte": "Très facile",
+    "distance": 8.2,
+    "duree": "2h",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le circuit de la Course de la Fraise à Mont Vert les Hauts",
+    "difficulte": "Moyen",
+    "distance": 12.8,
+    "duree": "3h30",
+    "denivele": 1000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "A la recherche du Canal St-Etienne entre Saint-Pierre et Bois d'Olive",
+    "difficulte": "Très facile",
+    "distance": 5.5,
+    "duree": "2h",
+    "denivele": 30,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "La boucle urbaine du Quartier des Pêcheurs à Terre SainteFamiliale",
+    "difficulte": "Facile",
+    "distance": 10.1,
+    "duree": "2h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Une boucle vertigineuse à Saint-Pierre par le sentier Canal de la Rivière d'Abord",
+    "difficulte": "Difficile",
+    "distance": 6.2,
+    "duree": "5h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le chemin de la Forêt des Hauts de Mont Vert à Notre Dame de la PaixFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.9,
+    "duree": "1h45",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "De la Pointe du Diable à Grande Anse par le littoral",
+    "difficulte": "Moyen",
+    "distance": 13,
+    "duree": "3h30",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Notre Dame de la Paix depuis le Relais à Petite Île",
+    "difficulte": "Moyen",
+    "distance": 22.5,
+    "duree": "8h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le sentier du Canal Saint-Etienne à Bois d'Olive",
+    "difficulte": "Très facile",
+    "distance": 3.2,
+    "duree": "1h",
+    "denivele": 10,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Autour de Petite Ile ou St Pierre"
+  },
+  {
+    "nom": "Le tour du Piton Mahot à partir du stade de la Grande FermeFamiliale",
+    "difficulte": "Moyen",
+    "distance": 11.7,
+    "duree": "3h",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "La montée des Pitons Argamasse et de Caille depuis le Nez de Bœuf",
+    "difficulte": "Moyen",
+    "distance": 11.5,
+    "duree": "4h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "La boucle de la Grande Ferme au Nez de BoeufFamiliale",
+    "difficulte": "Facile",
+    "distance": 7,
+    "duree": "2h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "La nouvelle variante du GRR2 entre le Piton de Sable et la Mare à Boue",
+    "difficulte": "Difficile",
+    "distance": 27.6,
+    "duree": "9h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Une boucle du piton Guichard au Textor par le Nez de Boeuf",
+    "difficulte": "Moyen",
+    "distance": 14.2,
+    "duree": "4h30",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le tour du Piton GuichardFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.6,
+    "duree": "1h",
+    "denivele": 110,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Du Chalet des Pâtres à la passerelle du Petit Bras Piton par la canalisation de l'Argamasse",
+    "difficulte": "Très difficile",
+    "distance": 10.1,
+    "duree": "6h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "De bourg Murat au Nez de Boeuf par le Piton Guichard",
+    "difficulte": "Moyen",
+    "distance": 13.5,
+    "duree": "4h",
+    "denivele": 520,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "La source du Nez de Bœuf depuis le parking du Nez de Boeuf",
+    "difficulte": "Très difficile",
+    "distance": 3,
+    "duree": "4h",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le tour de Bourg Murat par les Pitons Dugain, Desforges et DaridFamiliale",
+    "difficulte": "Facile",
+    "distance": 11.4,
+    "duree": "2h45",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Les grottes, arches et tunnels de la Ravine Citron Galet à partir du Nez de Bœuf",
+    "difficulte": "Difficile",
+    "distance": 6.8,
+    "duree": "4h30",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le grand tour du Morne Langevin par Grand Coude et la Plaine des Sables depuis le Nez de Bœuf",
+    "difficulte": "Très difficile",
+    "distance": 39,
+    "duree": "14h",
+    "denivele": 2850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Roche Plate à partir du Nez de Boeuf par le Sentier de la Rivière des Remparts",
+    "difficulte": "Difficile",
+    "distance": 18.8,
+    "duree": "7h30",
+    "denivele": 1475,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le Plateau des Cascades, le Fond de Sonje et l'Ilet Tommy depuis le Nez de Bœuf",
+    "difficulte": "Difficile",
+    "distance": 19.4,
+    "duree": "8h",
+    "denivele": 1560,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le tour des sources du Bras de Pontho depuis le Piton GuichardFamiliale",
+    "difficulte": "Moyen",
+    "distance": 8.3,
+    "duree": "2h30",
+    "denivele": 360,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le tour des Trous Blancs et du Piton Sec depuis le Piton GuichardFamiliale",
+    "difficulte": "Facile",
+    "distance": 7,
+    "duree": "2h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Le tour et l'escalade du Piton DugainFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.8,
+    "duree": "1h",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Entre le Volcan et Bourg Murat"
+  },
+  {
+    "nom": "Au plus près du parcours de la randonnée de la Crête",
+    "difficulte": "Moyen",
+    "distance": 14,
+    "duree": "4h",
+    "denivele": 560,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "Le tour des Pitons Lambert et Papangue au-dessus de LangevinFamiliale",
+    "difficulte": "Facile",
+    "distance": 11,
+    "duree": "3h",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "De la marine de Vincendo aux falaises de Cap JauneFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.8,
+    "duree": "1h30",
+    "denivele": 45,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "Les rives de la Rivière Langevin de la Cascade Jacqueline au Canal LangevinFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.3,
+    "duree": "1h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "La boucle de Langevin à Jean Petit par le Bérénice",
+    "difficulte": "Moyen",
+    "distance": 20.7,
+    "duree": "5h30",
+    "denivele": 850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "De Langevin au Gîte du Volcan par Cap Blanc, Grand Pays et la Plaine des Sables",
+    "difficulte": "Très difficile",
+    "distance": 25.5,
+    "duree": "9h",
+    "denivele": 2500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "Les hauts de la Crête depuis Notre Dame de la Salette par le Chemin AssingFamiliale",
+    "difficulte": "Facile",
+    "distance": 10.8,
+    "duree": "2h45",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "La Cascade Jacqueline et le tour de la Pointe de LangevinFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.8,
+    "duree": "1h30",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Langevin"
+  },
+  {
+    "nom": "Le tour du Piton de ManapanyFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.1,
+    "duree": "2h30",
+    "denivele": 300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "De Petit Sable à la Caverne des Hirondelles à Saint-JosephFamiliale",
+    "difficulte": "Très facile",
+    "distance": 7,
+    "duree": "2h",
+    "denivele": 20,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "La montée au Piton Babet à Saint-JosephFamiliale",
+    "difficulte": "Facile",
+    "distance": 3.6,
+    "duree": "1h",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "La boucle du Piton de l'EntonnoirFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.8,
+    "duree": "1h",
+    "denivele": 110,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "De St-Joseph à la Plaine des Grègues par les 3 Sources et le Piton de l'Entonnoir",
+    "difficulte": "Difficile",
+    "distance": 20.5,
+    "duree": "7h30",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "De Saint-Joseph au Nez de Bœuf par Roche Plate",
+    "difficulte": "Difficile",
+    "distance": 25.4,
+    "duree": "7h30",
+    "denivele": 2150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "Roche Plate depuis Saint-Joseph par la Rivière des Remparts",
+    "difficulte": "Moyen",
+    "distance": 33,
+    "duree": "8h",
+    "denivele": 670,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Saint Joseph"
+  },
+  {
+    "nom": "La boucle du Petit Tampon à partir du Stade Anthony RivièreFamiliale",
+    "difficulte": "Moyen",
+    "distance": 9.1,
+    "duree": "3h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Une boucle dans le Parc des Palmiers du Monde à Trois MaresFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.9,
+    "duree": "1h30",
+    "denivele": 120,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "La remontée de la Ravine Blanche depuis le pont du Douzième",
+    "difficulte": "Difficile",
+    "distance": 9.7,
+    "duree": "6h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le tour des réservoirs du Dassy par les pistes et retour par la canalisation",
+    "difficulte": "Moyen",
+    "distance": 11.2,
+    "duree": "3h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Courte aventure depuis la passerrelle des Pétréas",
+    "difficulte": "Difficile",
+    "distance": 2.9,
+    "duree": "2h30",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "La boucle du parcours pédestre de la Ravine BlancheFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.9,
+    "duree": "1h15",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Une agréable boucle dans la tamarinaie de la Ravine BlancheFamiliale",
+    "difficulte": "Facile",
+    "distance": 4,
+    "duree": "1h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le sentier botanique de la Ravine BlancheFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.9,
+    "duree": "4h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Une boucle à la Pointe par la Cascade Pigeon et la Ravine Jean Payet",
+    "difficulte": "Très difficile",
+    "distance": 9.9,
+    "duree": "4h30",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Les parcours de Bel Air et du Parc Marc Rivière par la Rivière d'Abord",
+    "difficulte": "Facile",
+    "distance": 5,
+    "duree": "1h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "De Terrain Fleury au Bassin Ti Feuilles par le Bassin SamuelFamiliale",
+    "difficulte": "Facile",
+    "distance": 5.8,
+    "duree": "2h",
+    "denivele": 230,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le Sentier des Petits Tamponnais Ruraux depuis Notre Dame de la Paix",
+    "difficulte": "Moyen",
+    "distance": 4.9,
+    "duree": "3h",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le tour de la Pointe par la Pente Gaétan depuis Terrain Fleury au Tampon",
+    "difficulte": "Moyen",
+    "distance": 10.5,
+    "duree": "2h30",
+    "denivele": 330,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le sentier botanique de Notre Dame de la PaixFamiliale",
+    "difficulte": "Très facile",
+    "distance": 1.7,
+    "duree": "1h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région du Tampon"
+  },
+  {
+    "nom": "Le Dimitile par le Sentier Bayonne, la Jument et le Sentier Marron du Bras Long",
+    "difficulte": "Très difficile",
+    "distance": 18.6,
+    "duree": "10h",
+    "denivele": 1950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le tour du Serré par le Bras de Cilaos, l'Entre-Deux et le Bras de la Plaine",
+    "difficulte": "Moyen",
+    "distance": 15.1,
+    "duree": "6h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Sentier Jacky Inard par le Sentier Bœuf jusqu'au Sommet de l'Entre-Deux",
+    "difficulte": "Difficile",
+    "distance": 20.1,
+    "duree": "8h30",
+    "denivele": 1380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Du Bras de Cilaos à l'Entre-Deux par l'Îlet Rolland",
+    "difficulte": "Moyen",
+    "distance": 4.3,
+    "duree": "2h",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "La boucle des Gorges du Bras de La Plaine du Dassy à Pont d'Yves",
+    "difficulte": "Moyen",
+    "distance": 12.5,
+    "duree": "5h30",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "De Jean Lauret au Camp Marron par le tour des Sources de l'Argamasse",
+    "difficulte": "Difficile",
+    "distance": 20,
+    "duree": "8h30",
+    "denivele": 1350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "De la Source des Songes au pont naturel du Bras de La Plaine depuis l'Entre-DeuxFamiliale",
+    "difficulte": "Moyen",
+    "distance": 8,
+    "duree": "3h",
+    "denivele": 250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Une boucle autour du village de l'Entre DeuxFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.5,
+    "duree": "4h",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Les Sources du Bras Long par le Sentier du Zèbre",
+    "difficulte": "Difficile",
+    "distance": 11.6,
+    "duree": "4h30",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "La boucle du Bassin Sassa à l'Entre-DeuxFamiliale",
+    "difficulte": "Facile",
+    "distance": 2.2,
+    "duree": "1h",
+    "denivele": 60,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le barrage du Bras de la Plaine et l'Îlet Tata depuis le Pont d'YvesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 10.7,
+    "duree": "5h",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Bras de la Plaine jusqu'à Bois Court depuis le Pont d'Yves",
+    "difficulte": "Difficile",
+    "distance": 14.4,
+    "duree": "6h30",
+    "denivele": 1100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Pont de la Liane du Dassy à l'Entre-DeuxFamiliale",
+    "difficulte": "Moyen",
+    "distance": 6.2,
+    "duree": "2h",
+    "denivele": 450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Rando croquis et cases créoles à l'Entre DeuxFamiliale",
+    "difficulte": "Très facile",
+    "distance": 6.6,
+    "duree": "2h",
+    "denivele": 220,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Vers la Ravine Mal au Ventre à partir du sentier Bœuf",
+    "difficulte": "Difficile",
+    "distance": 18.5,
+    "duree": "7h30",
+    "denivele": 1200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Dimitile par le Zèbre et retour par la Grande Jument",
+    "difficulte": "Difficile",
+    "distance": 19.7,
+    "duree": "6h30",
+    "denivele": 1550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "La remontée du Bras de Cilaos du Ouaki jusqu'au Pavillon",
+    "difficulte": "Difficile",
+    "distance": 25.2,
+    "duree": "9h",
+    "denivele": 330,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "De l'Entre Deux au Dimitile par le Sentier Bœuf-Chapelle et retour par la Piste Jean Dubard",
+    "difficulte": "Moyen",
+    "distance": 14,
+    "duree": "5h",
+    "denivele": 800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Du Kiosque Jean Lauret au Bras de la Plaine par l'Ilet Marron et retour",
+    "difficulte": "Difficile",
+    "distance": 20,
+    "duree": "7h30",
+    "denivele": 1300,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Dimitile par la Grande Jument et retour par la Chapelle",
+    "difficulte": "Difficile",
+    "distance": 18,
+    "duree": "6h30",
+    "denivele": 1250,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "De l'Entre-Deux à Cilaos par le Piton de l'Entre-Deux et le Sentier jacky Inard",
+    "difficulte": "Difficile",
+    "distance": 22.7,
+    "duree": "8h30",
+    "denivele": 1700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le Dimitile par le Sentier Bayonne depuis le Bras de Cilaos",
+    "difficulte": "Très difficile",
+    "distance": 27.5,
+    "duree": "11h",
+    "denivele": 2000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "Le tour des Ravines Argamasse et de la Cape depuis le Kiosque Jean Lauret",
+    "difficulte": "Difficile",
+    "distance": 22.3,
+    "duree": "7h45",
+    "denivele": 1500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Les alentours de l'Entre-Deux"
+  },
+  {
+    "nom": "De Bois Court à la Cascade du Voile de la Mariée de Grand Bassin",
+    "difficulte": "Difficile",
+    "distance": 13.2,
+    "duree": "6h30",
+    "denivele": 860,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "De Saint-Louis à Bois Court par le Bras de la Plaine et Grand Bassin",
+    "difficulte": "Très difficile",
+    "distance": 26.3,
+    "duree": "10h",
+    "denivele": 1400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Le tour du Piton HyacintheFamiliale",
+    "difficulte": "Très facile",
+    "distance": 3.6,
+    "duree": "1h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Une boucle vers Grand Bassin par Bois Court et le Sentier Mollaret",
+    "difficulte": "Difficile",
+    "distance": 13.9,
+    "duree": "6h",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "La remontée du Bras Sec jusqu'aux Sources Samary depuis Bois Court",
+    "difficulte": "Moyen",
+    "distance": 7,
+    "duree": "5h",
+    "denivele": 180,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Le Coteau de Brèdes jusqu'à la Caverne Bateau",
+    "difficulte": "Difficile",
+    "distance": 3,
+    "duree": "3h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Grand Bassin et le Bras des Roches Noires depuis Bois Court",
+    "difficulte": "Difficile",
+    "distance": 15.2,
+    "duree": "8h",
+    "denivele": 950,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "De Bois Court au Pont d'Yves par la Canalisation des Hirondelles",
+    "difficulte": "Difficile",
+    "distance": 18.9,
+    "duree": "6h45",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Le captage du Bras de Sainte-Suzanne par le Sentier Mollaret",
+    "difficulte": "Très difficile",
+    "distance": 19.2,
+    "duree": "8h45",
+    "denivele": 1450,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de Bois Court"
+  },
+  {
+    "nom": "Entre ravines Souris Chaude et Jacques Payet depuis le gîte de Basse Vallée",
+    "difficulte": "Difficile",
+    "distance": 10.9,
+    "duree": "4h",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le tour de la Forêt de J. Payet depuis le village de Jacques Payet",
+    "difficulte": "Difficile",
+    "distance": 12.6,
+    "duree": "5h30",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "De Mare Longue au Tremblet par le sentier littoral",
+    "difficulte": "Moyen",
+    "distance": 13.4,
+    "duree": "5h",
+    "denivele": 160,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le circuit de la Pointe de la Table et des coulées de 1986Familiale",
+    "difficulte": "Facile",
+    "distance": 5.8,
+    "duree": "2h",
+    "denivele": 40,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La boucle de Matouta par le Gîte de Basse ValléeFamiliale",
+    "difficulte": "Moyen",
+    "distance": 11.8,
+    "duree": "4h",
+    "denivele": 530,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La boucle de Mare Longue à Basse Vallée par la RF des Camphriers",
+    "difficulte": "Difficile",
+    "distance": 18.7,
+    "duree": "5h30",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le sentier de la Caverne Gendarme",
+    "difficulte": "Facile",
+    "distance": 2.2,
+    "duree": "2h",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "De Saint-Philippe à La Porte par le sentier des pêcheurs",
+    "difficulte": "Moyen",
+    "distance": 8.7,
+    "duree": "5h30",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La nouvelle plage du Tremblet et la remontée de la coulée de 2007",
+    "difficulte": "Difficile",
+    "distance": 5.2,
+    "duree": "2h18",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La forêt primaire du Volcan Sud autour de la Source Mirandon",
+    "difficulte": "Difficile",
+    "distance": 11.1,
+    "duree": "9h",
+    "denivele": 1050,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le gouffre dans le Brûlé du Baril depuis le gîte de Basse Vallée",
+    "difficulte": "Difficile",
+    "distance": 7.6,
+    "duree": "4h30",
+    "denivele": 720,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Du Baril au Gîte de Théophane et Yoleine par un itinéraire privéFamiliale",
+    "difficulte": "Facile",
+    "distance": 12.2,
+    "duree": "3h30",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le tour de Saint Philippe par le Chemin de Ceinture et le littoralFamiliale",
+    "difficulte": "Moyen",
+    "distance": 17,
+    "duree": "4h30",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Du Souffleur d'Arbonne à la RF des Camphriers par le sentier botaniqueFamiliale",
+    "difficulte": "Moyen",
+    "distance": 16,
+    "duree": "4h30",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le tunnel de lave de Citrons Galets au Tremblet",
+    "difficulte": "Difficile",
+    "distance": 1.2,
+    "duree": "2h",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La boucle du Cap Mascarin au Baril, par le Cap MéchantFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.3,
+    "duree": "2h",
+    "denivele": 50,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "La Source Repiquet par la Vallée Heureuse",
+    "difficulte": "Moyen",
+    "distance": 14.5,
+    "duree": "4h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le tour de Takamaka par la RF de Takamaka, le littoral et la Pointe de la Table",
+    "difficulte": "Moyen",
+    "distance": 12,
+    "duree": "4h",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Une boucle du Baril à Mare Longue autour du Souffleur d'Arbonne",
+    "difficulte": "Facile",
+    "distance": 9.2,
+    "duree": "2h30",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Du Baril au Gîte du Pas de Bellecombe par les Puys Ramond",
+    "difficulte": "Difficile",
+    "distance": 23,
+    "duree": "8h30",
+    "denivele": 2400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le tour de la Vallée Heureuse par les Puys Ramond et le Piton de Bois Vert",
+    "difficulte": "Difficile",
+    "distance": 22,
+    "duree": "9h",
+    "denivele": 1800,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le sentier botanique de Mare Longue à Saint-PhilippeFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.3,
+    "duree": "1h30",
+    "denivele": 210,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Saint-Philippe et le Tremblet"
+  },
+  {
+    "nom": "Le Tour de Grand Pays par la Ravine de Grand Sable et le piton 1262",
+    "difficulte": "Très difficile",
+    "distance": 9.4,
+    "duree": "6h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "De l'arche naturelle au Bras d'Ouvrange par les îlets oubliés de Cap Blanc",
+    "difficulte": "Difficile",
+    "distance": 8.4,
+    "duree": "4h30",
+    "denivele": 420,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "Le grand tour du Morne Langevin depuis Grand Galet et par Grand Coude",
+    "difficulte": "Très difficile",
+    "distance": 25.5,
+    "duree": "9h30",
+    "denivele": 2000,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "Remontée de la Ravine des Sept Bras en rive gauche depuis Grand Galet",
+    "difficulte": "Difficile",
+    "distance": 10.7,
+    "duree": "5h30",
+    "denivele": 780,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "Une balade autour de la Ravine des Sept Bras depuis Grand GaletFamiliale",
+    "difficulte": "Facile",
+    "distance": 6.2,
+    "duree": "2h",
+    "denivele": 270,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "De Grand Galet à la Source du Cap Blanc par le Bras des Mousses",
+    "difficulte": "Très difficile",
+    "distance": 11.2,
+    "duree": "8h",
+    "denivele": 980,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "De Grand Galet à la Plaine des Sables par Cap Blanc, Grand Pays et la Grande Ravine",
+    "difficulte": "Difficile",
+    "distance": 23,
+    "duree": "9h",
+    "denivele": 1850,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "Le tour de Grand Fond depuis Grand Galet par le Chemin de la Croizure et le Bérénice",
+    "difficulte": "Moyen",
+    "distance": 9.2,
+    "duree": "4h",
+    "denivele": 790,
+    "region": "Cirque de Salazie",
+    "sousRegion": "La région de Grand Galet"
+  },
+  {
+    "nom": "Le sentier du Curcuma et l'aire du Rond à la Plaine des GrèguesFamiliale",
+    "difficulte": "Moyen",
+    "distance": 5.3,
+    "duree": "1h45",
+    "denivele": 260,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de la Plaine des Grègues"
+  },
+  {
+    "nom": "Une boucle autour du Piton de la Ligne des Mille à la Plaine des Grègues",
+    "difficulte": "Moyen",
+    "distance": 9.7,
+    "duree": "3h30",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de la Plaine des Grègues"
+  },
+  {
+    "nom": "La Boucle des Margosiers à la Plaine des Grègues",
+    "difficulte": "Difficile",
+    "distance": 11,
+    "duree": "5h",
+    "denivele": 900,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Région de la Plaine des Grègues"
+  },
+  {
+    "nom": "Du Pas de Bellecombe au Cratère KaporFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.9,
+    "duree": "2h45",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Enclos"
+  },
+  {
+    "nom": "Le tour du Cratère Dolomieu depuis le Pas de Bellecombe",
+    "difficulte": "Difficile",
+    "distance": 12.6,
+    "duree": "5h",
+    "denivele": 700,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Enclos"
+  },
+  {
+    "nom": "Le Piton de la Fournaise depuis le Pas de Bellecombe (circuit 2018)",
+    "difficulte": "Moyen",
+    "distance": 12.3,
+    "duree": "5h",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Enclos"
+  },
+  {
+    "nom": "Du Pas de Bellecombe au Château Fort par les Cratères Rivals",
+    "difficulte": "Moyen",
+    "distance": 14.2,
+    "duree": "5h30",
+    "denivele": 500,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Enclos"
+  },
+  {
+    "nom": "Le tour du Piton de la Fournaise par le Chateau Fort et le Kapor",
+    "difficulte": "Très difficile",
+    "distance": 17,
+    "duree": "8h30",
+    "denivele": 650,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Enclos"
+  },
+  {
+    "nom": "De la Plaine des Sables au Fond de la Rivière de l'Est par la Rampe Quatorze",
+    "difficulte": "Très difficile",
+    "distance": 8.3,
+    "duree": "4h30",
+    "denivele": 440,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "25 curiosités géologiques jusqu'à l'arche naturelle de la Plaine des Sables",
+    "difficulte": "Moyen",
+    "distance": 13.7,
+    "duree": "5h30",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Trois pitons de La Plaine des Sables depuis le Pas des Sables",
+    "difficulte": "Moyen",
+    "distance": 10.2,
+    "duree": "3h30",
+    "denivele": 340,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Piton des Feux de Manzac au Piton de Sauvetage en hors sentier",
+    "difficulte": "Difficile",
+    "distance": 12.4,
+    "duree": "7h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Tremblet au Piton du Tremblet par les coulées de 2007",
+    "difficulte": "Difficile",
+    "distance": 7.9,
+    "duree": "4h30",
+    "denivele": 550,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Une boucle vers le Brisant par la descente de la coulée de 2007Familiale",
+    "difficulte": "Facile",
+    "distance": 5.3,
+    "duree": "2h15",
+    "denivele": 200,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Une boucle au Quai de la Vierge par les deux coulées de 2002",
+    "difficulte": "Moyen",
+    "distance": 6.4,
+    "duree": "3h",
+    "denivele": 240,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "De la Vierge au Parasol au Tremblet par le Sentier des Laves",
+    "difficulte": "Moyen",
+    "distance": 12.5,
+    "duree": "4h30",
+    "denivele": 260,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Le tour du Piton Chisny depuis les Gendarmes",
+    "difficulte": "Facile",
+    "distance": 3.4,
+    "duree": "1h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Le grand tour de la Plaine des Sables par le Piton Rouge et l'Oratoire Sainte-Thérèse",
+    "difficulte": "Très difficile",
+    "distance": 16,
+    "duree": "5h30",
+    "denivele": 350,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Le tour du Plateau des Basaltes depuis la Plaine des Sables",
+    "difficulte": "Difficile",
+    "distance": 10.8,
+    "duree": "4h",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "De Bois Ozoux au Rempart des Basaltes, retour par la piste cavalièreFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.6,
+    "duree": "1h30",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Pas de Bellecombe au Piton Rouge par le sentier de bordFamiliale",
+    "difficulte": "Facile",
+    "distance": 7.7,
+    "duree": "2h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Morne Langevin au Puy du Pas des Sables par la Caverne de Cotte",
+    "difficulte": "Difficile",
+    "distance": 13.8,
+    "duree": "4h30",
+    "denivele": 280,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Piton de Sable au Piton des Treize Cantons par le Grand Bras Piton",
+    "difficulte": "Moyen",
+    "distance": 9.8,
+    "duree": "4h30",
+    "denivele": 460,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Le tour de la Plaine des Sables au plus plat en hors sentier près du rempartFamiliale",
+    "difficulte": "Facile",
+    "distance": 9.8,
+    "duree": "3h",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "La boucle des Dix Cratères en hors sentier autour de la Plaine des Remparts",
+    "difficulte": "Difficile",
+    "distance": 19.4,
+    "duree": "9h30",
+    "denivele": 820,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "La boucle du Grand Cap au Brisant par le Sentier des Laves",
+    "difficulte": "Moyen",
+    "distance": 6.2,
+    "duree": "2h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "La boucle du Piton Haüy au Piton du Rond de Langevin par les Cratères Aubert de la Rue",
+    "difficulte": "Difficile",
+    "distance": 12.7,
+    "duree": "5h",
+    "denivele": 320,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Du Pas des Sables au Morne LangevinFamiliale",
+    "difficulte": "Facile",
+    "distance": 7,
+    "duree": "2h15",
+    "denivele": 130,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "La montée au Piton Chisny depuis la RF du Vocan",
+    "difficulte": "Très facile",
+    "distance": 2,
+    "duree": "1h",
+    "denivele": 100,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Hors enclos"
+  },
+  {
+    "nom": "Le Piton Rouge par le Rempart des Basaltes et la Ravine Saucisson",
+    "difficulte": "Très difficile",
+    "distance": 12.5,
+    "duree": "8h",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Du Pas de Bellecombe au Nez Coupé de Sainte Rose",
+    "difficulte": "Moyen",
+    "distance": 10,
+    "duree": "3h30",
+    "denivele": 380,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Du Pas de Bellecombe au Piton de Partage, retour par la pisteFamiliale",
+    "difficulte": "Facile",
+    "distance": 4.8,
+    "duree": "1h30",
+    "denivele": 150,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Une boucle au Volcan par le Sentier de DécouverteFamiliale",
+    "difficulte": "Très facile",
+    "distance": 5.3,
+    "duree": "2h",
+    "denivele": 220,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Cassé de la Rivière de l'Est depuis le Pas de Bellecombe et par le Nez Coupé de Sainte-Rose",
+    "difficulte": "Difficile",
+    "distance": 17.5,
+    "duree": "7h",
+    "denivele": 750,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Le Piton Rouge et le Piton Rond dans le Fond de la Rivière de l'Est depuis le Gîte du Volcan",
+    "difficulte": "Difficile",
+    "distance": 16,
+    "duree": "6h30",
+    "denivele": 580,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "La boucle de la Ravine Haüy, Ravine Coco et du Piton Coco",
+    "difficulte": "Difficile",
+    "distance": 16.4,
+    "duree": "5h",
+    "denivele": 620,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Nord"
+  },
+  {
+    "nom": "Du Piton de Bert au Pas de Bellecombre par l'Enclos Fouqué",
+    "difficulte": "Très difficile",
+    "distance": 18.1,
+    "duree": "6h30",
+    "denivele": 400,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Sud"
+  },
+  {
+    "nom": "Du Piton Chisny aux Puys Ramond par le Piton de l'Eau",
+    "difficulte": "Difficile",
+    "distance": 22,
+    "duree": "8h30",
+    "denivele": 540,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Sud"
+  },
+  {
+    "nom": "La grotte de la Ravine la Source depuis la Plaine des Sables",
+    "difficulte": "Très difficile",
+    "distance": 15.6,
+    "duree": "4h30",
+    "denivele": 440,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Sud"
+  },
+  {
+    "nom": "De la Plaine des Sables au Piton de BertFamiliale",
+    "difficulte": "Moyen",
+    "distance": 13,
+    "duree": "3h30",
+    "denivele": 140,
+    "region": "Cirque de Salazie",
+    "sousRegion": "Volcan Sud"
+  }
+]

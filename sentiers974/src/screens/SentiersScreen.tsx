@@ -214,7 +214,7 @@ export default function SentiersScreen() {
   }
 
   return (
-    <Layout 
+    <Layout
       footerButtons={footerButtons}
       showHomeButton={false}
     >

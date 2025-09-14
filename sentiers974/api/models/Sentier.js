@@ -9,7 +9,7 @@ const SentierSchema = new mongoose.Schema({
   nom: { type: String, required: true },
   difficulte: { 
     type: String, 
-    enum: ['Facile', 'Modéré', 'Difficile', 'Très difficile', 'Expert'],
+    enum: ['Très facile', 'Facile', 'Moyen', 'Difficile', 'Très difficile'],
     required: true 
   },
   type: { 

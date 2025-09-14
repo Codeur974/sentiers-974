@@ -19,6 +19,7 @@ app.use(
         "http://localhost:3000",
         "http://localhost:4001", // API elle-même
         "http://localhost:8081", // Metro bundler Expo
+        "http://192.168.1.12:8081", // Metro bundler Expo sur IP mobile
         "https://senties974.vercel.app",
       ];
       

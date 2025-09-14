@@ -27,9 +27,51 @@ export function usePhotosData() {
   // Charger les performances d'une journée spécifique
   const loadDayPerformance = async (dateString: string): Promise<DayPerformance | undefined> => {
     try {
+      // Essayer d'abord de récupérer depuis MongoDB
+      try {
+        const response = await fetch(`http://192.168.1.12:3001/api/sessions/stats/daily?date=${dateString}&userId=default-user`);
+        if (response.ok) {
+          const mongoStats = await response.json();
+          if (mongoStats && mongoStats.success && mongoStats.data.totalSessions > 0) {
+            const data = mongoStats.data;
+            // Convertir les données MongoDB vers le format DayPerformance
+            const dayPerformance: DayPerformance = {
+              totalDistance: data.totalDistance / 1000, // Convertir mètres vers km
+              totalTime: data.totalDuration,
+              totalCalories: data.totalCalories,
+              avgSpeed: data.avgSpeed,
+              sessions: data.totalSessions,
+              maxSpeed: data.maxSpeed,
+              totalSteps: data.totalSteps || 0,
+              sessionsList: data.sessions?.map((session: any) => ({
+                distance: session.distance / 1000, // Convertir mètres vers km
+                duration: session.duration,
+                calories: 0, // Non disponible dans la réponse aggregée
+                avgSpeed: data.avgSpeed,
+                maxSpeed: data.maxSpeed,
+                steps: 0, // Non disponible dans la réponse aggregée
+                sport: session.sport,
+                sessionId: session.id,
+                timestamp: new Date(session.createdAt).getTime()
+              })) || []
+            };
+            logger.debug('Stats jour chargées depuis MongoDB:', dateString, 'PHOTOS');
+            return dayPerformance;
+          }
+        }
+      } catch (mongoError) {
+        logger.debug('MongoDB indisponible, fallback AsyncStorage:', mongoError, 'PHOTOS');
+      }
+
+      // Fallback: charger depuis AsyncStorage
       const statsKey = `daily_stats_${dateString}`;
       const savedStats = await AsyncStorage.getItem(statsKey);
-      return savedStats ? JSON.parse(savedStats) : undefined;
+      if (savedStats) {
+        logger.debug('Stats jour chargées depuis AsyncStorage:', dateString, 'PHOTOS');
+        return JSON.parse(savedStats);
+      }
+      
+      return undefined;
     } catch (error) {
       logger.error('Erreur chargement stats jour:', error, 'PHOTOS');
       return undefined;

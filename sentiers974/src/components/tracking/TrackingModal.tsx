@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Dimensions } from "react-native";
-import { TrackingControls, TrackingHeader, TrackingStats, SessionSummary } from ".";
+import TrackingControls from "./TrackingControls";
+import TrackingHeader from "./TrackingHeader";
+import TrackingStats from "./TrackingStats";
+import SessionSummary from "./SessionSummary";
 
 interface TrackingModalProps {
   visible: boolean;

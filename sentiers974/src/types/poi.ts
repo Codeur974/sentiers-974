@@ -10,6 +10,7 @@ export interface PointOfInterest {
   photoUri?: string;     // Chemin local de la photo
   createdAt: number;     // Timestamp de création
   sessionId?: string;    // ID de la session (pour grouper)
+  source?: 'local' | 'mongodb';  // Source du POI pour la synchronisation
 }
 
 export interface POICreationData {
