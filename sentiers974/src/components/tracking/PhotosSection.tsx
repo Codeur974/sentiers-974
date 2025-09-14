@@ -63,7 +63,7 @@ interface SessionGroup {
 }
 
 const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisible, onInteraction }, ref) => {
-  const { pois, deletePOI, createPOI } = usePointsOfInterest();
+  const { pois, deletePOI, deletePOIsBatch, createPOI, loading } = usePointsOfInterest();
   const { activities, refreshActivities } = useActivity();
   const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
   const [selectedPhoto, setSelectedPhoto] = useState<{uri: string, title: string, note?: string} | null>(null);
@@ -75,11 +75,191 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
   const [photoNote, setPhotoNote] = useState('');
   const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
   const [creatingPhoto, setCreatingPhoto] = useState(false);
+  
+  // États pour la sélection multiple
+  const [checkboxesVisible, setCheckboxesVisible] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<Set<string>>(new Set());
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
 
   // Exposer la fonction pour fermer toutes les sections
   useImperativeHandle(ref, () => ({
     closeAllSections: () => setExpandedSections(new Set())
   }));
+
+  // Fonction pour activer le mode sélection (au premier clic corbeille)
+  const activateSelectionMode = () => {
+    if (!checkboxesVisible) {
+      setCheckboxesVisible(true);
+      return true; // Indique que c'est la première activation
+    }
+    return false; // Les checkboxes étaient déjà visibles
+  };
+
+  const togglePhotoSelection = (photoId: string) => {
+    setSelectedPhotos(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(photoId)) {
+        newSet.delete(photoId);
+      } else {
+        newSet.add(photoId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSessionSelection = (sessionId: string) => {
+    setSelectedSessions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sessionId)) {
+        newSet.delete(sessionId);
+      } else {
+        newSet.add(sessionId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllPhotos = () => {
+    // Sélectionner seulement les photos des sections ouvertes
+    const visiblePhotoIds = photoGroups
+      .filter(group => expandedSections.has(group.date))
+      .flatMap(group => group.photos.map(photo => photo.id));
+    setSelectedPhotos(new Set(visiblePhotoIds));
+  };
+
+  const deselectAll = () => {
+    setSelectedPhotos(new Set());
+    setSelectedSessions(new Set());
+  };
+
+  // Fonction de gestion du clic sur la corbeille
+  const handleDeleteClick = async () => {
+    // Premier clic : activer le mode sélection
+    const isFirstClick = activateSelectionMode();
+    if (isFirstClick) {
+      return; // Ne rien faire d'autre, juste activer les checkboxes
+    }
+
+    // Clics suivants : vérifier la sélection et supprimer
+    const photoCount = selectedPhotos.size;
+    const sessionCount = selectedSessions.size;
+    const totalCount = photoCount + sessionCount;
+    
+    if (totalCount === 0) {
+      Alert.alert('Aucune sélection', 'Vous devez sélectionner au moins un élément à supprimer.');
+      return;
+    }
+
+    // Procéder à la suppression
+    await deleteSelectedItems();
+  };
+
+  // Suppression multiple
+  const deleteSelectedItems = async () => {
+    const photoCount = selectedPhotos.size;
+    const sessionCount = selectedSessions.size;
+
+    Alert.alert(
+      '🗑️ Suppression multiple',
+      `Êtes-vous sûr de vouloir supprimer :\n\n• ${photoCount} photo(s)\n• ${sessionCount} session(s)\n\nCette action est irréversible !`,
+      [
+        {
+          text: 'Annuler',
+          style: 'cancel',
+        },
+        {
+          text: 'SUPPRIMER',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('🗑️ === DÉBUT SUPPRESSION MULTIPLE ===');
+              console.log('📷 Photos sélectionnées:', Array.from(selectedPhotos));
+              console.log('📊 Sessions sélectionnées:', Array.from(selectedSessions));
+
+              // Supprimer les photos individuelles (seulement celles des sections ouvertes)
+              const visiblePhotos = photoGroups
+                .filter(group => expandedSections.has(group.date))
+                .flatMap(g => g.photos);
+              
+              // Collecter toutes les photos valides à supprimer d'abord
+              const photosToDelete = [];
+              for (const photoId of selectedPhotos) {
+                const photo = visiblePhotos.find(p => p.id === photoId);
+                if (photo) {
+                  console.log(`🗑️ Photo à supprimer: ${photo.title}, source: ${photo.source}`);
+                  if (photo.source === 'poi') {
+                    photosToDelete.push(photo.id);
+                  } else if (photo.source === 'backend') {
+                    console.log(`⚠️ Photo backend ignorée: ${photo.id} - Supprimer la session complète à la place`);
+                  } else {
+                    console.log(`❌ Type de photo non reconnu: ${photo.source}`);
+                  }
+                } else {
+                  console.log(`⚠️ Photo ${photoId} ignorée (section fermée)`);
+                }
+              }
+              
+              // Supprimer toutes les photos POI en une seule opération
+              if (photosToDelete.length > 0) {
+                console.log(`🗑️ Suppression de ${photosToDelete.length} POI en lot`);
+                
+                // Supprimer toutes les photos en parallèle pour éviter les conflits de state
+                const deletePromises = photosToDelete.map(async (photoId) => {
+                  try {
+                    await deletePOI(photoId);
+                    console.log(`✅ POI supprimé: ${photoId}`);
+                    return photoId;
+                  } catch (error) {
+                    console.error(`❌ Erreur suppression ${photoId}:`, error);
+                    return null;
+                  }
+                });
+                
+                const results = await Promise.all(deletePromises);
+                const successCount = results.filter(id => id !== null).length;
+                console.log(`✅ ${successCount}/${photosToDelete.length} POI supprimés avec succès`);
+              }
+
+              // Supprimer les sessions complètes (seulement celles des sections ouvertes)
+              const visibleSessionIds = photoGroups
+                .filter(group => expandedSections.has(group.date))
+                .flatMap(group => group.sessionGroups || [])
+                .map(sessionGroup => sessionGroup.sessionId);
+                
+              for (const sessionId of selectedSessions) {
+                if (visibleSessionIds.includes(sessionId)) {
+                  console.log(`🗑️ Suppression session (section ouverte): ${sessionId}`);
+                  await deleteSession(sessionId);
+                } else {
+                  console.log(`⚠️ Session ${sessionId} ignorée (section fermée)`);
+                }
+              }
+
+              console.log('✅ === SUPPRESSION MULTIPLE TERMINÉE ===');
+              
+              // Sortir du mode sélection et recharger
+              setCheckboxesVisible(false);
+              setSelectedPhotos(new Set());
+              setSelectedSessions(new Set());
+              
+              // Forcer plusieurs recharges pour s'assurer de la synchronisation
+              setRefreshTrigger(prev => prev + 1);
+              setTimeout(() => {
+                setRefreshTrigger(prev => prev + 1);
+              }, 100);
+              setTimeout(() => {
+                setRefreshTrigger(prev => prev + 1);
+              }, 500);
+
+            } catch (error) {
+              console.error('❌ Erreur suppression multiple:', error);
+              Alert.alert('❌ Erreur', `Erreur lors de la suppression multiple.\n\n${error.message || error}`);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   // Gérer l'ajout d'une photo oubliée
   const handleAddForgottenPhoto = (sessionId: string) => {
@@ -201,9 +381,15 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
   // Charger les performances d'une journée spécifique
   const loadDayPerformance = async (dateString: string): Promise<DayPerformance | undefined> => {
     try {
+      // Aller directement à AsyncStorage pour un affichage instantané
       const statsKey = `daily_stats_${dateString}`;
       const savedStats = await AsyncStorage.getItem(statsKey);
-      return savedStats ? JSON.parse(savedStats) : undefined;
+      if (savedStats) {
+        console.log('📱 Stats jour chargées depuis AsyncStorage:', dateString);
+        return JSON.parse(savedStats);
+      }
+      
+      return undefined;
     } catch (error) {
       console.error('❌ Erreur chargement stats jour:', error);
       return undefined;
@@ -397,17 +583,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       console.log('📷 POI locaux trouvés à supprimer:', dayPhotos.length);
       
       if (dayPhotos.length > 0) {
-        console.log('🗑️ Suppression des POI locaux...');
-        for (let i = 0; i < dayPhotos.length; i++) {
-          const poi = dayPhotos[i];
-          console.log(`🗑️ [${i+1}/${dayPhotos.length}] Suppression POI: ${poi.id} - "${poi.title}"`);
-          try {
-            await deletePOI(poi.id);
-            console.log(`✅ POI supprimé: ${poi.id}`);
-          } catch (poiError) {
-            console.error(`❌ Erreur suppression POI ${poi.id}:`, poiError);
-            throw poiError;
-          }
+        console.log('🗑️ Suppression des POI locaux en batch...');
+        try {
+          const poiIds = dayPhotos.map(poi => poi.id);
+          await deletePOIsBatch(poiIds);
+          console.log(`✅ ${poiIds.length} POI supprimés en batch`);
+        } catch (batchError) {
+          console.error('❌ Erreur suppression batch POI:', batchError);
         }
       } else {
         console.log('ℹ️ Aucun POI local à supprimer pour ce jour');
@@ -425,6 +607,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       
       if (dayActivities.length > 0) {
         console.log('🗑️ Suppression des activités backend...');
+        let activityErrors = [];
         for (let i = 0; i < dayActivities.length; i++) {
           const activity = dayActivities[i];
           console.log(`🗑️ [${i+1}/${dayActivities.length}] Suppression activité: ${activity._id} - "${activity.title}"`);
@@ -433,8 +616,12 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
             console.log(`✅ Activité supprimée: ${activity._id}`, result);
           } catch (activityError) {
             console.error(`❌ Erreur suppression activité ${activity._id}:`, activityError);
-            throw activityError;
+            activityErrors.push({activity: activity._id, error: activityError});
+            // Continue avec les autres activités au lieu de s'arrêter
           }
+        }
+        if (activityErrors.length > 0) {
+          console.warn(`⚠️ ${activityErrors.length} activité(s) n'ont pas pu être supprimées`);
         }
         
         console.log('🔄 Actualisation des activités après suppression backend...');
@@ -549,12 +736,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
   // Grouper les photos par jour et charger les performances
   useEffect(() => {
     const loadGroupsWithPerformance = async () => {
+      console.log('🔍 DEBUG PhotosSection: pois=', pois.length, 'activities=', activities.length);
       // Combiner les photos des POI locaux et des activités backend
       const allPhotos: PhotoItem[] = [
-        // Photos des POI locaux
-        ...pois.filter(poi => poi.photoUri).map(poi => ({
+        // Photos des POI locaux - afficher tous les POI avec ou sans photo
+        ...pois.map(poi => ({
           id: poi.id,
-          uri: poi.photoUri!,
+          uri: poi.photoUri || 'https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo',
           title: poi.title,
           note: poi.note,
           sessionId: poi.sessionId,
@@ -574,6 +762,9 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
           }))
         )
       ];
+      
+      console.log('📷 DEBUG allPhotos créés:', allPhotos.length, allPhotos.map(p => p.title));
+      console.log('📷 DEBUG allPhotos détail:', allPhotos.map(p => ({ id: p.id, title: p.title, createdAt: p.createdAt, date: new Date(p.createdAt).toLocaleDateString() })));
       
       const groupedByDate = allPhotos.reduce((groups, photo) => {
         const date = getLocalDateString(photo.createdAt); // Utilise le même format que la suppression
@@ -635,6 +826,10 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       
+      console.log('📊 DEBUG groupedByDate:', Object.keys(groupedByDate));
+      console.log('📊 DEBUG groupsWithPerformance:', groupsWithPerformance.length, groupsWithPerformance.map(g => ({ date: g.date, photos: g.photos.length })));
+      console.log('📊 DEBUG sortedGroups:', sortedGroups.length, sortedGroups.map(g => ({ date: g.date, photos: g.photos.length })));
+      
       setPhotoGroups(sortedGroups);
       
       // Toutes les sections fermées par défaut
@@ -652,6 +847,14 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       } else {
         newSet.add(date);
       }
+      
+      // Si toutes les sections sont fermées, désactiver le mode suppression
+      if (newSet.size === 0) {
+        setCheckboxesVisible(false);
+        setSelectedPhotos(new Set());
+        setSelectedSessions(new Set());
+      }
+      
       return newSet;
     });
   };
@@ -675,6 +878,84 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
       <Text className="text-blue-800 font-bold text-lg mb-3 text-center">
         🗂️ Mon Historique
       </Text>
+      
+      {/* Barre de contrôle simplifiée */}
+      <View className="mb-3 flex-row justify-between items-center">
+        <View className="flex-row items-center">
+          {checkboxesVisible && expandedSections.size > 0 && (
+            <View className="flex-row items-center mr-4">
+              <TouchableOpacity
+                onPress={() => {
+                  // Calculer les photos visibles (sections ouvertes)
+                  const visiblePhotoIds = photoGroups
+                    .filter(group => expandedSections.has(group.date))
+                    .flatMap(group => group.photos.map(photo => photo.id));
+                  
+                  // Vérifier si toutes les photos visibles sont sélectionnées
+                  const allVisibleSelected = visiblePhotoIds.length > 0 && 
+                    visiblePhotoIds.every(id => selectedPhotos.has(id));
+                  
+                  if (allVisibleSelected) {
+                    // Toutes les photos visibles sont sélectionnées, tout désélectionner
+                    setSelectedPhotos(new Set());
+                    setSelectedSessions(new Set());
+                  } else {
+                    // Sinon, tout sélectionner
+                    selectAllPhotos();
+                  }
+                }}
+                className="mr-3"
+              >
+                <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
+                  (() => {
+                    // Calculer les photos visibles
+                    const visiblePhotoIds = photoGroups
+                      .filter(group => expandedSections.has(group.date))
+                      .flatMap(group => group.photos.map(photo => photo.id));
+                    
+                    // Vérifier si toutes les photos visibles sont sélectionnées
+                    const allVisibleSelected = visiblePhotoIds.length > 0 && 
+                      visiblePhotoIds.every(id => selectedPhotos.has(id));
+                    
+                    return allVisibleSelected ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-400';
+                  })()
+                }`}>
+                  {(() => {
+                    // Calculer les photos visibles
+                    const visiblePhotoIds = photoGroups
+                      .filter(group => expandedSections.has(group.date))
+                      .flatMap(group => group.photos.map(photo => photo.id));
+                    
+                    // Vérifier si toutes les photos visibles sont sélectionnées
+                    const allVisibleSelected = visiblePhotoIds.length > 0 && 
+                      visiblePhotoIds.every(id => selectedPhotos.has(id));
+                    
+                    return allVisibleSelected ? <Text className="text-white text-xs font-bold">✓</Text> : null;
+                  })()}
+                </View>
+              </TouchableOpacity>
+              <Text className="text-gray-700 text-sm">Tout</Text>
+            </View>
+          )}
+          
+          {checkboxesVisible && expandedSections.size > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                setCheckboxesVisible(false);
+                setSelectedPhotos(new Set());
+                setSelectedSessions(new Set());
+              }}
+              className="mr-3 px-2 py-1 rounded bg-gray-100 border border-gray-300"
+            >
+              <Text className="text-gray-600 text-xs font-medium">Annuler</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        
+        <TouchableOpacity onPress={handleDeleteClick}>
+          <Text className="text-red-500 text-lg">🗑️</Text>
+        </TouchableOpacity>
+      </View>
       
       <View className="max-h-80">
         {photoGroups.map((group) => {
@@ -745,9 +1026,28 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                         {sessionGroup.performance && (
                           <View className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
                             <View className="flex-row justify-between items-center mb-2">
-                              <Text className="font-bold text-gray-800">
-                                📊 Session {sessionGroup.performance.sport}
-                              </Text>
+                              <View className="flex-row items-center">
+                                {/* Checkbox de sélection de session */}
+                                {checkboxesVisible && (
+                                  <TouchableOpacity
+                                    onPress={() => toggleSessionSelection(sessionGroup.sessionId)}
+                                    className="mr-3"
+                                  >
+                                    <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
+                                      selectedSessions.has(sessionGroup.sessionId)
+                                        ? 'bg-green-500 border-green-500'
+                                        : 'bg-white border-gray-400'
+                                    }`}>
+                                      {selectedSessions.has(sessionGroup.sessionId) && (
+                                        <Text className="text-white text-xs font-bold">✓</Text>
+                                      )}
+                                    </View>
+                                  </TouchableOpacity>
+                                )}
+                                <Text className="font-bold text-gray-800">
+                                  📊 Session {sessionGroup.performance.sport}
+                                </Text>
+                              </View>
                               <View className="flex-row space-x-2">
                                 <TouchableOpacity
                                   onPress={() => handleAddForgottenPhoto(sessionGroup.sessionId)}
@@ -806,15 +1106,40 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                           <TouchableOpacity
                             key={photo.id}
                             onPress={() => {
-                              setSelectedPhoto({
-                                uri: photo.uri,
-                                title: photo.title,
-                                note: photo.note
-                              });
-                              onInteraction?.();
+                              if (checkboxesVisible) {
+                                // Mode sélection active, on toggle la photo
+                                togglePhotoSelection(photo.id);
+                              } else {
+                                // Mode normal, ouvrir l'image
+                                setSelectedPhoto({
+                                  uri: photo.uri,
+                                  title: photo.title,
+                                  note: photo.note
+                                });
+                                onInteraction?.();
+                              }
                             }}
-                            className="flex-row items-center p-2 mb-2 bg-gray-50 rounded-lg border border-gray-200"
+                            className={`flex-row items-center p-2 mb-2 rounded-lg border ${
+                              selectedPhotos.has(photo.id)
+                                ? 'bg-blue-100 border-blue-300'
+                                : 'bg-gray-50 border-gray-200'
+                            }`}
                           >
+                            {/* Checkbox de sélection */}
+                            {checkboxesVisible && (
+                              <View className="mr-2">
+                                <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
+                                  selectedPhotos.has(photo.id)
+                                    ? 'bg-blue-500 border-blue-500'
+                                    : 'bg-white border-gray-400'
+                                }`}>
+                                  {selectedPhotos.has(photo.id) && (
+                                    <Text className="text-white text-xs font-bold">✓</Text>
+                                  )}
+                                </View>
+                              </View>
+                            )}
+                            
                             {/* Miniature de la photo */}
                             <Image
                               source={{ uri: photo.uri }}
@@ -834,24 +1159,25 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                               )}
                             </View>
                             
-                            {/* Actions */}
-                            <View className="flex-col items-center space-y-1">
+                            {/* Actions - repositionnées pour plus d'espace */}
+                            <View className="flex-row items-center space-x-3 ml-2">
                               {/* Badge source */}
-                              <View className={`px-2 py-1 rounded-full ${photo.source === 'poi' ? 'bg-blue-100' : 'bg-green-100'}`}>
-                                <Text className={`text-xs font-medium ${photo.source === 'poi' ? 'text-blue-600' : 'text-green-600'}`}>
+                              <View className={`px-3 py-2 rounded-lg ${photo.source === 'poi' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                                <Text className={`text-sm font-medium ${photo.source === 'poi' ? 'text-blue-600' : 'text-green-600'}`}>
                                   {photo.source === 'poi' ? '👁️' : '☁️'}
                                 </Text>
                               </View>
-                              {/* Bouton supprimer photo - différent selon la source */}
+                              
+                              {/* Bouton supprimer photo - plus grand et espacé */}
                               {photo.source === 'poi' ? (
                                 <TouchableOpacity
                                   onPress={(e) => {
                                     e.stopPropagation();
                                     confirmDeletePhoto(photo);
                                   }}
-                                  className="bg-red-100 p-1 rounded-full"
+                                  className="bg-red-100 px-3 py-2 rounded-lg border border-red-200"
                                 >
-                                  <Text className="text-red-600 text-xs">🗑️</Text>
+                                  <Text className="text-red-600 text-sm font-medium">🗑️</Text>
                                 </TouchableOpacity>
                               ) : (
                                 <TouchableOpacity
@@ -863,9 +1189,9 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                                       [{ text: 'OK' }]
                                     );
                                   }}
-                                  className="bg-gray-100 p-1 rounded-full opacity-50"
+                                  className="bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 opacity-50"
                                 >
-                                  <Text className="text-gray-500 text-xs">🔒</Text>
+                                  <Text className="text-gray-500 text-sm font-medium">🔒</Text>
                                 </TouchableOpacity>
                               )}
                             </View>
@@ -879,15 +1205,38 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                     <TouchableOpacity
                       key={photo.id}
                       onPress={() => {
-                        setSelectedPhoto({
-                          uri: photo.uri,
-                          title: photo.title,
-                          note: photo.note
-                        });
-                        onInteraction?.();
+                        if (checkboxesVisible) {
+                          togglePhotoSelection(photo.id);
+                        } else {
+                          setSelectedPhoto({
+                            uri: photo.uri,
+                            title: photo.title,
+                            note: photo.note
+                          });
+                          onInteraction?.();
+                        }
                       }}
-                      className="flex-row items-center p-2 mb-2 bg-gray-50 rounded-lg border border-gray-200"
+                      className={`flex-row items-center p-2 mb-2 rounded-lg border ${
+                        selectedPhotos.has(photo.id)
+                          ? 'bg-blue-100 border-blue-300'
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
                     >
+                      {/* Checkbox de sélection */}
+                      {checkboxesVisible && (
+                        <View className="mr-2">
+                          <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
+                            selectedPhotos.has(photo.id)
+                              ? 'bg-blue-500 border-blue-500'
+                              : 'bg-white border-gray-400'
+                          }`}>
+                            {selectedPhotos.has(photo.id) && (
+                              <Text className="text-white text-xs font-bold">✓</Text>
+                            )}
+                          </View>
+                        </View>
+                      )}
+                      
                       {/* Miniature de la photo */}
                       <Image
                         source={{ uri: photo.uri }}
@@ -905,14 +1254,44 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(({ isVisi
                             💭 {photo.note}
                           </Text>
                         )}
-                        {/* Indicateur de source */}
-                        <Text className="text-xs text-blue-500">
-                          {photo.source === 'backend' ? '☁️ Serveur' : '📱 Local'}
-                        </Text>
                       </View>
                       
-                      {/* Indicateur de clic */}
-                      <Text className="text-blue-500 text-xl mr-2">👁️</Text>
+                      {/* Actions - même style que les sessions groupées */}
+                      <View className="flex-row items-center space-x-3 ml-2">
+                        {/* Badge source */}
+                        <View className={`px-3 py-2 rounded-lg ${photo.source === 'poi' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                          <Text className={`text-sm font-medium ${photo.source === 'poi' ? 'text-blue-600' : 'text-green-600'}`}>
+                            {photo.source === 'poi' ? '👁️' : '☁️'}
+                          </Text>
+                        </View>
+                        
+                        {/* Bouton supprimer photo */}
+                        {photo.source === 'poi' ? (
+                          <TouchableOpacity
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              confirmDeletePhoto(photo);
+                            }}
+                            className="bg-red-100 px-3 py-2 rounded-lg border border-red-200"
+                          >
+                            <Text className="text-red-600 text-sm font-medium">🗑️</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              Alert.alert(
+                                'ℹ️ Photo serveur',
+                                'Cette photo provient du serveur.\n\nUtilisez "Supprimer Session" pour supprimer toute l\'activité.',
+                                [{ text: 'OK' }]
+                              );
+                            }}
+                            className="bg-gray-100 px-3 py-2 rounded-lg border border-gray-200 opacity-50"
+                          >
+                            <Text className="text-gray-500 text-sm font-medium">🔒</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
                     </TouchableOpacity>
                     ))
                   )}

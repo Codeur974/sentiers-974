@@ -25,7 +25,7 @@ export default function SportsScreen() {
       {/* Bouton Enregistrer */}
       <View className="items-center flex-1">
         <TouchableOpacity
-          onPress={() => {/* TODO: implémenter setSportFilterVisible */}}
+          onPress={() => navigation.navigate("Tracking")}
           className="w-10 h-10 items-center justify-center mb-1"
         >
           <Text className="text-base">📝</Text>
@@ -51,7 +51,10 @@ export default function SportsScreen() {
   );
 
   return (
-    <Layout footerButtons={footerButtons}>
+    <Layout
+      footerButtons={footerButtons}
+      showHomeButton={false}
+    >
       <ScrollView className="flex-1">
         <View className="px-4 bg-slate-50 flex-1 pt-4">
           <AllEventsSection />

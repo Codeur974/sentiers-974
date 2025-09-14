@@ -155,7 +155,7 @@ export default function PointOfInterestSection({
                     <Text className="text-sm text-gray-600 mt-1">{poi.note}</Text>
                   )}
                   <Text className="text-xs text-purple-600 mt-1">
-                    📏 {poi.distance.toFixed(2)}km • ⏱️ {formatTime(poi.time)} • 📅 {new Date(poi.createdAt).toLocaleDateString('fr-FR')}
+                    📏 {(poi.distance || 0).toFixed(2)}km • ⏱️ {formatTime(poi.time || 0)} • 📅 {new Date(poi.createdAt).toLocaleDateString('fr-FR')}
                   </Text>
                 </View>
                 

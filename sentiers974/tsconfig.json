@@ -12,8 +12,6 @@
     ]
   },
   "include": [
-    "App.tsx",
-    "app",
     "src",
     "types",
     "index.ts",

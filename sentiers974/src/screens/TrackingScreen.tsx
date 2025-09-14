@@ -16,6 +16,7 @@ export default function TrackingScreen({ route }: any) {
   const [selectedSport, setSelectedSport] = useState<any>(route?.params?.selectedSport || null);
   const [showTrackingFooter, setShowTrackingFooter] = useState(false);
   const [sportFilterVisible, setSportFilterVisible] = useState(false);
+  const [showSportModal, setShowSportModal] = useState(false);
   const trackingLogic = useTrackingLogic(selectedSport);
   const photosSectionRef = useRef<PhotosSectionRef>(null);
   const filterRef = useRef<FilterRef>(null);
@@ -198,7 +199,7 @@ export default function TrackingScreen({ route }: any) {
   return (
     <View className="flex-1">
       <Layout
-        footerButtons={getFooterButtons()}
+        showHomeButton={false}
       >
         {!selectedSport ? (
           <ScrollView className="flex-1 bg-white">
@@ -230,15 +231,174 @@ export default function TrackingScreen({ route }: any) {
               trackingLogic={trackingLogic}
               onBackToSelection={handleBackToSelection}
             />
-            
-            {/* Footer de tracking pour POI et photos */}
-            <TrackingFooter
-              trackingLogic={trackingLogic}
-              isVisible={showTrackingFooter}
-              onToggle={() => setShowTrackingFooter(!showTrackingFooter)}
-            />
+
+            {/* Footer avec Accueil, Suivi, Photos et contrôles tracking */}
+            <View className="bg-white px-4 py-4 pb-12 border-t border-gray-300 shadow-lg">
+              <View className="flex-row justify-around items-center w-full">
+                {/* Bouton Accueil */}
+                <View className="items-center flex-1">
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("Home")}
+                    className="w-10 h-10 items-center justify-center mb-1"
+                  >
+                    <Text className="text-base">🏠</Text>
+                  </TouchableOpacity>
+                  <Text className="text-gray-700 text-xs font-medium">
+                    Accueil
+                  </Text>
+                </View>
+
+                {/* Bouton Suivi - retour mode 1 */}
+                <View className="items-center flex-1">
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedSport(null);
+                      resetRecording();
+                    }}
+                    className="w-10 h-10 items-center justify-center mb-1"
+                  >
+                    <Text className="text-base">📊</Text>
+                  </TouchableOpacity>
+                  <Text className="text-gray-700 text-xs font-medium">
+                    Suivi
+                  </Text>
+                </View>
+
+                {/* Bouton Photos - POI et Photos */}
+                <View className="items-center flex-1">
+                  <TouchableOpacity
+                    onPress={() => setShowTrackingFooter(!showTrackingFooter)}
+                    className="w-10 h-10 items-center justify-center mb-1"
+                  >
+                    <Text className="text-base">📸</Text>
+                  </TouchableOpacity>
+                  <Text className="text-gray-700 text-xs font-medium">
+                    Photos
+                  </Text>
+                </View>
+
+                {/* Split manuel - visible seulement quand activité en cours */}
+                {trackingLogic.status === "running" && (
+                  <View className="items-center flex-1">
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleManualSplit}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">🚩</Text>
+                    </TouchableOpacity>
+                    <Text className="text-gray-700 text-xs font-medium">
+                      Split
+                    </Text>
+                  </View>
+                )}
+
+                {/* Contrôle principal de tracking */}
+                <View className="items-center flex-1">
+                  {trackingLogic.status === "idle" && (
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleStartTracking}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">▶️</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {trackingLogic.status === "running" && (
+                    <TouchableOpacity
+                      onPress={trackingLogic.handlePauseTracking}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">⏸️</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {trackingLogic.status === "paused" && (
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleResumeTracking}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">▶️</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {trackingLogic.status === "stopped" && (
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleNewSession}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">🔄</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <Text className="text-gray-700 text-xs font-medium">
+                    {trackingLogic.status === "idle" ? "Démarrer" :
+                     trackingLogic.status === "running" ? "Pause" :
+                     trackingLogic.status === "paused" ? "Reprendre" :
+                     trackingLogic.status === "stopped" ? "Nouveau" : "Tracking"}
+                  </Text>
+                </View>
+
+                {/* Bouton Stop/Retour */}
+                <View className="items-center flex-1">
+                  {(trackingLogic.status === "running" || trackingLogic.status === "paused") && (
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleStopTracking}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-lg text-red-500">■</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  {(trackingLogic.status === "idle" || trackingLogic.status === "stopped") && (
+                    <TouchableOpacity
+                      onPress={() => setShowSportModal(true)}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">🔄</Text>
+                    </TouchableOpacity>
+                  )}
+
+                  <Text className="text-gray-700 text-xs font-medium">
+                    {(trackingLogic.status === "running" || trackingLogic.status === "paused") ? "Arrêter" : "Changer"}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
           </View>
         )}
+
+        {/* Modal pour changer de sport depuis le mode 2 */}
+        <Modal
+          visible={showSportModal}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowSportModal(false)}
+        >
+          <View className="flex-1 justify-end bg-black/50">
+            <View className="bg-white rounded-t-3xl max-h-128">
+              <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+                <Text className="text-xl font-bold">Changer de sport</Text>
+                <TouchableOpacity
+                  onPress={() => setShowSportModal(false)}
+                  className="p-2"
+                >
+                  <Text className="text-lg">✕</Text>
+                </TouchableOpacity>
+              </View>
+              <Filter
+                ref={filterRef}
+                onSportSelect={(sport) => {
+                  setShowSportModal(false);
+                  setSelectedSport(sport);
+                  setStoreSport(sport);
+                }}
+                onCloseFilter={() => setShowSportModal(false)}
+                autoOpen={true}
+              />
+            </View>
+          </View>
+        </Modal>
       </Layout>
     </View>
   );

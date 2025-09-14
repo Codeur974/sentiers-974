@@ -1,5 +1,6 @@
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
+import { Alert } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
@@ -671,7 +672,92 @@ export const useTrackingLogic = (selectedSport: any) => {
         timestamp: Date.now()
       };
       
-      // Charger les performances existantes du jour
+      // Préparer les données pour MongoDB
+      const sessionData = {
+        sessionId: sessionId,
+        userId: 'default-user', // Sera remplacé par l'authentification plus tard
+        sport: {
+          nom: selectedSport.nom,
+          emoji: selectedSport.emoji || '🏃'
+        },
+        distance: distance * 1000, // Convertir km en mètres pour MongoDB
+        duration: finalDuration,
+        calories: calculateCalories(),
+        avgSpeed: avgSpeed,
+        maxSpeed: maxSpeed,
+        steps: steps,
+        trackingPath: trackingPath.map((point, index) => ({
+          latitude: point.latitude,
+          longitude: point.longitude,
+          timestamp: Date.now() - finalDuration + (index * 1000), // Timestamp approximatif
+          accuracy: 10 // Valeur par défaut
+        })),
+        pois: pointsOfInterest.map(poi => ({
+          id: poi.id,
+          title: poi.title,
+          note: poi.note,
+          coordinates: {
+            latitude: poi.latitude,
+            longitude: poi.longitude
+          },
+          photo: poi.photo,
+          timestamp: poi.timestamp
+        })),
+        status: 'completed'
+      };
+
+      // Sauvegarder dans MongoDB
+      try {
+        const response = await fetch('http://192.168.1.12:3001/api/sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(sessionData)
+        });
+
+        if (response.ok) {
+          const savedSession = await response.json();
+          console.log('✅ Session sauvegardée dans MongoDB:', savedSession._id);
+        } else {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+      } catch (mongoError) {
+        console.error('❌ Erreur MongoDB, fallback AsyncStorage:', mongoError);
+        
+        // Fallback: continuer avec AsyncStorage si MongoDB échoue
+        const existingStatsJson = await AsyncStorage.getItem(statsKey);
+        let dayPerformance = existingStatsJson ? JSON.parse(existingStatsJson) : {
+          totalDistance: 0,
+          totalTime: 0,
+          totalCalories: 0,
+          avgSpeed: 0,
+          sessions: 0,
+          maxSpeed: 0,
+          totalSteps: 0,
+          sessionsList: []
+        };
+        
+        // Mettre à jour les stats du jour
+        dayPerformance.totalDistance += distance;
+        dayPerformance.totalTime += finalDuration;
+        dayPerformance.totalCalories += calculateCalories();
+        dayPerformance.sessions += 1;
+        dayPerformance.maxSpeed = Math.max(dayPerformance.maxSpeed, maxSpeed);
+        dayPerformance.totalSteps += steps;
+        dayPerformance.avgSpeed = (dayPerformance.totalTime > 0) ? 
+          ((dayPerformance.totalDistance / (dayPerformance.totalTime / 3600000)) || 0) : 0;
+        
+        // Ajouter cette session à la liste
+        dayPerformance.sessionsList = dayPerformance.sessionsList || [];
+        dayPerformance.sessionsList.push(sessionPerformance);
+        
+        // Sauvegarder en local
+        await AsyncStorage.setItem(statsKey, JSON.stringify(dayPerformance));
+        console.log('📱 Sauvegarde AsyncStorage (fallback)');
+      }
+
+      // Maintenir aussi la sauvegarde locale pour l'historique existant
       const existingStatsJson = await AsyncStorage.getItem(statsKey);
       let dayPerformance = existingStatsJson ? JSON.parse(existingStatsJson) : {
         totalDistance: 0,
@@ -698,13 +784,14 @@ export const useTrackingLogic = (selectedSport: any) => {
       dayPerformance.sessionsList = dayPerformance.sessionsList || [];
       dayPerformance.sessionsList.push(sessionPerformance);
       
-      // Sauvegarder
+      // Sauvegarder aussi en local
       await AsyncStorage.setItem(statsKey, JSON.stringify(dayPerformance));
       
-      console.log('📊 Performances du jour sauvegardées:', {
+      console.log('📊 Session sauvegardée:', {
         date: today,
-        sessions: dayPerformance.sessions,
-        totalDistance: dayPerformance.totalDistance.toFixed(2) + 'km'
+        sessionId: sessionId,
+        sport: selectedSport.nom,
+        distance: distance.toFixed(2) + 'km'
       });
       
     } catch (error) {
@@ -716,10 +803,44 @@ export const useTrackingLogic = (selectedSport: any) => {
     stop();
     stopLocationTracking();
     const finalDuration = getDuration();
-    setDuration(finalDuration);
     
-    // Sauvegarder les performances de la session
-    await saveDailyPerformance(finalDuration);
+    // Demander confirmation pour sauvegarder
+    Alert.alert(
+      "Enregistrer la session ?",
+      `Durée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${(distance / 1000).toFixed(2)}km`,
+      [
+        {
+          text: "Non",
+          style: "cancel",
+          onPress: async () => {
+            // Reset direct sans sauvegarde
+            // Supprimer le sessionId pour éviter les conflits lors de la prochaine session
+            try {
+              await AsyncStorage.removeItem('currentSessionId');
+              console.log('🗑️ SessionId supprimé (session non sauvegardée)');
+            } catch (error) {
+              console.error('Erreur suppression sessionId:', error);
+            }
+            resetTracking();
+          }
+        },
+        {
+          text: "Oui", 
+          onPress: async () => {
+            // Sauvegarder puis stop session
+            await saveDailyPerformance(finalDuration);
+            // Supprimer le sessionId pour éviter les conflits lors de la prochaine session
+            try {
+              await AsyncStorage.removeItem('currentSessionId');
+              console.log('🗑️ SessionId supprimé après sauvegarde');
+            } catch (error) {
+              console.error('Erreur suppression sessionId:', error);
+            }
+            resetTracking();
+          }
+        }
+      ]
+    );
   };
 
   const resetTracking = () => {

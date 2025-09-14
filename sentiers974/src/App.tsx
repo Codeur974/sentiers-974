@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import RecordingIndicator from "./components/RecordingIndicator";
 import HomeScreen from "./screens/HomeScreen";
 import TrackingScreen from "./screens/TrackingScreen";
@@ -12,7 +13,7 @@ import SentierDetailScreen from "./screens/SentierDetailScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 export default function App() {
   // Initialiser le système d'automatisation au démarrage
@@ -37,70 +38,72 @@ export default function App() {
   }, []);
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen 
-          name="Home" 
-          component={HomeScreen}
-          options={({ route }) => ({
-            title: "Accueil",
-            headerRight: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <RecordingIndicator />
-                <TouchableOpacity 
-                  className="mr-4 p-2"
-                  onPress={() => {
-                    // Action pour les paramètres
-                    console.log("Paramètres");
-                  }}
-                >
-                  <Text className="text-lg">⚙️</Text>
-                </TouchableOpacity>
-              </View>
-            )
-          })}
-        />
-        <Stack.Screen 
-          name="Sports" 
-          component={SportsScreen}
-          options={{ 
-            title: "Sports & Événements",
-            headerRight: () => <RecordingIndicator />
-          }}
-        />
-        <Stack.Screen 
-          name="Tracking" 
-          component={TrackingScreen}
-          options={({ route }) => ({
-            title: route.params?.selectedSport ? "Mon Activité" : "Mon Suivi",
-            headerRight: () => <RecordingIndicator />
-          })}
-        />
-        <Stack.Screen 
-          name="Events" 
-          component={EventsScreen}
-          options={{ 
-            title: "Événements sportifs",
-            headerRight: () => <RecordingIndicator />
-          }}
-        />
-        <Stack.Screen 
-          name="Sentiers" 
-          component={SentiersScreen}
-          options={{ 
-            title: "Sentiers de La Réunion",
-            headerRight: () => <RecordingIndicator />
-          }}
-        />
-        <Stack.Screen 
-          name="SentierDetail" 
-          component={SentierDetailScreen}
-          options={{ 
-            title: "Détails du sentier",
-            headerShown: false // On utilise le header personnalisé du Layout
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={({ route }) => ({
+              title: "Accueil",
+              headerRight: () => (
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <RecordingIndicator />
+                  <TouchableOpacity
+                    className="mr-4 p-2"
+                    onPress={() => {
+                      // Action pour les paramètres
+                      console.log("Paramètres");
+                    }}
+                  >
+                    <Text className="text-lg">⚙️</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            })}
+          />
+          <Stack.Screen
+            name="Sports"
+            component={SportsScreen}
+            options={{
+              title: "Sports & Événements",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="Tracking"
+            component={TrackingScreen}
+            options={({ route }) => ({
+              title: (route.params as any)?.selectedSport ? "Mon Activité" : "Mon Suivi",
+              headerRight: () => <RecordingIndicator />
+            })}
+          />
+          <Stack.Screen
+            name="Events"
+            component={EventsScreen}
+            options={{
+              title: "Événements sportifs",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="Sentiers"
+            component={SentiersScreen}
+            options={{
+              title: "Sentiers de La Réunion",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="SentierDetail"
+            component={SentierDetailScreen}
+            options={{
+              title: "Détails du sentier",
+              headerShown: false // On utilise le header personnalisé du Layout
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
