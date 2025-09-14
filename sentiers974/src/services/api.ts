@@ -260,6 +260,43 @@ class ApiService {
   async getCurrentUserId(): Promise<string | null> {
     return await AsyncStorage.getItem('userId');
   }
+
+  // ===== SESSIONS DE TRACKING =====
+
+  // Récupérer toutes les sessions de l'utilisateur
+  async getUserSessions(params?: {
+    limit?: number;
+    sport?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('userId', 'default-user'); // TODO: remplacer par vrai userId
+
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.sport) queryParams.append('sport', params.sport);
+    if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom);
+    if (params?.dateTo) queryParams.append('dateTo', params.dateTo);
+
+    return this.request(`/sessions?${queryParams.toString()}`);
+  }
+
+  // Récupérer les statistiques quotidiennes depuis MongoDB
+  async getDailyStats(date: string) {
+    return this.request(`/sessions/stats/daily?userId=default-user&date=${date}`);
+  }
+
+  // Récupérer une session spécifique
+  async getSession(sessionId: string) {
+    return this.request(`/sessions/${sessionId}`);
+  }
+
+  // Supprimer une session
+  async deleteSession(sessionId: string) {
+    return this.request(`/sessions/${sessionId}`, {
+      method: 'DELETE'
+    });
+  }
 }
 
 // Instance singleton
