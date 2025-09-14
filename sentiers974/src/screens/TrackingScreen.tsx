@@ -218,7 +218,7 @@ export default function TrackingScreen({ route }: any) {
     <View className="flex-1">
       <Layout
         showHomeButton={false}
-        footerButtons={!selectedSport ? <FooterNavigation currentPage="Tracking" onEnregistrer={() => setSportFilterVisible(true)} /> : getFooterButtons()}
+        footerButtons={!selectedSport ? <FooterNavigation currentPage="Tracking" onEnregistrer={() => setSportFilterVisible(true)} /> : null}
       >
         {!selectedSport ? (
           <ScrollView className="flex-1 bg-white">
@@ -384,6 +384,13 @@ export default function TrackingScreen({ route }: any) {
               </View>
             </View>
 
+            {/* Footer de tracking pour POI et photos */}
+            <TrackingFooter
+              trackingLogic={trackingLogic}
+              isVisible={showTrackingFooter}
+              onToggle={() => setShowTrackingFooter(!showTrackingFooter)}
+            />
+
           </View>
         )}
 
@@ -428,15 +435,6 @@ export default function TrackingScreen({ route }: any) {
         >
           <View className="flex-1 justify-end bg-black/50">
             <View className="bg-white rounded-t-3xl max-h-128">
-              <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
-                <Text className="text-xl font-bold">Choisir un sport</Text>
-                <TouchableOpacity
-                  onPress={() => setSportFilterVisible(false)}
-                  className="p-2"
-                >
-                  <Text className="text-lg">✕</Text>
-                </TouchableOpacity>
-              </View>
               <Filter
                 onSportSelect={(sport) => {
                   setSportFilterVisible(false);
@@ -445,6 +443,7 @@ export default function TrackingScreen({ route }: any) {
                 }}
                 onCloseFilter={() => setSportFilterVisible(false)}
                 autoOpen={true}
+                showCloseButton={true}
               />
             </View>
           </View>
