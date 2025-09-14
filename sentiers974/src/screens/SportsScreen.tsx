@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import AllEventsSection from "../components/AllEventsSection";
 import Layout from "../components/Layout";
+import FooterNavigation from "../components/FooterNavigation";
 
 export default function SportsScreen() {
   const navigation = useNavigation();
@@ -52,7 +53,7 @@ export default function SportsScreen() {
 
   return (
     <Layout
-      footerButtons={footerButtons}
+      footerButtons={<FooterNavigation currentPage="Sports" />}
       showHomeButton={false}
     >
       <ScrollView className="flex-1">

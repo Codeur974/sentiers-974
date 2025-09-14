@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, RefreshControl, TextInput } from "react-native";
 import Layout from "../components/Layout";
+import FooterNavigation from "../components/FooterNavigation";
 import EventCard from "../components/EventCard";
 import { SportEvent } from "../types/events";
 import { getUpcomingReunionEvents } from "../data/reunionEvents";
+import { useNavigation } from "@react-navigation/native";
 
 export default function EventsScreen() {
   const [allEvents, setAllEvents] = useState<SportEvent[]>([]);
@@ -143,6 +145,8 @@ export default function EventsScreen() {
       headerTitle="Événements sportifs"
       showBackButton={true}
       headerButtons={headerButtons}
+      footerButtons={<FooterNavigation currentPage="Events" />}
+      showHomeButton={false}
     >
       <ScrollView 
         className="flex-1 bg-gray-50"

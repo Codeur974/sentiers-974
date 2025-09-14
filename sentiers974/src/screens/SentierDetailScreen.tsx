@@ -10,6 +10,7 @@ import {
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import Layout from '../components/Layout';
+import FooterNavigation from '../components/FooterNavigation';
 import { RootStackParamList } from '../types/navigation';
 import { SentierReel } from '../services/sentiersService';
 
@@ -61,10 +62,12 @@ export default function SentierDetailScreen() {
   );
 
   return (
-    <Layout 
+    <Layout
       headerTitle={sentier.nom}
       headerButtons={headerButtons}
       showBackButton={true}
+      footerButtons={<FooterNavigation currentPage="SentierDetail" />}
+      showHomeButton={false}
     >
       <ScrollView className="flex-1 bg-gray-50">
         {/* Section principale */}
