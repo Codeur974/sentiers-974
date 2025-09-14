@@ -6,7 +6,9 @@ export type RootStackParamList = {
     openCreatePost?: () => void;
   } | undefined;
   Sports: undefined;
-  Tracking: undefined;
+  Tracking: {
+    selectedSport?: any;
+  } | undefined;
   Events: undefined;
   Sentiers: undefined;
   SentierDetail: {

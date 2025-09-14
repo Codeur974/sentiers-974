@@ -133,8 +133,8 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
               resizeMode="cover"
             />
           ) : (
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               className="h-64"
             >

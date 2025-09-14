@@ -148,7 +148,7 @@ export default function TrackingFooter({
       <View className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg flex-1">
         {/* Header */}
         <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-          <Text className="text-lg font-bold">📍 Actions de tracking</Text>
+          <Text className="text-lg font-bold">📸 Capture tes moments !</Text>
           <TouchableOpacity onPress={onToggle} className="bg-gray-200 px-3 py-1 rounded-lg">
             <Text className="text-gray-600 font-bold">⬇️</Text>
           </TouchableOpacity>
@@ -196,7 +196,7 @@ export default function TrackingFooter({
                       <View className="flex-1">
                         <Text className="font-bold">{poi.title}</Text>
                         <Text className="text-xs text-gray-600">
-                          📏 {poi.distance.toFixed(2)}km • ⏱️ {formatTime(poi.time)}
+                          📏 {(poi.distance || 0).toFixed(2)}km • ⏱️ {formatTime(poi.time || 0)}
                         </Text>
                         <Text className="text-xs text-gray-500">
                           Photo: {poi.photoUri ? '✅ Disponible' : '❌ Aucune'}

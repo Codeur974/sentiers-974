@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const Sentier = require('./models/Sentier');
+const Session = require('./models/Session');
 require('dotenv').config();
 
 const app = express();
@@ -19,10 +20,7 @@ app.use(cors({
 app.use(express.json());
 
 // Connexion MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log('✅ MongoDB connecté'))
 .catch(err => console.error('❌ Erreur MongoDB:', err));
 
@@ -469,15 +467,370 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/sessions
+ * Créer une nouvelle session de tracking
+ */
+app.post('/api/sessions', async (req, res) => {
+  try {
+    const sessionData = req.body;
+    
+    // Validation basique
+    if (!sessionData.sessionId || !sessionData.sport?.nom) {
+      return res.status(400).json({
+        success: false,
+        error: 'sessionId et sport.nom sont requis'
+      });
+    }
+    
+    // Créer la session
+    const session = new Session(sessionData);
+    await session.save();
+    
+    console.log('✅ Session sauvegardée:', session.sessionId);
+    
+    res.status(201).json({
+      success: true,
+      data: session.toClientFormat()
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur sauvegarde session:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur lors de la sauvegarde'
+    });
+  }
+});
+
+/**
+ * GET /api/sessions
+ * Récupérer les sessions d'un utilisateur
+ * Query params:
+ * - userId: ID utilisateur (défaut: 'anonymous')
+ * - limit: Nombre max de sessions (défaut: 50)
+ * - sport: Filtrer par sport
+ * - dateFrom, dateTo: Filtrer par période
+ */
+app.get('/api/sessions', async (req, res) => {
+  try {
+    const {
+      userId = 'anonymous',
+      limit = 50,
+      sport,
+      dateFrom,
+      dateTo
+    } = req.query;
+    
+    // Construction de la requête
+    let query = { userId };
+    
+    if (sport) query['sport.nom'] = sport;
+    
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) query.createdAt.$lte = new Date(dateTo);
+    }
+    
+    // Récupérer les sessions
+    const sessions = await Session.find(query)
+      .sort({ createdAt: -1 })
+      .limit(parseInt(limit));
+    
+    res.json({
+      success: true,
+      data: sessions.map(s => s.toClientFormat()),
+      count: sessions.length
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur récupération sessions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * GET /api/sessions/:sessionId
+ * Récupérer une session spécifique avec tous les détails
+ */
+app.get('/api/sessions/:sessionId', async (req, res) => {
+  try {
+    const session = await Session.findOne({ sessionId: req.params.sessionId });
+    
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        error: 'Session non trouvée'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: {
+        ...session.toClientFormat(),
+        // Données complètes pour la vue détaillée
+        trackingPath: session.trackingPath,
+        pois: session.pois,
+        photos: session.photos,
+        startCoordinates: session.startCoordinates,
+        endCoordinates: session.endCoordinates
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur récupération session:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * DELETE /api/sessions/:sessionId
+ * Supprimer une session
+ */
+app.delete('/api/sessions/:sessionId', async (req, res) => {
+  try {
+    const result = await Session.deleteOne({ sessionId: req.params.sessionId });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Session non trouvée'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Session supprimée'
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur suppression session:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * GET /api/sessions/stats/daily
+ * Récupérer les statistiques quotidiennes
+ */
+app.get('/api/sessions/stats/daily', async (req, res) => {
+  try {
+    const { userId = 'anonymous', date } = req.query;
+    
+    let startDate, endDate;
+    if (date) {
+      startDate = new Date(date);
+      endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+    } else {
+      // Aujourd'hui par défaut
+      startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
+    }
+    
+    const stats = await Session.aggregate([
+      {
+        $match: {
+          userId: userId,
+          createdAt: { $gte: startDate, $lt: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalSessions: { $sum: 1 },
+          totalDistance: { $sum: '$distance' },
+          totalDuration: { $sum: '$duration' },
+          totalCalories: { $sum: '$calories' },
+          totalSteps: { $sum: '$steps' },
+          avgSpeed: { $avg: '$avgSpeed' },
+          maxSpeed: { $max: '$maxSpeed' },
+          sports: { $addToSet: '$sport.nom' },
+          sessions: { 
+            $push: {
+              id: '$sessionId',
+              sport: '$sport.nom',
+              distance: '$distance',
+              duration: '$duration',
+              createdAt: '$createdAt'
+            }
+          }
+        }
+      }
+    ]);
+    
+    res.json({
+      success: true,
+      date: startDate.toISOString().split('T')[0],
+      data: stats.length > 0 ? stats[0] : {
+        totalSessions: 0,
+        totalDistance: 0,
+        totalDuration: 0,
+        totalCalories: 0,
+        totalSteps: 0,
+        avgSpeed: 0,
+        maxSpeed: 0,
+        sports: [],
+        sessions: []
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur stats quotidiennes:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+// Routes POI (Points of Interest)
+
+/**
+ * GET /api/pointofinterests
+ * Récupérer tous les POI avec filtres optionnels
+ */
+app.get('/api/pointofinterests', async (req, res) => {
+  try {
+    const { userId = 'default-user', sessionId } = req.query;
+    
+    let filter = {};
+    
+    // Filtre par utilisateur si spécifié
+    if (userId) {
+      filter.userId = userId;
+    }
+    
+    // Filtre par session si spécifié
+    if (sessionId) {
+      filter.sessionId = sessionId;
+    }
+    
+    // Récupérer depuis la collection pointofinterests
+    const db = mongoose.connection.db;
+    const pois = await db.collection('pointofinterests').find(filter).toArray();
+    
+    res.json({
+      success: true,
+      count: pois.length,
+      data: pois
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur récupération POI:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * POST /api/pointofinterests
+ * Créer un nouveau POI
+ */
+app.post('/api/pointofinterests', async (req, res) => {
+  try {
+    const poiData = req.body;
+    
+    // Validation basique
+    if (!poiData.title || !poiData.latitude || !poiData.longitude) {
+      return res.status(400).json({
+        success: false,
+        error: 'Title, latitude et longitude sont requis'
+      });
+    }
+    
+    // Ajouter timestamp de création
+    poiData.createdAt = new Date();
+    
+    // Insérer dans la collection pointofinterests
+    const db = mongoose.connection.db;
+    const result = await db.collection('pointofinterests').insertOne(poiData);
+    
+    res.json({
+      success: true,
+      data: {
+        _id: result.insertedId,
+        ...poiData
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur création POI:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * DELETE /api/pointofinterests/:id
+ * Supprimer un POI
+ */
+app.delete('/api/pointofinterests/:id', async (req, res) => {
+  try {
+    const db = mongoose.connection.db;
+    let query = { id: req.params.id };
+    
+    // Si c'est un ObjectId valide, chercher aussi par _id
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = {
+        $or: [
+          { _id: new mongoose.Types.ObjectId(req.params.id) },
+          { id: req.params.id }
+        ]
+      };
+    }
+    
+    const result = await db.collection('pointofinterests').deleteOne(query);
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'POI non trouvé'
+      });
+    }
+    
+    res.json({
+      success: true,
+      message: 'POI supprimé'
+    });
+    
+  } catch (error) {
+    console.error('❌ Erreur suppression POI:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
 // Route de santé
 app.get('/api/health', async (req, res) => {
   try {
-    const count = await Sentier.countDocuments();
+    const sentiersCount = await Sentier.countDocuments();
+    const sessionsCount = await Session.countDocuments();
+    
     res.json({
       success: true,
       status: 'healthy',
       mongodb: 'connected',
-      sentiers_count: count,
+      sentiers_count: sentiersCount,
+      sessions_count: sessionsCount,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -509,5 +862,10 @@ app.listen(PORT, () => {
   console.log(`   GET /api/communes - Liste des communes`);
   console.log(`   GET /api/stats - Statistiques`);
   console.log(`   GET /api/search?q=... - Recherche`);
+  console.log(`   POST /api/sessions - Créer une session de tracking`);
+  console.log(`   GET /api/sessions - Liste des sessions avec filtres`);
+  console.log(`   GET /api/sessions/:id - Détails d'une session`);
+  console.log(`   DELETE /api/sessions/:id - Supprimer une session`);
+  console.log(`   GET /api/sessions/stats/daily - Statistiques quotidiennes`);
   console.log(`   GET /api/health - État de santé`);
 });
