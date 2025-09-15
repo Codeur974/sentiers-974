@@ -19,9 +19,18 @@ interface CreatePostModalProps {
   onClose: () => void;
   onSubmit: (postData: CreatePostData) => void;
   editPost?: SocialPost; // Post à modifier (optionnel)
+  onSelectFromHistory?: () => void; // Callback pour ouvrir l'historique
+  selectedHistoryPhotos?: SocialPhoto[]; // Photos sélectionnées depuis l'historique
 }
 
-export default function CreatePostModal({ visible, onClose, onSubmit, editPost }: CreatePostModalProps) {
+export default function CreatePostModal({
+  visible,
+  onClose,
+  onSubmit,
+  editPost,
+  onSelectFromHistory,
+  selectedHistoryPhotos
+}: CreatePostModalProps) {
   const [caption, setCaption] = useState('');
   const [photos, setPhotos] = useState<SocialPhoto[]>([]);
   const [location, setLocation] = useState('');
@@ -37,6 +46,31 @@ export default function CreatePostModal({ visible, onClose, onSubmit, editPost }
       setSport(editPost.sport || '');
     }
   }, [editPost, visible]);
+
+  // Intégrer les photos sélectionnées depuis l'historique
+  React.useEffect(() => {
+    if (selectedHistoryPhotos && selectedHistoryPhotos.length > 0) {
+      console.log(`📸 ${selectedHistoryPhotos.length} photo(s) reçue(s) depuis l'historique`);
+
+      // Vérifier qu'on ne dépasse pas la limite
+      const currentCount = photos.length;
+      const newCount = selectedHistoryPhotos.length;
+      const maxPhotos = 10;
+
+      if (currentCount + newCount > maxPhotos) {
+        Alert.alert(
+          'Limite dépassée',
+          `Vous ne pouvez ajouter que ${maxPhotos - currentCount} photo(s) supplémentaire(s). Certaines photos ont été ignorées.`
+        );
+
+        // Prendre seulement le nombre de photos autorisé
+        const allowedPhotos = selectedHistoryPhotos.slice(0, maxPhotos - currentCount);
+        setPhotos(prev => [...prev, ...allowedPhotos]);
+      } else {
+        setPhotos(prev => [...prev, ...selectedHistoryPhotos]);
+      }
+    }
+  }, [selectedHistoryPhotos]);
 
   const resetForm = () => {
     setCaption('');
@@ -141,22 +175,39 @@ export default function CreatePostModal({ visible, onClose, onSubmit, editPost }
       // Ouvrir la galerie
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
+        allowsEditing: false, // Désactiver l'édition pour sélection multiple
         quality: 0.8,
-        allowsMultipleSelection: false,
+        allowsMultipleSelection: true,
+        selectionLimit: 5, // Limiter à 5 photos max
       });
 
       console.log('🖼️ Résultat galerie:', result);
 
-      if (!result.canceled && result.assets && result.assets[0]) {
-        const newPhoto: SocialPhoto = {
-          id: `photo_${Date.now()}`,
-          uri: result.assets[0].uri,
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        console.log(`📸 ${result.assets.length} photo(s) sélectionnée(s)`);
+
+        // Vérifier qu'on ne dépasse pas 10 photos total
+        const currentCount = photos.length;
+        const newCount = result.assets.length;
+        const maxPhotos = 10;
+
+        if (currentCount + newCount > maxPhotos) {
+          Alert.alert(
+            'Limite dépassée',
+            `Vous ne pouvez ajouter que ${maxPhotos - currentCount} photo(s) supplémentaire(s). Maximum: ${maxPhotos} photos par post.`
+          );
+          return;
+        }
+
+        // Convertir toutes les images sélectionnées
+        const newPhotos: SocialPhoto[] = result.assets.map((asset, index) => ({
+          id: `photo_${Date.now()}_${index}`,
+          uri: asset.uri,
           caption: ''
-        };
-        console.log('✅ Photo ajoutée:', newPhoto.id);
-        setPhotos(prev => [...prev, newPhoto]);
+        }));
+
+        console.log('✅ Photos ajoutées:', newPhotos.map(p => p.id));
+        setPhotos(prev => [...prev, ...newPhotos]);
       }
     } catch (error) {
       console.error('❌ Erreur sélection photo:', error);
@@ -236,7 +287,12 @@ export default function CreatePostModal({ visible, onClose, onSubmit, editPost }
 
             {/* Photos */}
             <View className="mb-4">
-              <Text className="text-base font-semibold text-gray-900 mb-3">Photos</Text>
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-base font-semibold text-gray-900">Photos</Text>
+                <Text className="text-sm text-gray-500">
+                  {photos.length}/10 {photos.length > 0 ? 'photo' + (photos.length > 1 ? 's' : '') : ''}
+                </Text>
+              </View>
               
               {/* Photos ajoutées */}
               {photos.length > 0 && (
@@ -259,21 +315,37 @@ export default function CreatePostModal({ visible, onClose, onSubmit, editPost }
               )}
 
               {/* Boutons d'ajout de photos */}
-              <View className="flex-row space-x-3">
-                <TouchableOpacity
-                  onPress={handleTakePhoto}
-                  className="flex-1 bg-blue-50 border border-blue-200 rounded-xl p-4 items-center"
-                >
-                  <Text className="text-2xl mb-1">📷</Text>
-                  <Text className="text-blue-600 font-medium">Prendre</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handlePickPhoto}
-                  className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 items-center"
-                >
-                  <Text className="text-2xl mb-1">📱</Text>
-                  <Text className="text-green-600 font-medium">Galerie</Text>
-                </TouchableOpacity>
+              <View className="space-y-3">
+                {/* Première ligne */}
+                <View className="flex-row space-x-3">
+                  <TouchableOpacity
+                    onPress={handleTakePhoto}
+                    className="flex-1 bg-blue-50 border border-blue-200 rounded-xl p-4 items-center"
+                  >
+                    <Text className="text-2xl mb-1">📷</Text>
+                    <Text className="text-blue-600 font-medium">Prendre</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handlePickPhoto}
+                    className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 items-center"
+                  >
+                    <Text className="text-2xl mb-1">📱</Text>
+                    <Text className="text-green-600 font-medium">Galerie (multi)</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Seconde ligne - Bouton historique */}
+                {onSelectFromHistory && (
+                  <TouchableOpacity
+                    onPress={onSelectFromHistory}
+                    className="bg-purple-50 border border-purple-200 rounded-xl p-4 items-center"
+                  >
+                    <View className="flex-row items-center">
+                      <Text className="text-2xl mr-2">🗂️</Text>
+                      <Text className="text-purple-600 font-medium">Sélectionner depuis l'historique</Text>
+                    </View>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 

@@ -12,12 +12,25 @@ import TrackingFooter from "../components/tracking/TrackingFooter";
 import { useTrackingLogic } from "../hooks";
 import { useNavigation } from "@react-navigation/native";
 import Filter, { FilterRef } from "../components/Filter";
+import CreatePostModal from "../components/social/CreatePostModal";
+import { SocialPhoto } from "../types/social";
+import { useSocialStore } from "../store/useSocialStore";
 
 export default function TrackingScreen({ route }: any) {
   const [selectedSport, setSelectedSport] = useState<any>(route?.params?.selectedSport || null);
   const [showTrackingFooter, setShowTrackingFooter] = useState(false);
   const [sportFilterVisible, setSportFilterVisible] = useState(false);
   const [showSportModal, setShowSportModal] = useState(false);
+  const {
+    createPost,
+    updatePost,
+    createPostModalVisible,
+    showCreatePostModal,
+    hideCreatePostModal,
+    editingPost,
+    setEditingPost
+  } = useSocialStore();
+  const [selectedPhotosForPost, setSelectedPhotosForPost] = useState<SocialPhoto[]>([]);
   const trackingLogic = useTrackingLogic(selectedSport);
   const photosSectionRef = useRef<PhotosSectionRef>(null);
   const filterRef = useRef<FilterRef>(null);
@@ -65,6 +78,31 @@ export default function TrackingScreen({ route }: any) {
   const handleSportSelect = (sport: any) => {
     setSelectedSport(sport);
     setStoreSport(sport); // Sauvegarder dans le store global
+  };
+
+  // Fonction appelée depuis PhotosSection pour créer un post avec photos sélectionnées
+  const handleCreatePostFromPhotos = (photos: any[]) => {
+    console.log('📱 TrackingScreen: Création post avec', photos.length, 'photos');
+
+    // Convertir les PhotoItem vers SocialPhoto format
+    const socialPhotos: SocialPhoto[] = photos.map((photo, index) => ({
+      id: `tracking_${photo.id}_${Date.now()}_${index}`,
+      uri: photo.uri,
+      caption: photo.note || photo.title || ''
+    }));
+
+    setSelectedPhotosForPost(socialPhotos);
+    showCreatePostModal();
+  };
+
+  // Gérer la soumission du post depuis le modal
+  const handleSubmitPost = (postData: any) => {
+    if (editingPost) {
+      updatePost(editingPost.id, postData);
+    } else {
+      createPost(postData);
+    }
+    setSelectedPhotosForPost([]);
   };
 
   const handlePhotosSectionInteraction = () => {
@@ -224,10 +262,11 @@ export default function TrackingScreen({ route }: any) {
           <ScrollView className="flex-1 bg-white">
             <View className="p-4">
               {/* Section Photos avec historique */}
-              <PhotosSection 
+              <PhotosSection
                 ref={photosSectionRef}
-                isVisible={true} 
+                isVisible={true}
                 onInteraction={handlePhotosSectionInteraction}
+                onCreatePost={handleCreatePostFromPhotos}
               />
             </View>
           </ScrollView>
@@ -448,6 +487,15 @@ export default function TrackingScreen({ route }: any) {
             </View>
           </View>
         </Modal>
+
+        {/* Modal pour créer un post social depuis les photos */}
+        <CreatePostModal
+          visible={createPostModalVisible}
+          onClose={hideCreatePostModal}
+          onSubmit={handleSubmitPost}
+          editPost={editingPost || undefined}
+          selectedHistoryPhotos={selectedPhotosForPost}
+        />
       </Layout>
     </View>
   );

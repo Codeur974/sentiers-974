@@ -11,6 +11,7 @@ import { Modal } from "react-native";
 import { SocialPost } from "../types/social";
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
+import { useSocialStore } from "../store/useSocialStore";
 
 // Données mock pour tester
 const mockPosts: SocialPost[] = [
@@ -109,20 +110,31 @@ export default function HomeScreen() {
   const { reset: resetSession } = useSessionStore();
 
   const [isFirstHomeLoad, setIsFirstHomeLoad] = useState(true);
-  const [createPostVisible, setCreatePostVisible] = useState(false);
-  const [posts, setPosts] = useState<SocialPost[]>(mockPosts);
-  const [editingPost, setEditingPost] = useState<SocialPost | null>(null);
   const [sportFilterVisible, setSportFilterVisible] = useState(false);
   const filterRef = useRef<FilterRef>(null);
 
-  const currentUserId = 'currentUser';
+  const {
+    posts,
+    createPost,
+    updatePost,
+    deletePost,
+    likePost,
+    unlikePost,
+    addComment,
+    createPostModalVisible,
+    showCreatePostModal,
+    hideCreatePostModal,
+    editingPost,
+    setEditingPost,
+    currentUserId
+  } = useSocialStore();
 
 
   // Réinitialiser HomeScreen quand on revient dessus (pas au premier chargement)
   useFocusEffect(
     useCallback(() => {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-      
+
       if (isFirstHomeLoad) {
         console.log("🏠 Premier chargement HomeScreen - pas de reset");
         setIsFirstHomeLoad(false);
@@ -131,6 +143,7 @@ export default function HomeScreen() {
         resetLocation();
         resetSession();
       }
+
     }, [isFirstHomeLoad, resetLocation, resetSession])
   );
 
@@ -203,84 +216,39 @@ export default function HomeScreen() {
   };
 
   const handleLike = (postId: string) => {
-    setPosts(prevPosts => prevPosts.map(post => {
-      if (post.id === postId) {
-        const isLiked = post.likes.includes(currentUserId);
-        return {
-          ...post,
-          likes: isLiked 
-            ? post.likes.filter(id => id !== currentUserId)
-            : [...post.likes, currentUserId]
-        };
+    const post = posts.find(p => p.id === postId);
+    if (post) {
+      const isLiked = post.likes ? post.likes.includes(currentUserId) : false;
+      if (isLiked) {
+        unlikePost(postId);
+      } else {
+        likePost(postId);
       }
-      return post;
-    }));
+    }
   };
 
   const handleComment = (postId: string, text: string) => {
-    const newComment = {
-      id: `comment_${Date.now()}`,
-      userId: currentUserId,
-      userName: 'Moi',
-      text,
-      createdAt: Date.now()
-    };
-
-    setPosts(prevPosts => prevPosts.map(post => {
-      if (post.id === postId) {
-        return {
-          ...post,
-          comments: [...post.comments, newComment]
-        };
-      }
-      return post;
-    }));
+    addComment(postId, text);
   };
+
 
   const handleCreatePost = (postData: any) => {
     if (editingPost) {
-      // Mode édition
-      setPosts(prevPosts => prevPosts.map(post => 
-        post.id === editingPost.id ? {
-          ...post,
-          photos: postData.photos,
-          caption: postData.caption,
-          sport: postData.sport,
-          location: postData.location
-        } : post
-      ));
-      setEditingPost(null);
+      updatePost(editingPost.id, postData);
     } else {
-      // Mode création
-      const newPost: SocialPost = {
-        id: `post_${Date.now()}`,
-        userId: currentUserId,
-        userName: 'Moi',
-        userLocation: 'La Réunion',
-        photos: postData.photos,
-        caption: postData.caption,
-        likes: [],
-        comments: [],
-        createdAt: Date.now(),
-        sport: postData.sport,
-        location: postData.location
-      };
-
-      setPosts(prevPosts => [newPost, ...prevPosts]);
+      createPost(postData);
     }
-    setCreatePostVisible(false);
   };
 
   const handleEditPost = (postId: string) => {
     const postToEdit = posts.find(post => post.id === postId);
     if (postToEdit) {
       setEditingPost(postToEdit);
-      setCreatePostVisible(true);
     }
   };
 
   const handleDeletePost = (postId: string) => {
-    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+    deletePost(postId);
   };
 
 
@@ -351,6 +319,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
 
+
           {/* Feed Social */}
           <SocialFeed
             posts={posts}
@@ -360,7 +329,7 @@ export default function HomeScreen() {
             onEdit={handleEditPost}
             onDelete={handleDeletePost}
             onRefresh={handleRefresh}
-            onCreatePost={() => setCreatePostVisible(true)}
+            onCreatePost={showCreatePostModal}
           />
 
           {/* Espacement final */}
@@ -370,11 +339,8 @@ export default function HomeScreen() {
 
       {/* Modal pour créer/modifier un post */}
       <CreatePostModal
-        visible={createPostVisible}
-        onClose={() => {
-          setCreatePostVisible(false);
-          setEditingPost(null);
-        }}
+        visible={createPostModalVisible}
+        onClose={hideCreatePostModal}
         onSubmit={handleCreatePost}
         editPost={editingPost || undefined}
       />

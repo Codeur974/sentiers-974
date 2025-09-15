@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { SocialPost } from '../../types/social';
 
 interface SocialPostCardProps {
@@ -17,7 +18,9 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
+
   const isLiked = post.likes ? post.likes.includes(currentUserId) : false;
+
   const likesCount = post.likes ? post.likes.length : 0;
   const commentsCount = post.comments ? post.comments.length : 0;
 
@@ -127,7 +130,7 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
       {post.photos && post.photos.length > 0 && (
         <View>
           {post.photos.length === 1 ? (
-            <Image 
+            <Image
               source={{ uri: post.photos[0].uri }}
               className="w-full h-64"
               resizeMode="cover"
@@ -140,7 +143,7 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
             >
               {(showAllPhotos ? post.photos : post.photos.slice(0, 3)).map((photo, index) => (
                 <View key={photo.id} className="relative">
-                  <Image 
+                  <Image
                     source={{ uri: photo.uri }}
                     className="w-64 h-64 mr-2"
                     resizeMode="cover"
@@ -176,13 +179,16 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
       {/* Actions (like, comment) */}
       <View className="px-4 py-3">
         <View className="flex-row items-center mb-2">
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => onLike(post.id)}
             className="flex-row items-center mr-6"
+            activeOpacity={1}
           >
-            <Text className={`text-lg mr-1 ${isLiked ? '' : 'opacity-50'}`}>
-              {isLiked ? '❤️' : '🤍'}
-            </Text>
+            <MaterialIcons
+              name={isLiked ? "favorite" : "favorite-border"}
+              size={20}
+              color={isLiked ? "#DC2626" : "#9CA3AF"}
+            />
             <Text className={`text-sm font-medium ${isLiked ? 'text-red-500' : 'text-gray-600'}`}>
               {likesCount > 0 ? likesCount : ''}
             </Text>
