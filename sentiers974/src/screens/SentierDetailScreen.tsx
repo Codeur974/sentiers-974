@@ -9,8 +9,8 @@ import {
 } from 'react-native';
 import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import Layout from '../components/Layout';
-import FooterNavigation from '../components/FooterNavigation';
+import Layout from '../components/ui/Layout';
+import FooterNavigation from '../components/ui/FooterNavigation';
 import { RootStackParamList } from '../types/navigation';
 import { SentierReel } from '../services/sentiersService';
 

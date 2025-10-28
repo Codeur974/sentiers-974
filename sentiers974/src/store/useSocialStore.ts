@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SocialPost, CreatePostData } from '../types/social';
+import { socialApi } from '../services/socialApi';
 
 // Posts de démonstration
 const mockPosts: SocialPost[] = [
@@ -36,116 +35,201 @@ interface SocialState {
   currentUserId: string;
   createPostModalVisible: boolean;
   editingPost: SocialPost | null;
+  loading: boolean;
+  error: string | null;
 }
 
 interface SocialActions {
-  createPost: (postData: CreatePostData) => void;
-  updatePost: (postId: string, postData: CreatePostData) => void;
-  deletePost: (postId: string) => void;
-  likePost: (postId: string) => void;
-  unlikePost: (postId: string) => void;
-  addComment: (postId: string, text: string) => void;
+  loadPosts: () => Promise<void>;
+  createPost: (postData: CreatePostData) => Promise<void>;
+  updatePost: (postId: string, postData: CreatePostData) => Promise<void>;
+  deletePost: (postId: string) => Promise<void>;
+  likePost: (postId: string) => Promise<void>;
+  unlikePost: (postId: string) => Promise<void>;
+  addComment: (postId: string, text: string, photos?: Array<{id: string, uri: string}>) => Promise<void>;
+  updateComment: (postId: string, commentId: string, text: string, photos?: Array<{id: string, uri: string}>) => Promise<void>;
+  deleteComment: (postId: string, commentId: string) => Promise<void>;
   showCreatePostModal: () => void;
   hideCreatePostModal: () => void;
   setEditingPost: (post: SocialPost | null) => void;
   resetStore: () => void;
 }
 
-export const useSocialStore = create<SocialState & SocialActions>()(
-  persist(
-    (set, get) => ({
+export const useSocialStore = create<SocialState & SocialActions>()((set, get) => ({
   // État initial
-  posts: mockPosts,
+  posts: [],
   currentUserId: 'currentUser',
   createPostModalVisible: false,
   editingPost: null,
+  loading: false,
+  error: null,
 
   // Actions
-  createPost: (postData: CreatePostData) => {
-    const { currentUserId, posts } = get();
-
-    const newPost: SocialPost = {
-      id: `post_${Date.now()}`,
-      userId: currentUserId,
-      userName: 'Moi',
-      userLocation: 'La Réunion',
-      photos: postData.photos,
-      caption: postData.caption,
-      likes: [],
-      comments: [],
-      createdAt: Date.now(),
-      sport: postData.sport,
-      location: postData.location
-    };
-
-    set({
-      posts: [newPost, ...posts],
-      createPostModalVisible: false,
-      editingPost: null
-    });
+  loadPosts: async () => {
+    try {
+      set({ loading: true, error: null });
+      const posts = await socialApi.getPosts();
+      set({ posts, loading: false });
+    } catch (error) {
+      console.error('Erreur chargement posts:', error);
+      set({ error: (error as Error).message, loading: false });
+    }
   },
 
-  updatePost: (postId: string, postData: CreatePostData) => {
-    set(state => ({
-      posts: state.posts.map(post =>
-        post.id === postId ? {
-          ...post,
-          photos: postData.photos,
-          caption: postData.caption,
-          sport: postData.sport,
-          location: postData.location
-        } : post
-      ),
-      createPostModalVisible: false,
-      editingPost: null
-    }));
+  createPost: async (postData: CreatePostData) => {
+    try {
+      const { currentUserId } = get();
+      set({ loading: true, error: null });
+
+      const newPost = await socialApi.createPost({
+        ...postData,
+        userId: currentUserId,
+        userName: 'Moi',
+        userLocation: 'La Réunion'
+      });
+
+      set(state => ({
+        posts: [newPost, ...state.posts],
+        createPostModalVisible: false,
+        editingPost: null,
+        loading: false
+      }));
+    } catch (error) {
+      console.error('Erreur création post:', error);
+      set({ error: (error as Error).message, loading: false });
+    }
   },
 
-  deletePost: (postId: string) => {
-    set(state => ({
-      posts: state.posts.filter(post => post.id !== postId)
-    }));
+  updatePost: async (postId: string, postData: CreatePostData) => {
+    try {
+      set({ loading: true, error: null });
+      const updatedPost = await socialApi.updatePost(postId, postData);
+
+      set(state => ({
+        posts: state.posts.map(post =>
+          post.id === postId ? updatedPost : post
+        ),
+        createPostModalVisible: false,
+        editingPost: null,
+        loading: false
+      }));
+    } catch (error) {
+      console.error('Erreur modification post:', error);
+      set({ error: (error as Error).message, loading: false });
+    }
   },
 
-  likePost: (postId: string) => {
-    const { currentUserId } = get();
-    set(state => ({
-      posts: state.posts.map(post =>
-        post.id === postId
-          ? { ...post, likes: [...post.likes, currentUserId] }
-          : post
-      )
-    }));
+  deletePost: async (postId: string) => {
+    try {
+      set({ loading: true, error: null });
+      await socialApi.deletePost(postId);
+
+      set(state => ({
+        posts: state.posts.filter(post => post.id !== postId),
+        loading: false
+      }));
+    } catch (error) {
+      console.error('Erreur suppression post:', error);
+      set({ error: (error as Error).message, loading: false });
+    }
   },
 
-  unlikePost: (postId: string) => {
-    const { currentUserId } = get();
-    set(state => ({
-      posts: state.posts.map(post =>
-        post.id === postId
-          ? { ...post, likes: post.likes.filter(id => id !== currentUserId) }
-          : post
-      )
-    }));
+  likePost: async (postId: string) => {
+    try {
+      const { currentUserId } = get();
+      const result = await socialApi.likePost(postId, currentUserId);
+
+      set(state => ({
+        posts: state.posts.map(post => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              likes: result.liked
+                ? [...post.likes, currentUserId]
+                : post.likes.filter(id => id !== currentUserId)
+            };
+          }
+          return post;
+        })
+      }));
+    } catch (error) {
+      console.error('Erreur like post:', error);
+      set({ error: (error as Error).message });
+    }
   },
 
-  addComment: (postId: string, text: string) => {
-    const { currentUserId } = get();
-    const newComment = {
-      id: `comment_${Date.now()}`,
-      userId: currentUserId,
-      userName: 'Moi',
-      text,
-      createdAt: Date.now()
-    };
+  unlikePost: async (postId: string) => {
+    // Même logique que likePost - l'API gère le toggle
+    const { likePost } = get();
+    await likePost(postId);
+  },
 
-    set(state => ({
-      posts: state.posts.map(post =>
-        post.id === postId
-          ? { ...post, comments: [...post.comments, newComment] }
-          : post
-      )
-    }));
+  addComment: async (postId: string, text: string, photos?: Array<{id: string, uri: string}>) => {
+    try {
+      const { currentUserId } = get();
+      const newComment = await socialApi.addComment(postId, {
+        userId: currentUserId,
+        userName: 'Moi',
+        text,
+        photos: photos || []
+      });
+
+      set(state => ({
+        posts: state.posts.map(post =>
+          post.id === postId
+            ? { ...post, comments: [...post.comments, newComment] }
+            : post
+        )
+      }));
+    } catch (error) {
+      console.error('Erreur ajout commentaire:', error);
+      set({ error: (error as Error).message });
+    }
+  },
+
+  updateComment: async (postId: string, commentId: string, text: string, photos?: Array<{id: string, uri: string}>) => {
+    try {
+      const updatedComment = await socialApi.updateComment(commentId, {
+        text,
+        photos: photos || []
+      });
+
+      set(state => ({
+        posts: state.posts.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.map(comment =>
+                  comment.id === commentId ? updatedComment : comment
+                )
+              }
+            : post
+        )
+      }));
+    } catch (error) {
+      console.error('Erreur modification commentaire:', error);
+      set({ error: (error as Error).message });
+    }
+  },
+
+  deleteComment: async (postId: string, commentId: string) => {
+    try {
+      await socialApi.deleteComment(commentId);
+
+      set(state => ({
+        posts: state.posts.map(post =>
+          post.id === postId
+            ? {
+                ...post,
+                comments: post.comments.filter(comment => comment.id !== commentId)
+              }
+            : post
+        )
+      }));
+    } catch (error) {
+      console.error('Erreur suppression commentaire:', error);
+      set({ error: (error as Error).message });
+    }
   },
 
   showCreatePostModal: () => set({ createPostModalVisible: true }),
@@ -160,26 +244,11 @@ export const useSocialStore = create<SocialState & SocialActions>()(
   }),
 
   resetStore: () => set({
-    posts: mockPosts,
+    posts: [],
     currentUserId: 'currentUser',
     createPostModalVisible: false,
-    editingPost: null
-  }),
-
-  clearCache: () => {
-    // Vider le cache AsyncStorage
-    import('@react-native-async-storage/async-storage').then(({ default: AsyncStorage }) => {
-      AsyncStorage.removeItem('social-store');
-    });
-  }
-}),
-    {
-      name: 'social-store',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({
-        posts: state.posts,
-        currentUserId: state.currentUserId
-      })
-    }
-  )
-);
+    editingPost: null,
+    loading: false,
+    error: null
+  })
+}));

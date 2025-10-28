@@ -25,7 +25,6 @@ export default function TrackingFooter({
   // Obtenir les POI de cette session
   const sessionPOIs = trackingLogic.sessionId ? getPOIsForSession(trackingLogic.sessionId) : [];
 
-  // Plus besoin de useEffect - les POI sont automatiquement synchronisés via getPOIsForSession
 
   // Prendre une photo pour le POI
   const handleTakePhoto = async () => {
@@ -87,7 +86,16 @@ export default function TrackingFooter({
     }
 
     setCreatingPOI(true);
-    
+
+    console.log('🎯 DEBUT CREATION POI dans TrackingFooter', {
+      coords: useCoords,
+      distance: trackingLogic.distance || 0,
+      duration: trackingLogic.duration || 0,
+      sessionId: trackingLogic.sessionId,
+      title: poiTitle.trim(),
+      hasPhoto: !!poiPhoto
+    });
+
     try {
       const poi = await createPOI(
         useCoords,
@@ -100,6 +108,8 @@ export default function TrackingFooter({
         },
         trackingLogic.sessionId
       );
+
+      console.log('🎯 RESULTAT CREATION POI:', poi);
 
       if (poi) {
         setShowPOIModal(false);
@@ -131,6 +141,38 @@ export default function TrackingFooter({
 
   if (!isVisible) {
     return null;
+  }
+
+  // Si aucune session active, afficher un message informatif
+  if (!trackingLogic.sessionId || trackingLogic.status === "idle") {
+    return (
+      <View className="absolute bottom-80 left-4 right-4 z-40">
+        <View className="bg-orange-50 border-2 border-orange-200 rounded-xl shadow-lg p-4">
+          {/* Header */}
+          <View className="flex-row justify-between items-center mb-3">
+            <Text className="text-lg font-bold text-orange-800">📸 Capture tes moments</Text>
+            <TouchableOpacity onPress={onToggle} className="bg-orange-200 px-3 py-1 rounded-lg">
+              <Text className="text-orange-600 font-bold">⬇️</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Message informatif */}
+          <View className="bg-white/80 p-4 rounded-lg border border-orange-200">
+            <Text className="text-center text-orange-800 font-bold text-base mb-2">
+              🚀 Aucune session active
+            </Text>
+            <Text className="text-center text-orange-700 text-sm mb-3">
+              Pour capturer tes moments et créer des points d'intérêt, tu dois d'abord démarrer un enregistrement.
+            </Text>
+            <View className="bg-orange-100 p-3 rounded-lg border border-orange-300">
+              <Text className="text-center text-orange-800 text-sm font-medium">
+                ▶️ Clique sur "Démarrer" pour commencer ton aventure !
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -227,12 +269,14 @@ export default function TrackingFooter({
                 placeholder="Ex: Sommet du Maïdo, Cascade..."
                 className="border border-gray-300 rounded-lg p-3 mb-4"
                 maxLength={50}
+                autoFocus={false}
               />
               
               <Text className="text-sm text-gray-600 mb-2">Note (optionnel)</Text>
               <TextInput
                 value={poiNote}
                 onChangeText={setPoiNote}
+                autoFocus={false}
                 placeholder="Vos observations, ressenti..."
                 className="border border-gray-300 rounded-lg p-3 mb-4 h-20"
                 multiline

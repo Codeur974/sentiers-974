@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { SocialPost } from '../../types/social';
 
 interface SocialPostCardProps {
@@ -13,22 +14,18 @@ interface SocialPostCardProps {
 }
 
 export default function SocialPostCard({ post, currentUserId, onLike, onComment, onEdit, onDelete }: SocialPostCardProps) {
-  const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState('');
+  const navigation = useNavigation();
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-
 
   const isLiked = post.likes ? post.likes.includes(currentUserId) : false;
 
   const likesCount = post.likes ? post.likes.length : 0;
   const commentsCount = post.comments ? post.comments.length : 0;
 
-  const handleSubmitComment = () => {
-    if (commentText.trim()) {
-      onComment(post.id, commentText.trim());
-      setCommentText('');
-    }
+  const handleOpenComments = () => {
+    // @ts-ignore - Navigation typée à corriger dans le futur
+    navigation.navigate('Comments', { postId: post.id });
   };
 
   const handleDelete = () => {
@@ -194,13 +191,14 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
             </Text>
           </TouchableOpacity>
           
-          <TouchableOpacity 
-            onPress={() => setShowComments(!showComments)}
+          <TouchableOpacity
+            onPress={handleOpenComments}
             className="flex-row items-center"
+            activeOpacity={0.7}
           >
             <Text className="text-lg mr-1 opacity-70">💬</Text>
-            <Text className="text-sm font-medium text-gray-600">
-              {commentsCount > 0 ? commentsCount : ''}
+            <Text className="text-sm font-medium text-gray-600 ml-1">
+              Commenter {commentsCount > 0 ? `(${commentsCount})` : ''}
             </Text>
           </TouchableOpacity>
         </View>
@@ -212,47 +210,6 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
           </Text>
         )}
 
-        {/* Commentaires */}
-        {showComments && (
-          <View className="mt-2">
-            {/* Liste des commentaires */}
-            {post.comments && post.comments.map((comment) => (
-              <View key={comment.id} className="mb-2">
-                <Text className="text-sm text-gray-900 leading-4">
-                  <Text className="font-semibold">{comment.userName}</Text>
-                  <Text> {comment.text}</Text>
-                </Text>
-                <Text className="text-xs text-gray-500 mt-1">
-                  {formatTime(comment.createdAt)}
-                </Text>
-              </View>
-            ))}
-
-            {/* Zone d'ajout de commentaire */}
-            <View className="flex-row items-center mt-2 pt-2 border-t border-gray-100">
-              <TextInput
-                className="flex-1 bg-gray-50 rounded-full px-4 py-2 mr-2"
-                placeholder="Ajouter un commentaire..."
-                value={commentText}
-                onChangeText={setCommentText}
-                multiline
-              />
-              <TouchableOpacity
-                onPress={handleSubmitComment}
-                disabled={!commentText.trim()}
-                className={`px-4 py-2 rounded-full ${
-                  commentText.trim() ? 'bg-blue-500' : 'bg-gray-300'
-                }`}
-              >
-                <Text className={`text-sm font-medium ${
-                  commentText.trim() ? 'text-white' : 'text-gray-500'
-                }`}>
-                  →
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
       </View>
     </View>
   );

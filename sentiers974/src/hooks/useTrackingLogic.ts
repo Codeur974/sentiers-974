@@ -35,8 +35,11 @@ export const useTrackingLogic = (selectedSport: any) => {
   const [avgSpeed, setAvgSpeed] = useState(0);
   const [locationHistory, setLocationHistory] = useState<any[]>([]);
   const [speedHistory, setSpeedHistory] = useState<number[]>([]);
+  const speedWindowRef = useRef<Array<{ timestamp: number; distance: number }>>([]);
   const [initialPermissionChecked, setInitialPermissionChecked] = useState(false);
   const [trackingPath, setTrackingPath] = useState<Array<{latitude: number; longitude: number}>>([]);
+  const lastGpsUpdateTime = useRef<number>(Date.now()); // Timestamp dernière MAJ GPS
+  const lastGpsSpeed = useRef<number>(0); // Dernière vitesse GPS reçue
   const [elevationGain, setElevationGain] = useState(0);
   const [elevationLoss, setElevationLoss] = useState(0);
   const [minAltitude, setMinAltitude] = useState<number | null>(null);
@@ -79,6 +82,7 @@ export const useTrackingLogic = (selectedSport: any) => {
   }>>([]);
   
   const stepInterval = useRef<any>(null);
+  const gpsPollingInterval = useRef<any>(null);
   const pausedSteps = useRef(0);
   const pausedDistance = useRef(0);
 
@@ -149,8 +153,8 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Course': {
         maxSpeed: 25, // km/h max réaliste
         minDistance: 0.008, // 8m minimum - élimine la plupart du bruit GPS
-        timeInterval: 2000,  // 2s entre mesures
-        distanceInterval: 5, // 5m minimum GPS
+        timeInterval: 1000,  // 1s pour réactivité Strava
+        distanceInterval: 1, // 1m pour updates fréquentes
         accuracy: Location.Accuracy.BestForNavigation,
         accuracyThreshold: 15 // Très précis requis pour course
       },
@@ -164,9 +168,9 @@ export const useTrackingLogic = (selectedSport: any) => {
       },
       'Marche': {
         maxSpeed: 8,
-        minDistance: 0.002, // 2m - réactif mais stable  
-        timeInterval: 500,   // 500ms - équilibre fluidité/performance
-        distanceInterval: 1, // 1m minimum GPS
+        minDistance: 0.002, // 2m - réactif mais stable
+        timeInterval: 1000,  // 1s pour réactivité
+        distanceInterval: 1, // 1m pour updates fréquentes
         accuracy: Location.Accuracy.BestForNavigation,
         accuracyThreshold: 20
       },
@@ -324,96 +328,174 @@ export const useTrackingLogic = (selectedSport: any) => {
       if (lastCoords) {
         const newDist = calculateSimpleDistance(lastCoords, coords);
         const timeDiff = (coords.timestamp - lastCoords.timestamp) / 1000;
-        
-        // Debug supprimé - causait trop de logs
-        
-        // Filtrage GPS ultra-fluide comme avant
-        if (timeDiff > 0.05 || newDist > 0.0005) { // Ultra réactif - 50ms ou 0.5m
-          console.log(`✅ Point accepté - Distance: ${(newDist * 1000).toFixed(1)}m, Vitesse: ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
-          // Log point accepté supprimé
-          
+
+        if (!Number.isFinite(timeDiff)) {
+          setLastCoords(coords);
+          return;
+        }
+
+        // Si doublon timestamp (timeDiff <= 0), juste mettre à jour refs et skip calculs
+        if (timeDiff <= 0) {
+          // Ne pas logger pour ne pas polluer les logs
+          lastGpsUpdateTime.current = Date.now(); // MAJ pour éviter "Arrêt détecté"
+          return; // NE PAS mettre à jour lastCoords pour garder le dernier point valide
+        }
+
+        const isDistanceValid = true;
+
+        if (isDistanceValid) {
+          console.log(`✅ Point accepté - ${(newDist * 1000).toFixed(1)}m / ${timeDiff.toFixed(1)}s = ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
+
           setDistance((prev) => {
             const newTotalDistance = prev + newDist;
-            
-            // Vérifier si on a franchi un kilomètre entier (split automatique)
             const prevKm = Math.floor(prev);
             const newKm = Math.floor(newTotalDistance);
-            
-            // Si on a franchi un ou plusieurs kilomètres
+
             if (newKm > prevKm) {
               const currentTime = getDuration();
-              
-              // Créer un split pour chaque kilomètre franchi
+
               for (let km = prevKm + 1; km <= newKm; km++) {
                 const lastSplitTime = splits.length > 0 ? splits[splits.length - 1].time : 0;
                 const splitTime = currentTime - lastSplitTime;
-                
+
                 setSplits(prevSplits => [...prevSplits, {
-                  km: km,
+                  km,
                   time: currentTime,
                   duration: splitTime,
                   avgSpeed: splitTime > 0 ? (3600000 / splitTime) : 0,
                   type: 'auto',
                   timestamp: Date.now()
                 }]);
-                
-                console.log(`🏁 Split automatique ${km}km - Distance réelle: ${newTotalDistance.toFixed(3)}km - Temps split: ${splitTime}ms`);
+
+                console.log(`🚴 Split automatique ${km}km - Distance réelle: ${newTotalDistance.toFixed(3)}km - Temps split: ${splitTime}ms`);
               }
             }
-            
+
             console.log(`📏 Distance totale: ${newTotalDistance.toFixed(3)} km`);
             return newTotalDistance;
           });
+        }
 
-          // Calcul de vitesse SIMPLE et direct
-          const rawSpeedKmh = (newDist / timeDiff) * 3600;
-          
-          // Log vitesse calculée supprimé
-          
-          // Rejeter seulement les vitesses vraiment aberrantes
-          const config = getSportConfig();
-          if (rawSpeedKmh > config.maxSpeed * 2) {
-            console.log(`🚫 Vitesse rejetée: ${rawSpeedKmh.toFixed(1)} km/h (max: ${config.maxSpeed * 2})`);
-            return;
+        // Utiliser vitesse native GPS (m/s) en priorité, sinon calculer
+        let rawSpeedKmh;
+        const config = getSportConfig();
+        const maxReasonableSpeed = config.maxSpeed * 2; // 2x vitesse max du sport
+
+        // Si précision GPS mauvaise (>50m), ignorer ce point
+        if (coords.accuracy && coords.accuracy > 50) {
+          console.log(`⚠️ GPS imprécis (${coords.accuracy.toFixed(0)}m), point ignoré`);
+          lastGpsUpdateTime.current = Date.now();
+          return; // Skip ce point
+        }
+
+        if (coords.speed !== null && coords.speed !== undefined && coords.speed >= 0) {
+          // Vitesse GPS native en m/s → km/h
+          rawSpeedKmh = coords.speed * 3.6;
+
+          // Filtrer vitesses aberrantes
+          if (rawSpeedKmh > maxReasonableSpeed) {
+            console.log(`🚫 Vitesse aberrante: ${rawSpeedKmh.toFixed(1)} km/h, utilise calculée`);
+            rawSpeedKmh = (newDist / timeDiff) * 3600;
+          } else {
+            console.log(`🛰️ Vitesse GPS: ${rawSpeedKmh.toFixed(1)} km/h`);
           }
-          
-          // Lissage simple qui fonctionnait
-          setSpeedHistory(prev => {
-            const newHistory = [...prev, rawSpeedKmh].slice(-3); // 3 dernières mesures
-            const smoothedSpeed = newHistory.reduce((sum, speed) => sum + speed, 0) / newHistory.length;
-            
-            setInstantSpeed(smoothedSpeed);
+        } else {
+          // Fallback: calculer depuis distance/temps
+          rawSpeedKmh = (newDist / timeDiff) * 3600;
+          console.log(`📐 Vitesse calculée: ${rawSpeedKmh.toFixed(1)} km/h`);
+        }
+
+        // Double filtrage aberration
+        if (rawSpeedKmh > maxReasonableSpeed) {
+          console.log(`🚫 Vitesse ${rawSpeedKmh.toFixed(1)} km/h rejetée (max: ${maxReasonableSpeed.toFixed(1)})`);
+          rawSpeedKmh = 0;
+        }
+
+        setSpeedHistory(prevHistory => {
+          // Historique réduit à 5 points pour plus de réactivité
+          const newHistory = [...prevHistory, rawSpeedKmh].slice(-5);
+
+          // Au début (< 3 points), afficher vitesse brute pour réactivité immédiate
+          if (newHistory.length < 3) {
+            const finalSpeed = rawSpeedKmh < 0.1 ? 0 : rawSpeedKmh;
+            setInstantSpeed(finalSpeed);
+            lastGpsSpeed.current = finalSpeed;
+            lastGpsUpdateTime.current = Date.now();
+
+            if (finalSpeed > 0) {
+              setMaxSpeed(prevMax => finalSpeed > prevMax ? finalSpeed : prevMax);
+              console.log(`📊 Vitesse initiale: ${finalSpeed.toFixed(1)} km/h (démarrage)`);
+            }
+
             return newHistory;
+          }
+
+          // Médiane pour éliminer valeurs aberrantes
+          const sorted = [...newHistory].sort((a, b) => a - b);
+          const medianSpeed = sorted[Math.floor(sorted.length / 2)];
+
+          // Moyenne mobile sur 3 derniers points
+          const recentPoints = newHistory.slice(-3);
+          const movingAvg = recentPoints.reduce((sum, s) => sum + s, 0) / recentPoints.length;
+
+          // EMA avec alpha plus élevé pour réactivité
+          const alpha = 0.6; // Plus réactif qu'avant (0.3)
+          const emaSpeed = lastGpsSpeed.current === 0
+            ? rawSpeedKmh // Première valeur = vitesse brute
+            : (alpha * rawSpeedKmh) + ((1 - alpha) * lastGpsSpeed.current);
+
+          // Combinaison finale: 50% vitesse brute + 30% EMA + 20% médiane
+          // Favorise réactivité tout en gardant stabilité
+          let finalSpeed = (rawSpeedKmh * 0.5) + (emaSpeed * 0.3) + (medianSpeed * 0.2);
+
+          // Seuil ultra bas pour détecter tout mouvement
+          finalSpeed = finalSpeed < 0.1 ? 0 : finalSpeed;
+
+          setInstantSpeed(finalSpeed);
+          lastGpsSpeed.current = finalSpeed;
+
+          // Mise à jour vitesse max
+          setMaxSpeed(prevMax => {
+            if (finalSpeed > prevMax) {
+              console.log(`🏁 Vitesse max: ${finalSpeed.toFixed(1)} km/h`);
+              return finalSpeed;
+            }
+            return prevMax;
           });
-          
-          // Forcer une mise à jour de l'interface supprimé - causait une boucle
-          
-          // Mettre à jour la vitesse max
-          if (rawSpeedKmh > maxSpeed) {
-            setMaxSpeed(rawSpeedKmh);
-            console.log(`⚡ Nouvelle vitesse max: ${rawSpeedKmh.toFixed(1)} km/h`);
-          }
-          
-          // Enregistrer les données pour les graphiques
+
+          console.log(`📊 Vitesse finale: ${finalSpeed.toFixed(1)} km/h`);
+
+          // MAJ timestamp pour détection arrêt
+          lastGpsUpdateTime.current = Date.now();
+
+          return newHistory;
+        });
+
+        const shouldRecordChart = isDistanceValid || timeDiff >= 2;
+        if (shouldRecordChart) {
           const currentTime = getDuration();
-          const lastChartEntry = chartData[chartData.length - 1];
-          const shouldSample = !lastChartEntry || (currentTime - lastChartEntry.time) >= 5000;
-          
-          if (shouldSample && status === "running") {
-            setChartData(prev => [...prev, {
-              time: currentTime,
-              altitude: coords.altitude || null,
-              speed: rawSpeedKmh,
-              distance: distance + newDist,
-              timestamp: Date.now()
-            }]);
-          }
+          setChartData(prev => {
+            const lastEntry = prev[prev.length - 1];
+            const shouldSample = !lastEntry || (currentTime - lastEntry.time) >= 5000;
+
+            if (shouldSample && status === "running") {
+              return [...prev, {
+                time: currentTime,
+                altitude: coords.altitude || null,
+                speed: rawSpeedKmh,
+                distance: distance + (isDistanceValid ? newDist : 0),
+                timestamp: Date.now()
+              }];
+            }
+            return prev;
+          });
         }
       }
-      
       // Toujours mettre à jour lastCoords
       setLastCoords(coords);
-    }
+      // Mettre à jour le timestamp de dernière MAJ GPS
+      lastGpsUpdateTime.current = Date.now();
+    } // Fin if (coords && status === "running")
   }, [coords, status, lastCoords, selectedSport]);
 
   // Calculer la vitesse moyenne séparément
@@ -425,6 +507,38 @@ export const useTrackingLogic = (selectedSport: any) => {
       setAvgSpeed(0);
     }
   }, [distance, duration]);
+
+  // Détection d'arrêt automatique si pas de MAJ GPS
+  useEffect(() => {
+    if (status !== "running") return;
+
+    const checkStopTimeout = setInterval(() => {
+      const timeSinceLastUpdate = Date.now() - lastGpsUpdateTime.current;
+      // Si pas de MAJ GPS depuis 2s → arrêt, vitesse à 0
+      if (timeSinceLastUpdate > 2000 && instantSpeed > 0) {
+        console.log(`⏸️ Arrêt détecté - Pas de MAJ GPS depuis ${(timeSinceLastUpdate/1000).toFixed(1)}s`);
+        setInstantSpeed(0);
+      }
+    }, 1000);
+
+    return () => clearInterval(checkStopTimeout);
+  }, [status, instantSpeed]);
+
+  // Mise à jour fluide de la vitesse toutes les secondes (type Strava)
+  useEffect(() => {
+    if (status !== "running") return;
+
+    const speedUpdateInterval = setInterval(() => {
+      const timeSinceLastGPS = Date.now() - lastGpsUpdateTime.current;
+
+      // Si GPS reçu récemment (< 3s), afficher la dernière vitesse GPS
+      if (timeSinceLastGPS < 3000 && lastGpsSpeed.current > 0) {
+        setInstantSpeed(lastGpsSpeed.current);
+      }
+    }, 1000); // Mise à jour fluide chaque seconde
+
+    return () => clearInterval(speedUpdateInterval);
+  }, [status]);
 
   // Vérifier les permissions GPS dès la sélection du sport
   useEffect(() => {
@@ -461,6 +575,22 @@ export const useTrackingLogic = (selectedSport: any) => {
       }
     };
   }, []);
+
+  // Détection d'arrêt : si pas de GPS pendant 2s, vitesse à 0
+  useEffect(() => {
+    if (status !== "running") return;
+
+    const stopDetectionInterval = setInterval(() => {
+      const timeSinceLastGPS = Date.now() - lastGpsUpdateTime.current;
+
+      if (timeSinceLastGPS > 2000 && instantSpeed > 0) {
+        console.log(`⏸️ Arrêt détecté - Pas de GPS depuis ${(timeSinceLastGPS / 1000).toFixed(1)}s`);
+        setInstantSpeed(0);
+      }
+    }, 1000);
+
+    return () => clearInterval(stopDetectionInterval);
+  }, [status, instantSpeed]);
 
   // Fonction de calcul de distance ultra-précise (formule de Vincenty simplifiée)
   const calculateSimpleDistance = (coord1: any, coord2: any) => {
@@ -549,7 +679,7 @@ export const useTrackingLogic = (selectedSport: any) => {
     try {
       setIsLocating(true);
       setError(null);
-      setWatching(false); // S'assurer que watching est false au début
+      setWatching(false);
 
       const { status: permissionStatus } = await Location.requestForegroundPermissionsAsync();
       if (permissionStatus !== "granted") {
@@ -561,35 +691,46 @@ export const useTrackingLogic = (selectedSport: any) => {
 
       setPermission(true);
 
-      const config = getSportConfig();
-      const watchOptions = {
-        accuracy: config.accuracy || Location.Accuracy.BestForNavigation,
-        timeInterval: config.timeInterval,
-        distanceInterval: config.distanceInterval,
-        mayShowUserSettingsDialog: true,
-        // Options supplémentaires pour maximiser la précision
-        enableHighAccuracy: true,
-        maximumAge: 1000, // Accepter des positions de max 1 seconde
-        timeout: 5000, // Timeout de 5 secondes
-      };
+      // Polling GPS manuel ultra-rapide (500ms) type Strava
+      // watchPositionAsync ne respecte pas timeInterval sur Android
+      let lastPollTimestamp = 0;
 
-      const subscription = await Location.watchPositionAsync(
-        watchOptions,
-        (location) => {
+      const pollGPS = async () => {
+        try {
+          const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.BestForNavigation,
+          });
+
+          // Ignorer si c'est exactement le même timestamp (cached)
+          if (location.timestamp === lastPollTimestamp) {
+            return;
+          }
+
+          lastPollTimestamp = location.timestamp;
+
           const coords = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
             altitude: location.coords.altitude,
             accuracy: location.coords.accuracy,
+            speed: location.coords.speed,
             timestamp: location.timestamp || Date.now(),
           };
           setCoords(coords);
+        } catch (error) {
+          // Ignorer erreurs silencieusement pour ne pas polluer logs
         }
-      );
+      };
 
-      setWatchSubscription(subscription);
+      // Premier poll immédiat
+      await pollGPS();
+
+      // Puis polling toutes les 500ms
+      gpsPollingInterval.current = setInterval(pollGPS, 500);
+
       setWatching(true);
       setIsLocating(false);
+      console.log('✅ GPS tracking démarré (polling 500ms)');
       return true;
     } catch (error) {
       console.log("Erreur GPS:", error);
@@ -602,6 +743,20 @@ export const useTrackingLogic = (selectedSport: any) => {
 
   // Arrêter le GPS tracking
   const stopLocationTracking = () => {
+    // Nettoyer le polling interval
+    if (gpsPollingInterval.current) {
+      clearInterval(gpsPollingInterval.current);
+      gpsPollingInterval.current = null;
+      console.log('⏹️ GPS polling arrêté');
+    }
+
+    // Nettoyer aussi watchSubscription si existe
+    const { watchSubscription } = useLocationStore.getState();
+    if (watchSubscription) {
+      watchSubscription.remove();
+      setWatchSubscription(null);
+    }
+
     setWatching(false);
     setLocationHistory([]);
   };
@@ -612,14 +767,64 @@ export const useTrackingLogic = (selectedSport: any) => {
     setError(null);
     
     // Générer un sessionId unique seulement s'il n'y en a pas déjà un
-    if (!sessionId) {
-      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      setSessionId(newSessionId);
+    let currentSessionId = sessionId;
+    if (!currentSessionId) {
+      currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      setSessionId(currentSessionId);
       // Sauvegarder dans AsyncStorage
-      await AsyncStorage.setItem('currentSessionId', newSessionId);
-      console.log('🆔 Nouveau sessionId créé et sauvegardé:', newSessionId);
+      await AsyncStorage.setItem('currentSessionId', currentSessionId);
+      console.log('🆔 Nouveau sessionId créé et sauvegardé:', currentSessionId);
+
+      // Créer la session sur MongoDB immédiatement
+      try {
+        const initialSessionData = {
+          sessionId: currentSessionId,
+          userId: 'default-user',
+          sport: selectedSport,
+          startLocation: coords ? {
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            address: address || 'Position inconnue'
+          } : null,
+          startTime: new Date().toISOString(),
+          distance: 0,
+          duration: 0,
+          averageSpeed: 0,
+          maxSpeed: 0,
+          elevationGain: 0,
+          calories: 0,
+          steps: 0,
+          photos: [],
+          status: 'active'
+        };
+
+        const response = await fetch('http://192.168.1.12:3001/api/sessions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(initialSessionData)
+        });
+
+        if (response.ok) {
+          const responseData = await response.json();
+          const serverSessionId = responseData.data?.id || responseData.data?.sessionId;
+          if (serverSessionId && serverSessionId !== currentSessionId) {
+            // Le serveur a retourné un ID différent, utilisons celui-ci
+            setSessionId(serverSessionId);
+            await AsyncStorage.setItem('currentSessionId', serverSessionId);
+            console.log('🔄 SessionId mis à jour avec l\'ID serveur:', serverSessionId);
+          } else {
+            console.log('✅ Session créée sur MongoDB avec ID:', currentSessionId);
+          }
+        } else {
+          console.log('⚠️ Échec création session MongoDB, continuera en local');
+        }
+      } catch (error) {
+        console.log('⚠️ Erreur création session MongoDB:', error.message);
+      }
     } else {
-      console.log('🆔 SessionId existant conservé:', sessionId);
+      console.log('🆔 SessionId existant conservé:', currentSessionId);
     }
     
     const gpsSuccess = await startLocationTracking();
@@ -718,7 +923,15 @@ export const useTrackingLogic = (selectedSport: any) => {
 
         if (response.ok) {
           const savedSession = await response.json();
-          console.log('✅ Session sauvegardée dans MongoDB:', savedSession._id);
+          const finalSessionId = savedSession.data?.id || savedSession.data?.sessionId;
+          console.log('✅ Session sauvegardée dans MongoDB:', finalSessionId);
+
+          // Mettre à jour l'ID local si le serveur a retourné un ID différent
+          if (finalSessionId && finalSessionId !== sessionId) {
+            setSessionId(finalSessionId);
+            await AsyncStorage.setItem('currentSessionId', finalSessionId);
+            console.log('🔄 SessionId mis à jour après sauvegarde:', finalSessionId);
+          }
         } else {
           throw new Error(`Erreur HTTP: ${response.status}`);
         }
@@ -807,7 +1020,7 @@ export const useTrackingLogic = (selectedSport: any) => {
     // Demander confirmation pour sauvegarder
     Alert.alert(
       "Enregistrer la session ?",
-      `Durée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${(distance / 1000).toFixed(2)}km`,
+      `Durée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distance.toFixed(2)}km`,
       [
         {
           text: "Non",
@@ -829,13 +1042,8 @@ export const useTrackingLogic = (selectedSport: any) => {
           onPress: async () => {
             // Sauvegarder puis stop session
             await saveDailyPerformance(finalDuration);
-            // Supprimer le sessionId pour éviter les conflits lors de la prochaine session
-            try {
-              await AsyncStorage.removeItem('currentSessionId');
-              console.log('🗑️ SessionId supprimé après sauvegarde');
-            } catch (error) {
-              console.error('Erreur suppression sessionId:', error);
-            }
+            // Garder le sessionId pour permettre l'ajout de photos après session
+            console.log('💾 Session sauvegardée, sessionId conservé pour photos futures:', sessionId);
             resetTracking();
           }
         }
@@ -853,6 +1061,7 @@ export const useTrackingLogic = (selectedSport: any) => {
     setMaxSpeed(0);
     setAvgSpeed(0);
     setSpeedHistory([]);
+    speedWindowRef.current = [];
     setTrackingPath([]);
     setElevationGain(0);
     setElevationLoss(0);

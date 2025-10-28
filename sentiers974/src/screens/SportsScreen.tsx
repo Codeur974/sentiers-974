@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import AllEventsSection from "../components/AllEventsSection";
-import Layout from "../components/Layout";
-import FooterNavigation from "../components/FooterNavigation";
+import AllEventsSection from "../components/events/AllEventsSection";
+import Layout from "../components/ui/Layout";
+import FooterNavigation from "../components/ui/FooterNavigation";
 
 export default function SportsScreen() {
   const navigation = useNavigation();
