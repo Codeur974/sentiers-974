@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  Modal, 
-  ScrollView, 
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
   Image,
   Alert,
   KeyboardAvoidingView,
-  Platform 
+  Platform,
+  Keyboard
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SocialPhoto, CreatePostData, SocialPost } from '../../types/social';
@@ -36,6 +37,11 @@ export default function CreatePostModal({
   const [location, setLocation] = useState('');
   const [sport, setSport] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Refs pour le scroll automatique
+  const scrollViewRef = useRef<ScrollView>(null);
+  const captionInputRef = useRef<TextInput>(null);
+  const locationInputRef = useRef<TextInput>(null);
 
   // Initialiser les valeurs si on modifie un post existant
   React.useEffect(() => {
@@ -71,6 +77,27 @@ export default function CreatePostModal({
       }
     }
   }, [selectedHistoryPhotos]);
+
+  // Fonction pour scroller vers un input quand il est focalisé
+  const scrollToInput = (inputRef: React.RefObject<TextInput>, additionalOffset = 0) => {
+    setTimeout(() => {
+      if (inputRef.current && scrollViewRef.current) {
+        inputRef.current.measureLayout(
+          scrollViewRef.current as any,
+          (x, y) => {
+            scrollViewRef.current?.scrollTo({
+              y: y + additionalOffset,
+              animated: true,
+            });
+          },
+          () => {
+            // Fallback si measureLayout échoue
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }
+        );
+      }
+    }, 300); // Délai pour laisser le clavier apparaître
+  };
 
   const resetForm = () => {
     setCaption('');
@@ -247,9 +274,10 @@ export default function CreatePostModal({
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <View className="flex-1 bg-white">
           {/* Header */}
@@ -273,15 +301,22 @@ export default function CreatePostModal({
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 p-4">
+          <ScrollView
+            ref={scrollViewRef}
+            className="flex-1 p-4"
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {/* Zone de texte principale */}
             <TextInput
+              ref={captionInputRef}
               className="text-lg text-gray-900 mb-4 min-h-[100px]"
               placeholder="Partagez votre expérience..."
               placeholderTextColor="#9CA3AF"
               multiline
               value={caption}
               onChangeText={setCaption}
+              onFocus={() => scrollToInput(captionInputRef, -50)}
               style={{ textAlignVertical: 'top' }}
             />
 
@@ -353,10 +388,12 @@ export default function CreatePostModal({
             <View className="mb-4">
               <Text className="text-base font-semibold text-gray-900 mb-2">Lieu (optionnel)</Text>
               <TextInput
+                ref={locationInputRef}
                 className="bg-gray-50 rounded-xl p-4 text-gray-900"
                 placeholder="Où étiez-vous ?"
                 value={location}
                 onChangeText={setLocation}
+                onFocus={() => scrollToInput(locationInputRef, 100)}
               />
             </View>
 

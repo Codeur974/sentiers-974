@@ -1,12 +1,13 @@
+import React from 'react';
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useCallback, useRef, useState } from "react";
-import { ImageBackground, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import Layout from "../components/Layout";
-import FooterNavigation from "../components/FooterNavigation";
-import LocationSection from "../components/LocationSection";
+import { ImageBackground, ScrollView, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native";
+import Layout from "../components/ui/Layout";
+import FooterNavigation from "../components/ui/FooterNavigation";
+import LocationSection from "../components/ui/LocationSection";
 import SocialFeed from "../components/social/SocialFeed";
 import CreatePostModal from "../components/social/CreatePostModal";
-import Filter, { FilterRef } from "../components/Filter";
+import Filter, { FilterRef } from "../components/ui/Filter";
 import { Modal } from "react-native";
 import { SocialPost } from "../types/social";
 import { useLocationStore } from "../store/useLocationStore";
@@ -104,6 +105,14 @@ const mockPosts: SocialPost[] = [
 export default function HomeScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Rendre la référence globalement accessible pour le scroll des commentaires
+  React.useEffect(() => {
+    (global as any).mainScrollRef = scrollViewRef;
+    return () => {
+      (global as any).mainScrollRef = null;
+    };
+  }, []);
   
   // Accès aux stores pour réinitialisation
   const { reset: resetLocation } = useLocationStore();
@@ -115,6 +124,7 @@ export default function HomeScreen() {
 
   const {
     posts,
+    loadPosts,
     createPost,
     updatePost,
     deletePost,
@@ -126,9 +136,18 @@ export default function HomeScreen() {
     hideCreatePostModal,
     editingPost,
     setEditingPost,
-    currentUserId
+    currentUserId,
+    loading,
+    error
   } = useSocialStore();
 
+
+  // Charger les posts au premier chargement
+  React.useEffect(() => {
+    if (isFirstHomeLoad) {
+      loadPosts();
+    }
+  }, [isFirstHomeLoad, loadPosts]);
 
   // Réinitialiser HomeScreen quand on revient dessus (pas au premier chargement)
   useFocusEffect(
@@ -136,15 +155,17 @@ export default function HomeScreen() {
       scrollViewRef.current?.scrollTo({ y: 0, animated: false });
 
       if (isFirstHomeLoad) {
-        console.log("🏠 Premier chargement HomeScreen - pas de reset");
+        console.log("🏠 Premier chargement HomeScreen - chargement posts");
         setIsFirstHomeLoad(false);
       } else {
         console.log("🏠 Retour HomeScreen - reset des stores");
         resetLocation();
         resetSession();
+        // Recharger les posts pour avoir les dernières données
+        loadPosts();
       }
 
-    }, [isFirstHomeLoad, resetLocation, resetSession])
+    }, [isFirstHomeLoad, resetLocation, resetSession, loadPosts])
   );
 
   // Handle sport selection and navigation
@@ -212,7 +233,7 @@ export default function HomeScreen() {
 
   // Fonctions pour gérer les posts
   const handleRefresh = async () => {
-    // Ici on rechargerait les posts depuis l'API
+    await loadPosts();
   };
 
   const handleLike = (postId: string) => {
@@ -254,7 +275,17 @@ export default function HomeScreen() {
 
   return (
     <Layout footerButtons={<FooterNavigation currentPage="Home" />} showHomeButton={false}>
-      <ScrollView ref={scrollViewRef} className="flex-1">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 40}
+      >
+        <ScrollView
+          ref={scrollViewRef}
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
         {/* Hero section avec photo de La Réunion */}
         <ImageBackground
           source={{
@@ -335,7 +366,8 @@ export default function HomeScreen() {
           {/* Espacement final */}
           <View className="h-6" />
         </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Modal pour créer/modifier un post */}
       <CreatePostModal

@@ -3,13 +3,14 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import RecordingIndicator from "./components/RecordingIndicator";
+import RecordingIndicator from "./components/ui/RecordingIndicator";
 import HomeScreen from "./screens/HomeScreen";
 import TrackingScreen from "./screens/TrackingScreen";
 import EventsScreen from "./screens/EventsScreen";
 import SportsScreen from "./screens/SportsScreen";
 import SentiersScreen from "./screens/SentiersScreen";
 import SentierDetailScreen from "./screens/SentierDetailScreen";
+import CommentsScreen from "./screens/CommentsScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 
@@ -100,6 +101,14 @@ export default function App() {
             options={{
               title: "Détails du sentier",
               headerShown: false // On utilise le header personnalisé du Layout
+            }}
+          />
+          <Stack.Screen
+            name="Comments"
+            component={CommentsScreen}
+            options={{
+              title: "Commentaires",
+              headerShown: false // On utilise le header personnalisé du CommentsScreen
             }}
           />
         </Stack.Navigator>

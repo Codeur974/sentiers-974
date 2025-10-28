@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { ScrollView, View, Text, TouchableOpacity, RefreshControl, TextInput } from "react-native";
-import Layout from "../components/Layout";
-import FooterNavigation from "../components/FooterNavigation";
-import EventCard from "../components/EventCard";
+import Layout from "../components/ui/Layout";
+import FooterNavigation from "../components/ui/FooterNavigation";
+import EventCard from "../components/events/EventCard";
 import { SportEvent } from "../types/events";
 import { getUpcomingReunionEvents } from "../data/reunionEvents";
 import { useNavigation } from "@react-navigation/native";
@@ -185,6 +185,8 @@ export default function EventsScreen() {
             placeholder="Rechercher un événement..."
             value={searchQuery}
             onChangeText={setSearchQuery}
+            autoFocus={false}
+            blurOnSubmit={true}
           />
         </View>
 

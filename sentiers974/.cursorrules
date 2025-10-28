@@ -1,0 +1,373 @@
+# Règles Cursor pour Sentiers 974
+
+## ⚠️ RÈGLES CRITIQUES - À RESPECTER ABSOLUMENT
+
+### 🚨 NE JAMAIS CASSER UN COMPOSANT QUI FONCTIONNE
+
+**RÈGLE D'OR**: Avant de modifier ou corriger un composant, TOUJOURS :
+
+1. **Lire et comprendre** le code existant en entier
+2. **Identifier** exactement ce qui fonctionne déjà
+3. **Isoler** le problème spécifique à corriger
+4. **Tester** que la modification ne casse pas les fonctionnalités existantes
+
+#### ❌ CE QU'IL NE FAUT JAMAIS FAIRE :
+
+- Réécrire un composant entier pour corriger un petit bug
+- Supprimer du code "qui semble inutile" sans comprendre son rôle
+- Modifier la logique qui fonctionne pour en corriger une autre
+- Changer les props ou l'interface d'un composant utilisé ailleurs sans vérifier l'impact
+- Refactoriser "pour améliorer" un composant qui fonctionne parfaitement
+
+#### ✅ CE QU'IL FAUT FAIRE :
+
+- **Correction chirurgicale** : Modifier UNIQUEMENT la partie problématique
+- **Ajout non-intrusif** : Ajouter des fonctionnalités sans toucher au code existant
+- **Tests de régression** : Vérifier que tout ce qui marchait marche toujours
+- **Isolation** : Si besoin de gros changements, créer un nouveau composant plutôt que casser l'ancien
+- **Documentation** : Expliquer POURQUOI on touche à un composant qui fonctionne
+
+#### Principe : "Si ça marche, ne le touche pas"
+
+```typescript
+// ❌ MAUVAIS - Réécrire tout le composant pour corriger un bug mineur
+const TrackingStats = () => {
+  // Tout réécrire avec une nouvelle logique
+  // Risque : casser ce qui marchait
+};
+
+// ✅ BON - Correction ciblée
+const TrackingStats = () => {
+  // ... code existant qui fonctionne ...
+
+  // FIX: Correction du bug spécifique ligne X
+  const fixedValue = value ?? 0; // Ajout null check
+
+  // ... reste du code inchangé ...
+};
+```
+
+#### En cas de doute :
+1. **Demander** avant de faire un changement majeur
+2. **Créer un nouveau composant** plutôt que modifier l'ancien
+3. **Faire des commits atomiques** : 1 problème = 1 commit
+4. **Tester systématiquement** après chaque modification
+
+---
+
+## Stack Technique
+
+- **Framework**: React Native 0.81.4 avec Expo ~54.0.0
+- **Langage**: TypeScript 5.8.3 (strict mode activé)
+- **Styling**: NativeWind 4.x (Tailwind CSS pour React Native)
+- **Navigation**: React Navigation 7.x (Native Stack & Stack Navigator)
+- **State Management**: Zustand 5.x
+- **Storage**: AsyncStorage + SecureStore (Expo)
+- **Géolocalisation**: expo-location avec tracking en arrière-plan
+- **Cartes**: react-native-maps
+- **Requêtes HTTP**: Axios
+
+## Structure du Projet
+
+```
+src/
+├── App.tsx                 # Point d'entrée principal
+├── components/             # Composants réutilisables
+│   ├── events/            # Composants liés aux événements
+│   ├── map/               # Composants de carte
+│   ├── modals/            # Modales génériques
+│   ├── sentiers/          # Composants des sentiers
+│   ├── social/            # Composants sociaux (posts, feed)
+│   ├── tracking/          # Composants de suivi GPS
+│   └── ui/                # Composants UI génériques
+├── data/                  # Données statiques et configurations
+├── hooks/                 # Custom hooks React
+├── screens/               # Écrans de l'application
+├── services/              # Services API et logique métier
+├── store/                 # Stores Zustand
+├── types/                 # Définitions TypeScript
+└── utils/                 # Fonctions utilitaires
+```
+
+## Conventions de Code
+
+### TypeScript
+
+- **TOUJOURS** utiliser TypeScript strict mode
+- **TOUJOURS** typer explicitement les props des composants
+- **TOUJOURS** typer les retours de fonctions pour les fonctions complexes
+- Utiliser des interfaces pour les props de composants
+- Utiliser des types pour les unions et les helpers
+- Éviter `any` - utiliser `unknown` si nécessaire
+
+```typescript
+// ✅ BON
+interface UserCardProps {
+  user: User;
+  onPress: (userId: string) => void;
+  variant?: 'compact' | 'detailed';
+}
+
+export const UserCard: React.FC<UserCardProps> = ({ user, onPress, variant = 'compact' }) => {
+  // ...
+};
+
+// ❌ MAUVAIS
+export const UserCard = ({ user, onPress }) => {
+  // ...
+};
+```
+
+### Composants React Native
+
+- **TOUJOURS** utiliser des composants fonctionnels avec hooks
+- Préférer `React.FC<Props>` pour les composants
+- Organiser les imports dans cet ordre:
+  1. React et React Native
+  2. Bibliothèques tierces
+  3. Composants locaux
+  4. Hooks personnalisés
+  5. Types
+  6. Utils et constantes
+
+```typescript
+// ✅ Ordre des imports
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+
+import { Button } from '@/components/ui';
+import { useGeolocation } from '@/hooks';
+import type { Trail } from '@/types';
+import { formatDistance } from '@/utils';
+```
+
+### Styling avec NativeWind
+
+- **TOUJOURS** utiliser NativeWind pour le styling (classes Tailwind)
+- Préférer les classes utilitaires plutôt que StyleSheet
+- Utiliser `className` au lieu de `style` quand possible
+- Pour les styles dynamiques complexes, utiliser les class conditionnelles
+
+```typescript
+// ✅ BON
+<View className="flex-1 bg-white p-4">
+  <Text className={`text-lg font-bold ${isActive ? 'text-green-600' : 'text-gray-600'}`}>
+    Titre
+  </Text>
+</View>
+
+// ❌ Éviter StyleSheet sauf cas spécifiques
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: 'white' }
+});
+```
+
+### Navigation
+
+- Utiliser React Navigation avec TypeScript strict typing
+- Définir les types de navigation dans `src/types/navigation.ts`
+- Toujours typer les paramètres de route
+
+```typescript
+// types/navigation.ts
+export type RootStackParamList = {
+  Home: undefined;
+  TrailDetail: { trailId: string };
+  Tracking: { sessionId?: string };
+};
+
+// Dans un composant
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '@/types/navigation';
+
+type Props = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'TrailDetail'>;
+};
+```
+
+### State Management avec Zustand
+
+- Créer des stores séparés par domaine fonctionnel
+- Typer les stores avec TypeScript
+- Utiliser des sélecteurs pour optimiser les re-renders
+- Persister les données importantes avec AsyncStorage
+
+```typescript
+// ✅ BON
+interface TrackingState {
+  isTracking: boolean;
+  currentSession: Session | null;
+  startTracking: () => void;
+  stopTracking: () => void;
+}
+
+export const useTrackingStore = create<TrackingState>((set) => ({
+  isTracking: false,
+  currentSession: null,
+  startTracking: () => set({ isTracking: true }),
+  stopTracking: () => set({ isTracking: false, currentSession: null }),
+}));
+
+// Utilisation avec sélecteur
+const isTracking = useTrackingStore((state) => state.isTracking);
+```
+
+### Hooks Personnalisés
+
+- Préfixer TOUS les hooks avec `use`
+- Placer les hooks dans `src/hooks/`
+- Grouper les hooks liés dans des sous-dossiers
+- Exporter depuis `src/hooks/index.ts`
+
+```typescript
+// ✅ BON - hooks/useGeolocation.ts
+export const useGeolocation = () => {
+  const [location, setLocation] = useState<Location | null>(null);
+  // ...
+  return { location, error, requestPermission };
+};
+
+// hooks/index.ts
+export { useGeolocation } from './useGeolocation';
+export { useActivity } from './useActivity';
+```
+
+## Bonnes Pratiques Spécifiques au Projet
+
+### Géolocalisation et Tracking
+
+- Toujours demander les permissions avant d'accéder à la localisation
+- Utiliser `expo-location` pour le tracking
+- Gérer le tracking en arrière-plan avec `expo-task-manager`
+- Optimiser la fréquence de mise à jour GPS pour économiser la batterie
+- Stocker les sessions de tracking dans AsyncStorage
+
+### Photos et Médias
+
+- Utiliser `expo-image-picker` pour la sélection de photos
+- Implémenter la sélection multiple de photos
+- Optimiser les images avant upload (compression)
+- Gérer les permissions caméra/galerie
+
+### Composants de Tracking
+
+- Utiliser les composants dans `src/components/tracking/`
+- `TrackingHeader` pour l'en-tête
+- `TrackingFooter` pour le footer de navigation
+- `TrackingStats` pour afficher les statistiques
+- `PhotosSection` pour gérer les photos
+
+### Modales
+
+- Utiliser les composants Modal React Native
+- Centraliser les modales complexes dans `src/components/modals/`
+- Gérer l'état d'ouverture/fermeture avec Zustand ou state local
+
+### Navigation Footer
+
+- Utiliser `FooterNavigation` pour une navigation cohérente
+- Définir les routes dans le composant
+- Gérer l'état actif/inactif visuellement
+
+### Social & Posts
+
+- Utiliser `CreatePostModal` pour créer des posts
+- `SocialFeed` pour afficher le feed
+- `SocialPostCard` pour les cartes de post
+- Gérer les photos multiples dans les posts
+
+## Performance
+
+- Utiliser `React.memo` pour les composants qui re-render souvent
+- Utiliser `useCallback` pour les fonctions passées en props
+- Utiliser `useMemo` pour les calculs coûteux
+- Optimiser les listes avec `FlatList` et `keyExtractor`
+- Lazy load des images avec optimisation
+
+```typescript
+// ✅ BON
+const TrailList = React.memo<TrailListProps>(({ trails, onTrailPress }) => {
+  const renderItem = useCallback(
+    ({ item }: { item: Trail }) => (
+      <TrailCard trail={item} onPress={() => onTrailPress(item.id)} />
+    ),
+    [onTrailPress]
+  );
+
+  return (
+    <FlatList
+      data={trails}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.id}
+    />
+  );
+});
+```
+
+## Gestion des Erreurs
+
+- Toujours encapsuler les appels API dans try/catch
+- Afficher des messages d'erreur clairs à l'utilisateur
+- Logger les erreurs pour le debugging
+- Gérer les cas de permissions refusées
+
+```typescript
+// ✅ BON
+try {
+  const response = await axios.get('/api/trails');
+  setTrails(response.data);
+} catch (error) {
+  console.error('Erreur lors du chargement des sentiers:', error);
+  Alert.alert('Erreur', 'Impossible de charger les sentiers');
+}
+```
+
+## Nommage
+
+- **Composants**: PascalCase (`TrailCard`, `SocialFeed`)
+- **Fichiers de composants**: PascalCase (`TrailCard.tsx`)
+- **Hooks**: camelCase avec préfixe use (`useGeolocation`, `useActivity`)
+- **Utilitaires**: camelCase (`formatDistance`, `calculateElevation`)
+- **Types/Interfaces**: PascalCase (`Trail`, `User`, `TrackingSession`)
+- **Constantes**: UPPER_SNAKE_CASE (`API_BASE_URL`, `MAX_PHOTOS`)
+- **Variables**: camelCase (`currentLocation`, `isTracking`)
+
+## API et Services
+
+- Centraliser les appels API dans `src/services/`
+- Utiliser Axios pour les requêtes HTTP
+- Définir les endpoints dans des constantes
+- Gérer les tokens d'authentification avec SecureStore
+
+## Testing (à développer)
+
+- Écrire des tests unitaires pour les hooks et utils
+- Écrire des tests d'intégration pour les flows critiques
+- Tester les composants avec React Native Testing Library
+
+## Git et Commits
+
+- Commits en français
+- Utiliser les préfixes conventionnels:
+  - `feat:` pour les nouvelles fonctionnalités
+  - `fix:` pour les corrections de bugs
+  - `refactor:` pour le refactoring
+  - `style:` pour les changements de style
+  - `docs:` pour la documentation
+  - `perf:` pour les optimisations de performance
+  - `test:` pour les tests
+
+## Remarques Importantes
+
+- ⚠️ **TOUJOURS** tester sur un appareil réel pour la géolocalisation
+- ⚠️ **TOUJOURS** gérer les permissions de manière explicite
+- ⚠️ **TOUJOURS** optimiser les images et médias
+- ⚠️ **TOUJOURS** tester la performance sur des appareils bas de gamme
+- ⚠️ **TOUJOURS** gérer les états de chargement et d'erreur
+- ⚠️ **TOUJOURS** prévoir les cas offline (pas de connexion)
+
+## À Compléter
+
+<!-- Ajoutez ici vos règles personnalisées spécifiques au projet -->

@@ -1,82 +1,84 @@
 import React from 'react';
-import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { PhotoItem as PhotoItemType } from '../types';
+import { View, TouchableOpacity, Text } from 'react-native';
+import { usePhotoSelection } from '../../../hooks/tracking/selection/usePhotoSelection';
+import { PhotoThumbnail } from './PhotoThumbnail';
+import { PhotoActions } from './PhotoActions';
 
-interface PhotoItemProps {
-  photo: PhotoItemType;
-  onPress: (photo: PhotoItemType) => void;
-  onLongPress: (photo: PhotoItemType) => void;
+interface PhotoItem {
+  id: string;
+  uri: string;
+  title: string;
+  note?: string;
+  sessionId?: string;
+  createdAt: number;
+  source: 'poi' | 'backend';
 }
 
-export const PhotoItem = React.memo(function PhotoItem({ 
-  photo, 
-  onPress, 
-  onLongPress 
-}: PhotoItemProps) {
+interface PhotoItemProps {
+  photo: PhotoItem;
+  onPress: () => void;
+  onDelete: (photo: PhotoItem) => void;
+  isOrphan?: boolean;
+}
+
+export const PhotoItemComponent: React.FC<PhotoItemProps> = ({
+  photo,
+  onPress,
+  onDelete,
+  isOrphan = false
+}) => {
+  const {
+    checkboxesVisible,
+    togglePhotoSelection,
+    isPhotoSelected
+  } = usePhotoSelection();
+
+  const isSelected = isPhotoSelected(photo.id);
+
+  const handlePress = () => {
+    if (checkboxesVisible) {
+      togglePhotoSelection(photo.id);
+    } else {
+      onPress();
+    }
+  };
+
   return (
-    <TouchableOpacity 
-      style={styles.photoContainer}
-      onPress={() => onPress(photo)}
-      onLongPress={() => onLongPress(photo)}
+    <TouchableOpacity
+      onPress={handlePress}
+      className={`flex-row items-center p-2 mb-2 rounded-lg border ${
+        isSelected ? 'bg-blue-100 border-blue-300' : 'bg-gray-50 border-gray-200'
+      }`}
+      activeOpacity={1}
     >
-      <Image source={{ uri: photo.uri }} style={styles.photoImage} />
-      <View style={styles.photoOverlay}>
-        <Text style={styles.photoTitle} numberOfLines={1}>
-          👁️ {photo.title}
-        </Text>
-        {photo.note && (
-          <Text style={styles.photoNote} numberOfLines={2}>
-            {photo.note}
-          </Text>
-        )}
-        <View style={styles.sourceIndicator}>
-          <Text style={styles.sourceText}>
-            {photo.source === 'backend' ? '☁️' : '📱'}
-          </Text>
+      {/* Checkbox de sélection */}
+      {checkboxesVisible && (
+        <View className="mr-2">
+          <View className={`w-6 h-6 rounded border-2 items-center justify-center ${
+            isSelected ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-400'
+          }`}>
+            {isSelected && (
+              <Text className="text-white text-xs font-bold">✓</Text>
+            )}
+          </View>
         </View>
-      </View>
+      )}
+
+      {/* Thumbnail et infos */}
+      <PhotoThumbnail
+        uri={photo.uri}
+        title={photo.title}
+        note={photo.note}
+        isOrphan={isOrphan}
+        sessionId={photo.sessionId}
+      />
+
+      {/* Actions */}
+      <PhotoActions
+        source={photo.source}
+        isOrphan={isOrphan}
+        onDelete={() => onDelete(photo)}
+      />
     </TouchableOpacity>
   );
-});
-
-const styles = StyleSheet.create({
-  photoContainer: {
-    width: 120,
-    height: 120,
-    marginRight: 10,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-  },
-  photoImage: {
-    width: '100%',
-    height: '100%',
-  },
-  photoOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    padding: 6,
-  },
-  photoTitle: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  photoNote: {
-    color: '#ccc',
-    fontSize: 10,
-    lineHeight: 12,
-  },
-  sourceIndicator: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-  },
-  sourceText: {
-    fontSize: 12,
-  },
-});
+};

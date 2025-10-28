@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
-import Layout from '../components/Layout';
-import FooterNavigation from '../components/FooterNavigation';
+import Layout from '../components/ui/Layout';
+import FooterNavigation from '../components/ui/FooterNavigation';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import sentiersService, { SentierReel, SentiersService } from '../services/sentiersService';

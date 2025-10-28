@@ -297,6 +297,27 @@ class ApiService {
       method: 'DELETE'
     });
   }
+
+  // ===== PHOTOS DANS SESSIONS =====
+
+  // Ajouter une photo à une session
+  async addPhotoToSession(sessionId: string, photoData: {
+    title: string;
+    note?: string;
+    uri?: string;
+  }) {
+    return this.request(`/sessions/${sessionId}/photos`, {
+      method: 'POST',
+      body: JSON.stringify(photoData)
+    });
+  }
+
+  // Supprimer une photo d'une session
+  async removePhotoFromSession(sessionId: string, photoId: string) {
+    return this.request(`/sessions/${sessionId}/photos/${photoId}`, {
+      method: 'DELETE'
+    });
+  }
 }
 
 // Instance singleton

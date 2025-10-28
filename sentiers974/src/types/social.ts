@@ -17,7 +17,9 @@ export interface SocialComment {
   userName: string;
   userAvatar?: string;
   text: string;
+  photos?: SocialPhoto[];
   createdAt: number;
+  updatedAt?: number;
 }
 
 export interface SocialPost {

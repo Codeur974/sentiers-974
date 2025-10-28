@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Modal } from "react-native";
-import Layout from "../components/Layout";
+import Layout from "../components/ui/Layout";
 import { useRecordingStore } from "../store/useRecordingStore";
-import EnhancedMapView from "../components/EnhancedMapView";
-import FooterNavigation from "../components/FooterNavigation";
+import EnhancedMapView from "../components/map/EnhancedMapView";
+import FooterNavigation from "../components/ui/FooterNavigation";
 import {
   FloatingTrackingControls,
 } from "../components/tracking";
@@ -11,7 +11,7 @@ import PhotosSection, { PhotosSectionRef } from "../components/tracking/PhotosSe
 import TrackingFooter from "../components/tracking/TrackingFooter";
 import { useTrackingLogic } from "../hooks";
 import { useNavigation } from "@react-navigation/native";
-import Filter, { FilterRef } from "../components/Filter";
+import Filter, { FilterRef } from "../components/ui/Filter";
 import CreatePostModal from "../components/social/CreatePostModal";
 import { SocialPhoto } from "../types/social";
 import { useSocialStore } from "../store/useSocialStore";
@@ -59,13 +59,15 @@ export default function TrackingScreen({ route }: any) {
   useEffect(() => {
     const isRecording = trackingLogic.status === "running";
     const isPaused = trackingLogic.status === "paused";
-    
+
     setRecording(isRecording);
     setPaused(isPaused);
-    
+
     // Si arrêt complet, reset tout
     if (trackingLogic.status === "stopped" || trackingLogic.status === "idle") {
       resetRecording();
+      // Fermer aussi la fenêtre de capture des moments quand la session s'arrête
+      setShowTrackingFooter(false);
     }
   }, [trackingLogic.status, setRecording, setPaused, resetRecording]);
 
@@ -327,10 +329,15 @@ export default function TrackingScreen({ route }: any) {
                   <TouchableOpacity
                     onPress={() => setShowTrackingFooter(!showTrackingFooter)}
                     className="w-10 h-10 items-center justify-center mb-1"
+                    activeOpacity={1}
                   >
                     <Text className="text-base">📸</Text>
                   </TouchableOpacity>
-                  <Text className="text-gray-700 text-xs font-medium">
+                  <Text className={`text-xs font-medium ${
+                    showTrackingFooter && (!trackingLogic.sessionId || trackingLogic.status === "idle")
+                      ? "text-orange-500"
+                      : "text-gray-700"
+                  }`}>
                     Photos
                   </Text>
                 </View>
