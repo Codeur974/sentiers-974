@@ -91,7 +91,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Randonnée': {
         ...defaultConfig,
         maxSpeed: 10,
-        minDistance: 0.008,
+        minDistance: 0.005,
         accuracyThreshold: 40,
         maxPollingInterval: 2000,
         speedSmoothingWindow: 5,
@@ -99,13 +99,13 @@ export const useTrackingLogic = (selectedSport: any) => {
       'VTT': {
         ...defaultConfig,
         maxSpeed: 45,
-        minDistance: 0.01,
+        minDistance: 0.005,
         accuracyThreshold: 30,
       },
       'Vélo': {
         ...defaultConfig,
         maxSpeed: 50,
-        minDistance: 0.01,
+        minDistance: 0.005,
         accuracyThreshold: 25,
         maxPollingInterval: 2000,
       },
