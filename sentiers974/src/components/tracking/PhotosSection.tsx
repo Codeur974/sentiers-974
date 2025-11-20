@@ -3,9 +3,10 @@
   useEffect,
   useImperativeHandle,
   forwardRef,
+  useRef,
 } from "react";
 import { View, Text, Alert } from "react-native";
-import { usePointsOfInterest } from "../../hooks/usePointsOfInterest";
+import { usePOIs } from '../../store/useDataStore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiService from "../../services/api";
 
@@ -84,7 +85,13 @@ interface SessionGroup {
 
 const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
   ({ isVisible, onInteraction }, ref) => {
-    const { pois, reload: reloadPois } = usePointsOfInterest();
+    const { pois, reload: reloadPois } = usePOIs();
+    const dayStatsCache = useRef<Map<string, DayPerformance | undefined>>(
+      new Map()
+    );
+    const inflightDayStats = useRef<
+      Map<string, Promise<DayPerformance | undefined>>
+    >(new Map());
     const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
     const [selectedPhoto, setSelectedPhoto] = useState<{
       uri: string;
@@ -95,6 +102,11 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       new Set()
     );
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+    useEffect(() => {
+      dayStatsCache.current.clear();
+      inflightDayStats.current.clear();
+    }, [refreshTrigger]);
 
     // Hooks personnalisÃ©s
     const { activateSelectionMode, deactivateSelectionMode } =
@@ -135,7 +147,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       if (isVisible) {
         reloadPois();
       }
-    }, [isVisible, reloadPois]); // Maintenant stable grÃ¢ce Ã  useCallback
+    }, [isVisible]); // eslint-disable-line react-hooks/exhaustive-deps // Maintenant stable grÃ¢ce Ã  useCallback
 
     // Effet pour dÃ©sactiver la sÃ©lection quand toutes les sections sont fermÃ©es
     useEffect(() => {
@@ -243,7 +255,18 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     const loadDayPerformance = async (
       dateString: string
     ): Promise<DayPerformance | undefined> => {
-      try {
+      if (!dateString) return undefined;
+
+      if (dayStatsCache.current.has(dateString)) {
+        return dayStatsCache.current.get(dateString);
+      }
+
+      if (inflightDayStats.current.has(dateString)) {
+        return inflightDayStats.current.get(dateString);
+      }
+
+      const fetchPromise = (async () => {
+        try {
         console.log("ðŸ” Tentative chargement MongoDB pour:", dateString);
         const response = await apiService.getDailyStats(dateString);
 
@@ -283,10 +306,17 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         }
 
         return undefined;
-      } catch (error) {
+        } catch (error) {
         console.error("âŒ Erreur chargement stats jour:", error);
         return undefined;
-      }
+        }
+      })();
+
+      inflightDayStats.current.set(dateString, fetchPromise);
+      const result = await fetchPromise;
+      inflightDayStats.current.delete(dateString);
+      dayStatsCache.current.set(dateString, result);
+      return result;
     };
 
     // Grouper les photos par jour et charger les performances

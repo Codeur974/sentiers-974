@@ -2,7 +2,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Configuration de l'API - à adapter selon votre serveur  
-const API_BASE_URL = 'http://192.168.1.12:3001/api'; // Backend pour appareil mobile
+const API_BASE_URL = 'http://192.168.1.17:3001/api'; // Backend pour appareil mobile
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -93,7 +93,7 @@ class ApiService {
     // Test de connexion backend d'abord
     try {
       console.log('🔌 Test connexion backend...');
-      const testResponse = await fetch(`http://192.168.1.12:3001/`);
+      const testResponse = await fetch(`http://192.168.1.17:3001/`);
       const testResult = await testResponse.text();
       console.log('✅ Backend accessible:', testResult);
     } catch (error) {

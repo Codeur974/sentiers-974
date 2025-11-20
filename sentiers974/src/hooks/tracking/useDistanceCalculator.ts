@@ -9,7 +9,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
   const [instantSpeed, setInstantSpeed] = useState(0);
   const [maxSpeed, setMaxSpeed] = useState(0);
   const [speedHistory, setSpeedHistory] = useState<number[]>([]);
-  const [trackingPath, setTrackingPath] = useState<Array<{latitude: number; longitude: number}>>([]);
+  const [trackingPath, setTrackingPath] = useState<Array<{latitude: number; longitude: number; timestamp: number}>>([]);
 
   // Gérer lastCoords en interne (useRef = pas de re-render)
   const lastCoords = useRef<any>(null);
@@ -156,7 +156,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
           const distFromLast = calculateDistance(lastTracked, newPoint);
           if (distFromLast < 0.002) return prev; // Moins de 2m, skip
         }
-        return [...prev, newPoint];
+        return [...prev, { ...newPoint, timestamp: coords.timestamp }];
       });
 
       recentMovementWindow.current.push({ time: now, distance: newDist });

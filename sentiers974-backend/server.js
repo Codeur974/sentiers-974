@@ -494,13 +494,24 @@ app.post('/api/sessions', async (req, res) => {
       console.log('🆔 SessionId fourni par l\'app conservé:', sessionData.sessionId);
     }
 
-    // Créer la session
-    const session = new Session(sessionData);
-    await session.save();
-    
-    console.log('✅ Session sauvegardée:', session.sessionId);
-    
-    res.status(201).json({
+    // Vérifier si la session existe déjà (update si existe, create sinon)
+    const existingSession = await Session.findOne({ sessionId: sessionData.sessionId });
+
+    let session;
+    if (existingSession) {
+      // Mise à jour de la session existante
+      Object.assign(existingSession, sessionData);
+      await existingSession.save();
+      session = existingSession;
+      console.log('🔄 Session mise à jour:', session.sessionId);
+    } else {
+      // Création d'une nouvelle session
+      session = new Session(sessionData);
+      await session.save();
+      console.log('✅ Session créée:', session.sessionId);
+    }
+
+    res.status(existingSession ? 200 : 201).json({
       success: true,
       data: session.toClientFormat()
     });
@@ -752,12 +763,15 @@ app.get('/api/sessions/stats/daily', async (req, res) => {
           avgSpeed: { $avg: '$avgSpeed' },
           maxSpeed: { $max: '$maxSpeed' },
           sports: { $addToSet: '$sport.nom' },
-          sessions: { 
+          sessions: {
             $push: {
               id: '$sessionId',
               sport: '$sport.nom',
               distance: '$distance',
               duration: '$duration',
+              avgSpeed: '$avgSpeed',
+              maxSpeed: '$maxSpeed',
+              steps: '$steps',
               createdAt: '$createdAt'
             }
           }

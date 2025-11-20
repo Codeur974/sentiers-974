@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, TextInput, Alert, Image, ScrollView } from 'react-native';
 import { PhotoManager } from '../../utils/photoUtils';
-import { usePointsOfInterest } from '../../hooks/usePointsOfInterest';
+import { usePOIs } from '../../store/useDataStore';
 
 interface TrackingFooterProps {
   trackingLogic: any;
@@ -14,7 +14,7 @@ export default function TrackingFooter({
   isVisible,
   onToggle
 }: TrackingFooterProps) {
-  const { pois, createPOI, deletePOI, getPOIsForSession } = usePointsOfInterest();
+  const { pois, createPOI, deletePOI, getPOIsForSession } = usePOIs();
   const [showPOIModal, setShowPOIModal] = useState(false);
   const [poiTitle, setPoiTitle] = useState('');
   const [poiNote, setPoiNote] = useState('');
@@ -97,17 +97,16 @@ export default function TrackingFooter({
     });
 
     try {
-      const poi = await createPOI(
-        useCoords,
-        trackingLogic.distance || 0, // Si distance non disponible, utiliser 0
-        trackingLogic.duration || 0, // Si durée non disponible, utiliser 0
-        {
-          title: poiTitle.trim(),
-          note: poiNote.trim() || undefined,
-          photo: poiPhoto || undefined // URI de la photo si sélectionnée
-        },
-        trackingLogic.sessionId
-      );
+      const poi = await createPOI({
+        latitude: useCoords.latitude,
+        longitude: useCoords.longitude,
+        distance: trackingLogic.distance || 0, // fallback si non disponible
+        time: trackingLogic.duration || 0,     // fallback si non disponible
+        title: poiTitle.trim(),
+        note: poiNote.trim() || undefined,
+        photoUri: poiPhoto || undefined, // URI de la photo si sélectionnée
+        sessionId: trackingLogic.sessionId
+      });
 
       console.log('🎯 RESULTAT CREATION POI:', poi);
 

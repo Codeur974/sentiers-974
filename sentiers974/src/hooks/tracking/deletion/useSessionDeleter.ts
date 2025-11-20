@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { usePointsOfInterest } from '../../usePointsOfInterest';
+import { usePOIs } from '../../../store/useDataStore';
 import apiService from '../../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from '../../../utils/logger';
@@ -11,7 +11,7 @@ interface SessionGroup {
 }
 
 export const useSessionDeleter = (onRefresh: () => void) => {
-  const { pois, deletePOI } = usePointsOfInterest();
+  const { pois, deletePOI } = usePOIs();
 
   const getLocalDateString = (timestamp: any) => {
     let ts = timestamp;
