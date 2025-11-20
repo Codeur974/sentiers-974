@@ -14,8 +14,8 @@ const SessionSchema = new mongoose.Schema({
   },
   
   // Données de performance
-  distance: { type: Number, required: true }, // en mètres
-  duration: { type: Number, required: true }, // en millisecondes
+  distance: { type: Number, default: 0 }, // en mètres
+  duration: { type: Number, default: 0 }, // en millisecondes
   calories: { type: Number, default: 0 },
   avgSpeed: { type: Number, default: 0 }, // km/h
   maxSpeed: { type: Number, default: 0 }, // km/h
@@ -69,7 +69,7 @@ const SessionSchema = new mongoose.Schema({
   // Statut de la session
   status: {
     type: String,
-    enum: ['completed', 'stopped', 'interrupted'],
+    enum: ['active', 'running', 'paused', 'completed', 'stopped', 'interrupted'],
     default: 'completed'
   },
   

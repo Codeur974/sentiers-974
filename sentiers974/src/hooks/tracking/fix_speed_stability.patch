@@ -1,0 +1,25 @@
+--- useDistanceCalculator.ts.old
++++ useDistanceCalculator.ts
+@@ -159,10 +159,18 @@
+       rawSpeedKmh = 0;
+     }
+ 
+-    // Lissage EMA (alpha 0.7 pour réactivité)
+-    const alpha = 0.7;
++    // Lissage EMA (alpha 0.3 pour stabilité)
++    // Alpha plus petit = plus stable, moins réactif aux variations GPS
++    const alpha = 0.3;
+     const emaSpeed = lastGpsSpeed.current === 0
+       ? rawSpeedKmh
+-      : (alpha * rawSpeedKmh) + ((1 - alpha) * lastGpsSpeed.current);
++      : alpha * rawSpeedKmh + (1 - alpha) * lastGpsSpeed.current;
++
++    // Seuil de variation : ignorer petites variations < 0.3 km/h
++    // Évite les micro-changements causés par imprécision GPS
++    const speedDiff = Math.abs(emaSpeed - lastGpsSpeed.current);
++    const stabilizedSpeed = speedDiff < 0.3 && lastGpsSpeed.current > 0
++      ? lastGpsSpeed.current
++      : emaSpeed;
+ 
+-    const finalSpeed = emaSpeed < 0.5 ? 0 : emaSpeed;
++    const finalSpeed = stabilizedSpeed < 0.5 ? 0 : stabilizedSpeed;

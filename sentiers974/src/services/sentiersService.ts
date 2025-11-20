@@ -1,7 +1,7 @@
 // Service pour récupérer les données des sentiers depuis notre API MongoDB
 // Structure COMPLÈTE basée sur la liste exacte de randopitons.re
 
-const API_BASE_URL = 'http://192.168.1.12:3001/api';
+const API_BASE_URL = 'http://192.168.1.17:3001/api';
 
 export interface SentierReel {
   id: string;

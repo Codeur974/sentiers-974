@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { usePointsOfInterest } from '../../usePointsOfInterest';
+import { usePOIs } from '../../../store/useDataStore';
 import { usePhotoSelection } from '../selection/usePhotoSelection';
 import { useSessionDeleter } from './useSessionDeleter';
 import { logger } from '../../../utils/logger';
@@ -16,7 +16,7 @@ export const useBulkDeleter = (
   expandedSections: Set<string>,
   onRefresh: () => void
 ) => {
-  const { pois, deletePOI } = usePointsOfInterest();
+  const { pois, deletePOI } = usePOIs();
   const {
     selectedPhotos,
     selectedSessions,

@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { usePointsOfInterest } from '../../usePointsOfInterest';
+import { usePOIs } from '../../../store/useDataStore';
 import apiService from '../../../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logger } from '../../../utils/logger';
@@ -14,7 +14,7 @@ interface PhotoGroup {
 }
 
 export const useDayDeleter = (onRefresh: () => void) => {
-  const { pois, deletePOIsBatch } = usePointsOfInterest();
+  const { pois, deletePOIsBatch } = usePOIs();
 
   const getLocalDateString = (timestamp: any) => {
     let ts = timestamp;

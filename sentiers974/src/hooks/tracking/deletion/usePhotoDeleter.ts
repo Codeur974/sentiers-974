@@ -1,5 +1,5 @@
 import { Alert } from 'react-native';
-import { usePointsOfInterest } from '../../usePointsOfInterest';
+import { usePOIs } from '../../../store/useDataStore';
 import { logger } from '../../../utils/logger';
 
 interface PhotoItem {
@@ -13,7 +13,7 @@ interface PhotoItem {
 }
 
 export const usePhotoDeleter = (onRefresh: () => void) => {
-  const { deletePOI } = usePointsOfInterest();
+  const { deletePOI } = usePOIs();
 
   const confirmDeletePhoto = (photo: PhotoItem) => {
     logger.debug('Confirmation suppression photo', {

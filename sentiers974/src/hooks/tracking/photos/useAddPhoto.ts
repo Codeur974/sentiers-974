@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import { usePointsOfInterest } from '../../usePointsOfInterest';
+import { usePOIs } from '../../../store/useDataStore';
 import { PhotoManager } from '../../../utils/photoUtils';
 import { logger } from '../../../utils/logger';
 
 export const useAddPhoto = (onRefresh: () => void) => {
-  const { pois, createPOI } = usePointsOfInterest();
+  const { pois, createPOI } = usePOIs();
   const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [photoTitle, setPhotoTitle] = useState('');
@@ -107,18 +107,17 @@ export const useAddPhoto = (onRefresh: () => void) => {
       // Position par défaut pour photo oubliée
       const defaultCoords = { latitude: -21.1151, longitude: 55.5364, altitude: 0 };
 
-      const poi = await createPOI(
-        defaultCoords,
-        0, // Distance à 0 car photo ajoutée après coup
-        0, // Temps à 0 car photo ajoutée après coup
-        {
-          title: photoTitle.trim(),
-          note: photoNote.trim() || undefined,
-          photo: selectedPhotoUri || undefined
-        },
-        selectedSessionId,
-        sessionTimestamp
-      );
+      const poi = await createPOI({
+        latitude: defaultCoords.latitude,
+        longitude: defaultCoords.longitude,
+        distance: 0, // Distance a 0 car photo ajoutee apres coup
+        time: 0, // Temps a 0 car photo ajoutee apres coup
+        title: photoTitle.trim(),
+        note: photoNote.trim() || undefined,
+        photoUri: selectedPhotoUri || undefined,
+        sessionId: selectedSessionId,
+        createdAt: sessionTimestamp
+      });
 
       if (poi) {
         logger.debug('Photo oubliée créée avec succès', {
