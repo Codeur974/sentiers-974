@@ -5,7 +5,7 @@
   forwardRef,
   useRef,
 } from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, TouchableOpacity, useWindowDimensions } from "react-native";
 import { usePOIs } from '../../store/useDataStore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiService from "../../services/api";
@@ -24,6 +24,7 @@ import { PhotoDayHeader } from "./day/PhotoDayHeader";
 import { PhotoDayContent } from "./day/PhotoDayContent";
 import { PhotoModal } from "./photos/PhotoModal";
 import { AddPhotoModal } from "./modals/AddPhotoModal";
+import Svg, { Polyline, Circle } from "react-native-svg";
 
 interface PhotosSectionProps {
   isVisible: boolean;
@@ -102,6 +103,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       new Set()
     );
     const [refreshTrigger, setRefreshTrigger] = useState(0);
+    const [metric, setMetric] = useState<"distance" | "avgSpeed">("distance");
+    const { width: screenWidth } = useWindowDimensions();
 
     useEffect(() => {
       dayStatsCache.current.clear();
@@ -477,7 +480,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       return (
         <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
           <Text className="text-center text-blue-600 font-bold text-lg mb-2">
-            ðŸ—‚ï¸ Mon Historique
+            Mon Historique
           </Text>
           <Text className="text-center text-gray-500 text-sm">
             {photoGroups.length === 0 && !hasAnySessions
@@ -491,10 +494,121 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     return (
       <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
         <Text className="text-blue-800 font-bold text-lg mb-3 text-center">
-          ðŸ—‚ï¸ Mon Historique
+          Mon Historique
         </Text>
 
-        {/* ContrÃ´les de sÃ©lection */}
+        {/* Graphique de progression (distance ou vitesse moyenne par session) */}
+        {(() => {
+          const allSessions = photoGroups
+            .flatMap((group) => group.sessionGroups || [])
+            .map((session) => session.performance)
+            .filter((p) => !!p)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+          const recentSessions = allSessions.slice(-20);
+
+          if (recentSessions.length < 2) {
+            return (
+              <Text className="text-center text-gray-500 text-xs mb-3">
+                Pas assez de sessions pour afficher une progression.
+              </Text>
+            );
+          }
+
+          const isDistance = metric === "distance";
+          const unit = isDistance ? "km" : "km/h";
+          const values = recentSessions.map((s) => (isDistance ? s.distance : s.avgSpeed));
+          const dates = recentSessions.map((s) => s.timestamp);
+          const minVal = Math.min(...values);
+          const maxVal = Math.max(...values);
+          const minDate = Math.min(...dates);
+          const maxDate = Math.max(...dates);
+          const totalDistance = recentSessions.reduce((sum, s) => sum + s.distance, 0);
+
+          const padding = 8;
+          const width = Math.max(200, Math.min(320, screenWidth - 64));
+          const height = 64;
+
+          const scaleX = (t: number) =>
+            padding + ((t - minDate) / Math.max(1, maxDate - minDate)) * (width - 2 * padding);
+          const scaleY = (d: number) => {
+            if (maxVal === minVal) return height / 2;
+            return height - padding - ((d - minVal) / (maxVal - minVal)) * (height - 2 * padding);
+          };
+
+          const points = recentSessions
+            .map((s) => `${scaleX(s.timestamp)},${scaleY(isDistance ? s.distance : s.avgSpeed)}`)
+            .join(" ");
+
+          const lastSession = recentSessions[recentSessions.length - 1];
+
+          return (
+            <View className="mb-4 bg-white/70 rounded-lg border border-blue-100 p-3">
+              <View className="flex-row justify-between items-center mb-2">
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-blue-800">Progression des sessions</Text>
+                  <Text className="text-[10px] text-gray-600">
+                    Sessions: {recentSessions.length} | Total: {totalDistance.toFixed(1)} km
+                  </Text>
+                </View>
+                <View className="flex-row space-x-2">
+                  <TouchableOpacity
+                    className="px-3 py-1.5 rounded-lg border"
+                    style={{
+                      backgroundColor: isDistance ? "#2563eb" : "#e5e7eb",
+                      borderColor: isDistance ? "#2563eb" : "#d1d5db",
+                    }}
+                    onPress={() => setMetric("distance")}
+                  >
+                    <Text className={isDistance ? "text-white text-xs font-semibold" : "text-gray-700 text-xs font-semibold"}>
+                      Distance
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    className="px-3 py-1.5 rounded-lg border"
+                    style={{
+                      backgroundColor: !isDistance ? "#2563eb" : "#e5e7eb",
+                      borderColor: !isDistance ? "#2563eb" : "#d1d5db",
+                    }}
+                    onPress={() => setMetric("avgSpeed")}
+                  >
+                    <Text className={!isDistance ? "text-white text-xs font-semibold" : "text-gray-700 text-xs font-semibold"}>
+                      Vitesse moy
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <View className="items-center">
+                <Svg height={height} width={width} viewBox={`0 0 ${width} ${height}`}>
+                  <Polyline
+                    points={points}
+                    fill="none"
+                    stroke="#1D4ED8"
+                    strokeWidth={2}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                  />
+                  {recentSessions.map((s, idx) => (
+                    <Circle
+                      key={s.sessionId || idx}
+                      cx={scaleX(s.timestamp)}
+                      cy={scaleY(isDistance ? s.distance : s.avgSpeed)}
+                      r={3}
+                      fill="#1D4ED8"
+                    />
+                  ))}
+                </Svg>
+              </View>
+              <View className="flex-row justify-between mt-1">
+                <Text className="text-[10px] text-gray-600">Min {minVal.toFixed(1)} {unit}</Text>
+                <Text className="text-[10px] text-gray-600">Max {maxVal.toFixed(1)} {unit}</Text>
+                <Text className="text-[10px] text-gray-600">Derniere {(isDistance ? lastSession.distance : lastSession.avgSpeed).toFixed(1)} {unit}</Text>
+              </View>
+            </View>
+          );
+        })()}
+
+        {/* Contrôles de sélection */}
         <SelectionControls
           visiblePhotoIds={photoGroups
             .filter((group) => expandedSections.has(group.date))

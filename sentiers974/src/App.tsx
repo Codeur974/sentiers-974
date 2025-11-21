@@ -11,8 +11,12 @@ import SportsScreen from "./screens/SportsScreen";
 import SentiersScreen from "./screens/SentiersScreen";
 import SentierDetailScreen from "./screens/SentierDetailScreen";
 import CommentsScreen from "./screens/CommentsScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
+import { AuthProvider } from "./contexts/AuthContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -40,22 +44,20 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+      <AuthProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Home">
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={({ route }) => ({
+            options={({ navigation }) => ({
               title: "Accueil",
               headerRight: () => (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <RecordingIndicator />
                   <TouchableOpacity
                     className="mr-4 p-2"
-                    onPress={() => {
-                      // Action pour les paramètres
-                      console.log("Paramètres");
-                    }}
+                    onPress={() => navigation.navigate('Profile' as never)}
                   >
                     <Text className="text-lg">⚙️</Text>
                   </TouchableOpacity>
@@ -75,7 +77,7 @@ export default function App() {
             name="Tracking"
             component={TrackingScreen}
             options={({ route }) => ({
-              title: (route.params as any)?.selectedSport ? "Mon Activité" : "Mon Suivi",
+              title: (route.params as any)?.selectedSport ? "Session en cours" : "Mon Suivi",
               headerRight: () => <RecordingIndicator />
             })}
           />
@@ -111,8 +113,33 @@ export default function App() {
               headerShown: false // On utilise le header personnalisé du CommentsScreen
             }}
           />
+          <Stack.Screen
+            name="Profile"
+            component={ProfileScreen}
+            options={{
+              title: "Mon Profil",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{
+              title: "Connexion",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="Signup"
+            component={SignupScreen}
+            options={{
+              title: "Inscription",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
+      </AuthProvider>
     </GestureHandlerRootView>
   );
 }

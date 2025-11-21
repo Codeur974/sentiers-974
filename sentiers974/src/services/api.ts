@@ -1,8 +1,11 @@
 // Service API pour communiquer avec le backend MongoDB
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Configuration de l'API - à adapter selon votre serveur  
+// Configuration de l'API - à adapter selon votre serveur
 const API_BASE_URL = 'http://192.168.1.17:3001/api'; // Backend pour appareil mobile
+
+// Export pour utilisation dans AuthContext
+export const API_URL = API_BASE_URL;
 
 interface ApiResponse<T = any> {
   success: boolean;

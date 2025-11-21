@@ -28,6 +28,10 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes API
 
+// 🔐 Routes d'authentification
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
 /**
  * GET /api/sentiers
  * Récupère tous les sentiers avec filtres optionnels
@@ -1300,6 +1304,11 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 API Sentiers démarrée sur le port ${PORT}`);
   console.log(`📍 Endpoints disponibles:`);
+  console.log(`   🔐 AUTH:`);
+  console.log(`      POST /api/auth/signup - Inscription`);
+  console.log(`      POST /api/auth/login - Connexion`);
+  console.log(`      GET /api/auth/me - Profil utilisateur (protégé)`);
+  console.log(`      DELETE /api/auth/account - Supprimer compte (protégé)`);
   console.log(`   GET /api/sentiers - Liste des sentiers avec filtres (+ zone_specifique)`);
   console.log(`   GET /api/sentiers/:id - Détails d'un sentier`);
   console.log(`   GET /api/regions - Liste des régions`);

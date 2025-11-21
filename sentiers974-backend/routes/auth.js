@@ -1,0 +1,242 @@
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const Session = require('../models/Session');
+const { generateToken, verifyToken } = require('../middleware/auth');
+
+/**
+ * 📝 INSCRIPTION (Signup)
+ * POST /api/auth/signup
+ *
+ * Body attendu:
+ * {
+ *   "email": "user@example.com",
+ *   "password": "motdepasse123",
+ *   "name": "Jean Dupont",
+ *   "deviceId": "device-abc-123" (optionnel, pour migration)
+ * }
+ *
+ * ✅ Si deviceId fourni : migre les sessions anonymes vers ce nouveau compte
+ */
+router.post('/signup', async (req, res) => {
+  try {
+    const { email, password, name, deviceId } = req.body;
+
+    // 1️⃣ Validation basique
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email et mot de passe requis'
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 8 caractères'
+      });
+    }
+
+    // 2️⃣ Vérifier si l'email existe déjà
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: 'Email déjà utilisé'
+      });
+    }
+
+    // 3️⃣ Créer le nouvel utilisateur
+    // ⚠️ Le password sera automatiquement hashé par le hook pre('save')
+    const user = new User({
+      email: email.toLowerCase(),
+      password, // Sera hashé automatiquement
+      name,
+      deviceId,
+      lastLogin: new Date()
+    });
+
+    await user.save();
+
+    // 4️⃣ MIGRATION : Si deviceId fourni, récupérer les sessions anonymes
+    if (deviceId) {
+      try {
+        const migratedCount = await Session.updateMany(
+          { userId: deviceId }, // Anciennes sessions avec deviceId
+          { userId: user._id }   // Associer au nouveau compte user
+        );
+        console.log(`✅ ${migratedCount.modifiedCount} sessions migrées pour ${email}`);
+      } catch (migrationError) {
+        console.error('⚠️ Erreur migration sessions:', migrationError);
+        // On continue quand même, migration non-critique
+      }
+    }
+
+    // 5️⃣ Générer le token JWT
+    const token = generateToken(user._id);
+
+    // 6️⃣ Retourner le user (sans password) + token
+    res.status(201).json({
+      success: true,
+      message: 'Compte créé avec succès',
+      user: user.toClientFormat(),
+      token
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur signup:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la création du compte'
+    });
+  }
+});
+
+/**
+ * 🔑 CONNEXION (Login)
+ * POST /api/auth/login
+ *
+ * Body attendu:
+ * {
+ *   "email": "user@example.com",
+ *   "password": "motdepasse123"
+ * }
+ */
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1️⃣ Validation basique
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email et mot de passe requis'
+      });
+    }
+
+    // 2️⃣ Trouver l'utilisateur
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Email ou mot de passe incorrect'
+      });
+    }
+
+    // 3️⃣ Vérifier le mot de passe
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        error: 'Email ou mot de passe incorrect'
+      });
+    }
+
+    // 4️⃣ Mettre à jour lastLogin
+    user.lastLogin = new Date();
+    await user.save();
+
+    // 5️⃣ Générer le token JWT
+    const token = generateToken(user._id);
+
+    // 6️⃣ Retourner le user (sans password) + token
+    res.json({
+      success: true,
+      message: 'Connexion réussie',
+      user: user.toClientFormat(),
+      token
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur login:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la connexion'
+    });
+  }
+});
+
+/**
+ * 👤 PROFIL UTILISATEUR
+ * GET /api/auth/me
+ *
+ * 🛡️ Route protégée : nécessite un token valide
+ * Header requis: Authorization: Bearer <token>
+ *
+ * Permet de récupérer les infos du user connecté
+ * (Utile au démarrage de l'app pour vérifier si le token est encore valide)
+ */
+router.get('/me', verifyToken, async (req, res) => {
+  try {
+    // req.userId a été ajouté par le middleware verifyToken
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable'
+      });
+    }
+
+    res.json({
+      success: true,
+      user: user.toClientFormat()
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur récupération profil:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+/**
+ * 🗑️ SUPPRESSION COMPTE (RGPD)
+ * DELETE /api/auth/account
+ *
+ * 🛡️ Route protégée : nécessite un token valide
+ * Header requis: Authorization: Bearer <token>
+ *
+ * ⚠️ SUPPRIME DÉFINITIVEMENT :
+ * - Le compte utilisateur
+ * - TOUTES ses sessions enregistrées
+ * - TOUTES ses données GPS
+ *
+ * Conformité RGPD : Droit à l'oubli
+ */
+router.delete('/account', verifyToken, async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // 1️⃣ Supprimer toutes les sessions du user
+    const deletedSessions = await Session.deleteMany({ userId });
+    console.log(`🗑️ ${deletedSessions.deletedCount} sessions supprimées pour user ${userId}`);
+
+    // 2️⃣ Supprimer le compte user
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Compte supprimé avec succès',
+      deletedSessions: deletedSessions.deletedCount
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur suppression compte:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la suppression du compte'
+    });
+  }
+});
+
+module.exports = router;
