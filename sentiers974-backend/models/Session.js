@@ -3,9 +3,16 @@ const mongoose = require('mongoose');
 const SessionSchema = new mongoose.Schema({
   // Identifiant unique de la session
   sessionId: { type: String, required: true, unique: true },
-  
-  // Informations utilisateur (pour l'instant anonyme)
-  userId: { type: String, default: 'anonymous' },
+
+  // Informations utilisateur
+  // ⚠️ PEUT ÊTRE :
+  // - ObjectId (référence vers User pour compte connecté)
+  // - String (deviceId pour utilisateur anonyme)
+  userId: {
+    type: mongoose.Schema.Types.Mixed, // Accepte ObjectId OU String
+    required: true,
+    default: 'anonymous'
+  },
   
   // Sport pratiqué
   sport: {

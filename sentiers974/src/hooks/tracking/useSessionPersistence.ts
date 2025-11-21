@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Utiliser la variable d'environnement du .env
 const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
@@ -9,9 +10,11 @@ const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
  * MongoDB + fallback AsyncStorage
  */
 export const useSessionPersistence = () => {
+  const { user } = useAuth();
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
 
-  // Charger sessionId au démarrage
+  // Charger sessionId et deviceId au démarrage
   useEffect(() => {
     const loadSessionId = async () => {
       try {
@@ -20,6 +23,15 @@ export const useSessionPersistence = () => {
           setSessionId(storedSessionId);
           console.log('🔄 SessionId restauré:', storedSessionId);
         }
+
+        // Charger ou créer deviceId
+        let storedDeviceId = await AsyncStorage.getItem('deviceId');
+        if (!storedDeviceId) {
+          storedDeviceId = `device_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+          await AsyncStorage.setItem('deviceId', storedDeviceId);
+          console.log('🆔 DeviceId créé:', storedDeviceId);
+        }
+        setDeviceId(storedDeviceId);
       } catch (error: any) {
         console.error('❌ Erreur chargement sessionId:', error);
       }
@@ -41,12 +53,15 @@ export const useSessionPersistence = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
+      // Déterminer le userId : user connecté > deviceId > 'anonymous'
+      const userId = user?.id || deviceId || 'anonymous';
+
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId: newSessionId,
-          userId: 'default-user',
+          userId: userId,
           sport: sport,
           distance: 0,
           duration: 0,
@@ -157,9 +172,26 @@ export const useSessionPersistence = () => {
   // Supprimer session
   const clearSession = async () => {
     try {
+      // Supprimer de MongoDB si sessionId existe
+      if (sessionId) {
+        try {
+          const response = await fetch(`${MONGODB_API_URL}/${sessionId}`, {
+            method: 'DELETE',
+          });
+          if (response.ok) {
+            console.log('🗑️ Session MongoDB supprimée:', sessionId);
+          } else {
+            console.log('⚠️ Impossible de supprimer la session MongoDB');
+          }
+        } catch (mongoError) {
+          console.log('⚠️ Erreur suppression MongoDB (continue quand même)');
+        }
+      }
+
+      // Supprimer localement
       await AsyncStorage.removeItem('currentSessionId');
       setSessionId(null);
-      console.log('🗑️ SessionId supprimé');
+      console.log('🗑️ SessionId local supprimé');
     } catch (error: any) {
       console.error('❌ Erreur suppression sessionId:', error);
     }

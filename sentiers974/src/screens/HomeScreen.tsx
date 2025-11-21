@@ -282,7 +282,8 @@ export default function HomeScreen() {
       >
         <ScrollView
           ref={scrollViewRef}
-          className="flex-1"
+          className="flex-1 bg-slate-50"
+          contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
