@@ -1,0 +1,34 @@
+# Dépendances
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Variables d'environnement (CRITIQUE - contient JWT_SECRET)
+.env
+.env.local
+.env.production
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build
+dist/
+build/
