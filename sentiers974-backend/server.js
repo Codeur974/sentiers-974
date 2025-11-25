@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const Sentier = require('./models/Sentier');
 const Session = require('./models/Session');
 const Post = require('./models/Post');
@@ -12,14 +13,36 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// 🔒 Rate Limiting - Protection anti-spam
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 tentatives max par IP
+  message: { success: false, error: 'Trop de tentatives, réessayez dans 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 100, // 100 requêtes max par minute par IP
+  message: { success: false, error: 'Trop de requêtes, ralentissez' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Middleware
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: true, // Autoriser toutes les origines pour le dev
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.ALLOWED_ORIGINS?.split(',') || []
+    : true,
   credentials: true
 }));
 app.use(express.json());
+
+// Appliquer rate limiting général sur toutes les routes API
+app.use('/api/', apiLimiter);
 
 // Connexion MongoDB
 mongoose.connect(process.env.MONGODB_URI)
@@ -28,9 +51,9 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Routes API
 
-// 🔐 Routes d'authentification
+// 🔐 Routes d'authentification (avec rate limiting strict)
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 
 /**
  * GET /api/sentiers
