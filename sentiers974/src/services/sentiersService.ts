@@ -1,7 +1,10 @@
 // Service pour récupérer les données des sentiers depuis notre API MongoDB
 // Structure COMPLÈTE basée sur la liste exacte de randopitons.re
 
-const API_BASE_URL = 'http://192.168.1.17:3001/api';
+// Production: Backend déployé sur Render avec HTTPS
+// Dev: Backend local (décommenter pour développement)
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com/api';
+// const API_BASE_URL = 'http://192.168.1.17:3001/api'; // Dev local
 
 export interface SentierReel {
   id: string;
@@ -225,7 +228,6 @@ class SentiersService {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        timeout: 30000, // 30 secondes de timeout
       });
 
       if (!response.ok) {
