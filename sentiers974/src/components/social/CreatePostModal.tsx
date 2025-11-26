@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SocialPhoto, CreatePostData, SocialPost } from '../../types/social';
+import { uploadService } from '../../services/uploadService';
 
 interface CreatePostModalProps {
   visible: boolean;
@@ -254,15 +255,49 @@ export default function CreatePostModal({
 
     setIsSubmitting(true);
 
-    const postData: CreatePostData = {
-      photos,
-      caption: caption.trim(),
-      location: location.trim() || undefined,
-      sport: sport.trim() || undefined
-    };
+    try {
+      // Upload photos vers Cloudinary si nécessaire
+      const uploadedPhotos: SocialPhoto[] = await Promise.all(
+        photos.map(async (photo) => {
+          // Si l'URL commence par http/https, c'est déjà une URL Cloudinary
+          if (photo.uri.startsWith('http')) {
+            return photo;
+          }
 
-    onSubmit(postData);
-    resetForm();
+          // Sinon, c'est une URI locale, on doit l'uploader
+          try {
+            console.log('📤 Upload photo:', photo.id);
+            const cloudinaryUrl = await uploadService.uploadImage(photo.uri);
+            console.log('✅ Photo uploadée:', cloudinaryUrl);
+
+            return {
+              ...photo,
+              uri: cloudinaryUrl
+            };
+          } catch (error) {
+            console.error('❌ Erreur upload photo:', error);
+            throw new Error(`Erreur lors de l'upload de la photo ${photo.id}`);
+          }
+        })
+      );
+
+      const postData: CreatePostData = {
+        photos: uploadedPhotos,
+        caption: caption.trim(),
+        location: location.trim() || undefined,
+        sport: sport.trim() || undefined
+      };
+
+      onSubmit(postData);
+      resetForm();
+    } catch (error) {
+      console.error('❌ Erreur création post:', error);
+      Alert.alert(
+        'Erreur',
+        'Impossible d\'uploader les photos. Vérifiez votre connexion internet et réessayez.'
+      );
+      setIsSubmitting(false);
+    }
   };
 
   const sportOptions = ['Course', 'Randonnée', 'Vélo', 'VTT', 'Surf', 'Natation', 'Escalade'];

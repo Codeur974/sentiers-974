@@ -15,8 +15,10 @@ import Filter, { FilterRef } from "../components/ui/Filter";
 import CreatePostModal from "../components/social/CreatePostModal";
 import { SocialPhoto } from "../types/social";
 import { useSocialStore } from "../store/useSocialStore";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function TrackingScreen({ route }: any) {
+  const { isAuthenticated } = useAuth();
   const [selectedSport, setSelectedSport] = useState<any>(route?.params?.selectedSport || null);
   const [showTrackingFooter, setShowTrackingFooter] = useState(false);
   const [sportFilterVisible, setSportFilterVisible] = useState(false);
@@ -36,6 +38,14 @@ export default function TrackingScreen({ route }: any) {
   const filterRef = useRef<FilterRef>(null);
   const navigation = useNavigation();
   const { setRecording, setPaused, resetRecording, setSelectedSport: setStoreSport } = useRecordingStore();
+
+  // Mettre à jour le header selon l'état actuel (sport choisi ou non)
+  useEffect(() => {
+    const enSession = !!selectedSport;
+    navigation.setOptions({
+      title: enSession ? "Session en cours" : "Mon Suivi",
+    } as never);
+  }, [navigation, selectedSport]);
 
   // Sauvegarder le sport dans le store quand il change
   useEffect(() => {
@@ -232,6 +242,19 @@ export default function TrackingScreen({ route }: any) {
             >
               <Text className="text-white text-xl">🔄</Text>
             </TouchableOpacity>
+
+            {trackingLogic.handleExportGPX && (
+              <TouchableOpacity
+                onPress={() => {
+                  console.log('📤 Bouton Export GPX cliqué');
+                  trackingLogic.handleExportGPX();
+                }}
+                className="bg-blue-600 p-3 rounded-full"
+              >
+                <Text className="text-white text-xl">📤</Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               onPress={handleBackToSelection}
               className="bg-gray-600 p-3 rounded-full"
@@ -253,6 +276,36 @@ export default function TrackingScreen({ route }: any) {
       </View>
     );
   };
+
+  // Si l'utilisateur n'est pas connecté, afficher uniquement le message de connexion
+  if (!isAuthenticated) {
+    return (
+      <View className="flex-1">
+        <Layout
+          showHomeButton={false}
+          footerButtons={<FooterNavigation currentPage="Tracking" />}
+        >
+          <View className="flex-1 bg-white justify-center items-center p-4">
+            <View className="bg-blue-50 rounded-2xl p-8 items-center max-w-md">
+              <Text className="text-6xl mb-4">🔒</Text>
+              <Text className="text-xl font-bold text-gray-900 mb-2 text-center">
+                Connexion requise
+              </Text>
+              <Text className="text-gray-600 text-center mb-6">
+                Connectez-vous pour accéder à vos sessions de tracking, votre historique et vos photos sportives.
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Profile" as never)}
+                className="bg-blue-500 px-8 py-4 rounded-full"
+              >
+                <Text className="text-white font-semibold text-lg">Se connecter</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Layout>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1">
@@ -353,6 +406,21 @@ export default function TrackingScreen({ route }: any) {
                     </TouchableOpacity>
                     <Text className="text-gray-700 text-xs font-medium">
                       Split
+                    </Text>
+                  </View>
+                )}
+
+                {/* Export GPX - visible quand session terminée */}
+                {trackingLogic.status === "stopped" && (
+                  <View className="items-center flex-1">
+                    <TouchableOpacity
+                      onPress={trackingLogic.handleExportGPX}
+                      className="w-10 h-10 items-center justify-center mb-1"
+                    >
+                      <Text className="text-base">📤</Text>
+                    </TouchableOpacity>
+                    <Text className="text-gray-700 text-xs font-medium">
+                      Export
                     </Text>
                   </View>
                 )}
