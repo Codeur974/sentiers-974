@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { SocialPost } from '../../types/social';
 import SocialPostCard from './SocialPostCard';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SocialFeedProps {
   posts: SocialPost[];
@@ -14,22 +16,39 @@ interface SocialFeedProps {
   onCreatePost: () => void;
 }
 
-export default function SocialFeed({ 
-  posts, 
-  currentUserId, 
-  onLike, 
-  onComment, 
-  onEdit, 
-  onDelete, 
+export default function SocialFeed({
+  posts,
+  currentUserId,
+  onLike,
+  onComment,
+  onEdit,
+  onDelete,
   onRefresh,
   onCreatePost
 }: SocialFeedProps) {
   const [refreshing, setRefreshing] = useState(false);
+  const navigation = useNavigation();
+  const { isAuthenticated } = useAuth();
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await onRefresh();
     setRefreshing(false);
+  };
+
+  const handleCreatePost = () => {
+    if (!isAuthenticated) {
+      Alert.alert(
+        "Connexion requise",
+        "Vous devez être connecté pour publier un post.",
+        [
+          { text: "Annuler", style: "cancel" },
+          { text: "Se connecter", onPress: () => navigation.navigate("Profile" as never) }
+        ]
+      );
+      return;
+    }
+    onCreatePost();
   };
 
   return (
@@ -40,7 +59,7 @@ export default function SocialFeed({
           🏆 Partager vos exploits
         </Text>
         <TouchableOpacity
-          onPress={onCreatePost}
+          onPress={handleCreatePost}
           className="bg-blue-500 px-4 py-2 rounded-full flex-row items-center"
         >
           <Text className="text-white font-semibold mr-1">+</Text>

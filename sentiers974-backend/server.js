@@ -4,11 +4,28 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const Sentier = require('./models/Sentier');
 const Session = require('./models/Session');
 const Post = require('./models/Post');
 const Comment = require('./models/Comment');
 require('dotenv').config();
+
+// Configuration Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configuration Multer pour upload mémoire (pas de fichier sur disque)
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB max
+  }
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -1237,6 +1254,133 @@ app.get('/api/posts/:id/comments', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
+    });
+  }
+});
+
+// ============================================
+// ROUTE UPLOAD CLOUDINARY
+// ============================================
+
+/**
+ * POST /api/upload
+ * Upload une image vers Cloudinary
+ * Accepte base64 ou multipart/form-data
+ */
+app.post('/api/upload', upload.single('photo'), async (req, res) => {
+  try {
+    let imageData;
+
+    // Support base64 (depuis mobile)
+    if (req.body.base64) {
+      imageData = req.body.base64;
+    }
+    // Support fichier multipart
+    else if (req.file) {
+      imageData = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
+    else {
+      return res.status(400).json({
+        success: false,
+        error: 'Aucune image fournie'
+      });
+    }
+
+    // Upload vers Cloudinary
+    const result = await cloudinary.uploader.upload(imageData, {
+      folder: 'sentiers974',
+      resource_type: 'auto',
+      transformation: [
+        { width: 1200, height: 1200, crop: 'limit' },
+        { quality: 'auto:good' },
+        { fetch_format: 'auto' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: {
+        url: result.secure_url,
+        publicId: result.public_id,
+        width: result.width,
+        height: result.height
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur upload Cloudinary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de l\'upload de l\'image'
+    });
+  }
+});
+
+/**
+ * POST /api/upload/multiple
+ * Upload multiple images vers Cloudinary
+ */
+app.post('/api/upload/multiple', upload.array('photos', 10), async (req, res) => {
+  try {
+    const uploadPromises = [];
+
+    // Support base64 array
+    if (req.body.images && Array.isArray(req.body.images)) {
+      for (const base64Image of req.body.images) {
+        uploadPromises.push(
+          cloudinary.uploader.upload(base64Image, {
+            folder: 'sentiers974',
+            resource_type: 'auto',
+            transformation: [
+              { width: 1200, height: 1200, crop: 'limit' },
+              { quality: 'auto:good' },
+              { fetch_format: 'auto' }
+            ]
+          })
+        );
+      }
+    }
+    // Support fichiers multipart
+    else if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+        uploadPromises.push(
+          cloudinary.uploader.upload(base64Image, {
+            folder: 'sentiers974',
+            resource_type: 'auto',
+            transformation: [
+              { width: 1200, height: 1200, crop: 'limit' },
+              { quality: 'auto:good' },
+              { fetch_format: 'auto' }
+            ]
+          })
+        );
+      }
+    }
+    else {
+      return res.status(400).json({
+        success: false,
+        error: 'Aucune image fournie'
+      });
+    }
+
+    const results = await Promise.all(uploadPromises);
+
+    res.json({
+      success: true,
+      data: results.map(result => ({
+        url: result.secure_url,
+        publicId: result.public_id,
+        width: result.width,
+        height: result.height
+      }))
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur upload multiple Cloudinary:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de l\'upload des images'
     });
   }
 });
