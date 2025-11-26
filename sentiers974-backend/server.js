@@ -121,17 +121,60 @@ app.get('/api/sentiers', async (req, res) => {
     const limitNum = Math.min(parseInt(limit), 1000); // Max 1000 résultats
     const skip = (parseInt(page) - 1) * limitNum;
 
-    // Exécution de la requête
+    // Exécution de la requête avec .lean() pour réduire l'utilisation mémoire
+    // .lean() retourne des objets JavaScript simples au lieu d'objets Mongoose lourds
+    // .select() ne charge que les champs nécessaires depuis MongoDB
     const sentiers = await Sentier.find(query)
+      .select('randopitons_id nom difficulte distance duree denivele_positif denivele_negatif type region zone_specifique commune_depart description_courte description_complete points_interet point_depart equipements_obligatoires equipements_recommandes periode_ideale restrictions dangers services_proximite contacts_urgence derniere_mise_a_jour_site source certification_officielle balisage')
+      .lean() // IMPORTANT: Réduit l'utilisation mémoire de ~70%
       .limit(limitNum)
       .skip(skip)
       .sort({ randopitons_id: 1 });
 
     const total = await Sentier.countDocuments(query);
 
+    // Transformation manuelle (au lieu de .toClientFormat()) pour les objets lean
+    const sentiersFormatted = sentiers.map(s => ({
+      id: s.randopitons_id,
+      nom: s.nom,
+      difficulte: s.difficulte,
+      distance: s.distance,
+      duree_heures: s.duree.heures + (s.duree.minutes / 60),
+      duree_formatee: s.duree.minutes > 0 ? `${s.duree.heures}h${s.duree.minutes.toString().padStart(2, '0')}` : `${s.duree.heures}h`,
+      denivele_positif: s.denivele_positif,
+      denivele_negatif: s.denivele_negatif,
+      type: s.type,
+      region: s.region,
+      zone_specifique: s.zone_specifique,
+      commune_depart: s.commune_depart,
+      description: s.description_complete || s.description_courte,
+      points_interet: (s.points_interet || []).map(p => p.nom),
+      point_depart: {
+        nom: s.point_depart.nom,
+        coordonnees: [s.point_depart.coordonnees.longitude, s.point_depart.coordonnees.latitude],
+        altitude: s.point_depart.altitude,
+        acces_voiture: s.point_depart.acces_voiture,
+        parking_disponible: s.point_depart.parking_disponible
+      },
+      equipements_requis: s.equipements_obligatoires || [],
+      equipements_recommandes: s.equipements_recommandes || [],
+      periode_ideale: s.periode_ideale || { debut: 'avril', fin: 'novembre' },
+      restrictions: s.restrictions || [],
+      dangers: s.dangers || [],
+      services_proximite: s.services_proximite || { hebergements: [], restaurants: [], locations_materiel: [] },
+      contact_urgence: {
+        secours_montagne: s.contacts_urgence?.secours_montagne || '02 62 93 37 37',
+        gendarmerie: s.contacts_urgence?.gendarmerie || '17'
+      },
+      derniere_mise_a_jour: s.derniere_mise_a_jour_site,
+      source: s.source,
+      certification_officielle: s.certification_officielle,
+      balisage: s.balisage || { type: 'Sentier balisé', etat: 'Bon' }
+    }));
+
     res.json({
       success: true,
-      data: sentiers.map(s => s.toClientFormat()),
+      data: sentiersFormatted,
       pagination: {
         page: parseInt(page),
         limit: limitNum,
