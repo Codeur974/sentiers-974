@@ -18,6 +18,27 @@ export default function FloatingTrackingControls({
   
   if (!selectedSport) return null;
 
+  // Fonction pour déterminer la qualité GPS
+  const getGPSQuality = () => {
+    if (!trackingLogic.coords || !trackingLogic.coords.accuracy) {
+      return { emoji: '⚫', label: 'Aucun signal', color: 'text-gray-500', bgColor: 'bg-gray-100' };
+    }
+
+    const accuracy = trackingLogic.coords.accuracy;
+
+    if (accuracy < 10) {
+      return { emoji: '🟢', label: `Excellent (${Math.round(accuracy)}m)`, color: 'text-green-600', bgColor: 'bg-green-100' };
+    } else if (accuracy < 30) {
+      return { emoji: '🟡', label: `Bon (${Math.round(accuracy)}m)`, color: 'text-yellow-600', bgColor: 'bg-yellow-100' };
+    } else if (accuracy < 50) {
+      return { emoji: '🟠', label: `Moyen (${Math.round(accuracy)}m)`, color: 'text-orange-600', bgColor: 'bg-orange-100' };
+    } else {
+      return { emoji: '🔴', label: `Faible (${Math.round(accuracy)}m)`, color: 'text-red-600', bgColor: 'bg-red-100' };
+    }
+  };
+
+  const gpsQuality = getGPSQuality();
+
   const getMainButton = () => {
     if (trackingLogic.locationError && trackingLogic.status === "idle") {
       return (
@@ -147,6 +168,13 @@ export default function FloatingTrackingControls({
         {!minimized && trackingLogic.status !== "idle" && (
           <ScrollView className="max-h-48" showsVerticalScrollIndicator={false}>
             <View className="p-4">
+              {/* Badge qualité GPS */}
+              <View className={`mb-4 p-3 ${gpsQuality.bgColor} rounded-lg border border-gray-200`}>
+                <Text className={`${gpsQuality.color} font-bold text-center text-sm`}>
+                  {gpsQuality.emoji} GPS: {gpsQuality.label}
+                </Text>
+              </View>
+
               {/* Erreur GPS si présente */}
               {trackingLogic.locationError && (
                 <View className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">

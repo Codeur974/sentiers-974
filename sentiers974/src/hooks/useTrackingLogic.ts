@@ -1,10 +1,13 @@
 import * as Location from "expo-location";
 import { useEffect, useState, useMemo } from "react";
 import { Alert } from "react-native";
+import { File, Paths } from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
 import { getSportType, getSportMetrics } from "../utils";
 import { LocationHelper } from "../utils/locationUtils";
+import { GPXExporter } from "../utils/gpxExport";
 import {
   useGPSTracking,
   useDistanceCalculator,
@@ -75,7 +78,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Trail': {
         ...defaultConfig,
         maxSpeed: 20,
-        minDistance: 0.008,
+        minDistance: 0.005,
         accuracyThreshold: 35,
         maxPollingInterval: 2000,
       },
@@ -108,6 +111,47 @@ export const useTrackingLogic = (selectedSport: any) => {
         minDistance: 0.005,
         accuracyThreshold: 25,
         maxPollingInterval: 2000,
+      },
+      'Escalade': {
+        ...defaultConfig,
+        maxSpeed: 5,
+        minDistance: 0.003,
+        accuracyThreshold: 50,
+        allowSlowPolling: false,
+        maxPollingInterval: 1500,
+        speedSmoothingWindow: 4,
+      },
+      'Natation': {
+        ...defaultConfig,
+        maxSpeed: 8,
+        minDistance: 0.01,
+        accuracyThreshold: 80,
+        maxPollingInterval: 3000,
+        speedSmoothingWindow: 6,
+      },
+      'SUP': {
+        ...defaultConfig,
+        maxSpeed: 12,
+        minDistance: 0.008,
+        accuracyThreshold: 60,
+        maxPollingInterval: 2500,
+        speedSmoothingWindow: 5,
+      },
+      'Surf': {
+        ...defaultConfig,
+        maxSpeed: 40,
+        minDistance: 0.01,
+        accuracyThreshold: 70,
+        maxPollingInterval: 2500,
+        speedSmoothingWindow: 6,
+      },
+      'Kayak': {
+        ...defaultConfig,
+        maxSpeed: 15,
+        minDistance: 0.008,
+        accuracyThreshold: 60,
+        maxPollingInterval: 2500,
+        speedSmoothingWindow: 5,
       },
     };
 
@@ -272,13 +316,16 @@ export const useTrackingLogic = (selectedSport: any) => {
           text: "Non",
           style: "cancel",
           onPress: async () => {
+            console.log('❌ Utilisateur a cliqué NON - Suppression session');
             await persistence.clearSession();
-            resetTracking();
+            // Ne PAS appeler resetTracking() pour garder status="stopped"
+            // et afficher les boutons Refaire/Export/Changer
           }
         },
         {
           text: "Oui",
           onPress: async () => {
+            console.log('✅ Utilisateur a cliqué OUI - Sauvegarde session');
             await persistence.saveSession({
               sport: selectedSport,
               distance: distanceCalc.distance,
@@ -292,7 +339,8 @@ export const useTrackingLogic = (selectedSport: any) => {
               elevationLoss: elevation.elevationLoss
             });
             console.log('💾 Session sauvegardée');
-            resetTracking();
+            // Ne PAS appeler resetTracking() ici pour garder le status "stopped"
+            // et afficher les boutons Export GPX / Refaire / Changer
           }
         }
       ]
@@ -318,10 +366,65 @@ export const useTrackingLogic = (selectedSport: any) => {
   };
 
   const handleNavigateAway = () => console.log('🧭 Navigation temporaire');
-  const handleNewSession = () => resetTracking();
+  const handleNewSession = async () => {
+    await persistence.clearSession();
+    resetTracking();
+  };
   const handleManualSplit = () => {
     if (status === "running" && distanceCalc.distance > 0) {
       splits.createManualSplit(distanceCalc.distance, getDuration());
+    }
+  };
+
+  const handleExportGPX = async () => {
+    try {
+      if (!distanceCalc.trackingPath || distanceCalc.trackingPath.length === 0) {
+        Alert.alert('Erreur', 'Aucune donnée GPS à exporter');
+        return;
+      }
+
+      if (!selectedSport) {
+        Alert.alert('Erreur', 'Sport non sélectionné');
+        return;
+      }
+
+      // Préparer les données
+      const sessionData = GPXExporter.convertTrackingDataToGPX(
+        distanceCalc.trackingPath,
+        chartData || [],
+        {
+          sport: selectedSport.nom,
+          startTime: Date.now() - duration,
+          endTime: Date.now(),
+          distance: distanceCalc.distance,
+          duration: duration,
+          elevationGain: elevation.elevationGain || 0,
+          elevationLoss: elevation.elevationLoss || 0,
+          maxSpeed: distanceCalc.maxSpeed,
+          avgSpeed: avgSpeed
+        }
+      );
+
+      // Générer le fichier GPX
+      const gpxContent = GPXExporter.generateGPX(sessionData);
+
+      // Créer le fichier avec la nouvelle API
+      const fileName = `${selectedSport.nom}_${new Date().toISOString().split('T')[0]}.gpx`;
+      const file = new File(Paths.document, fileName);
+      file.write(gpxContent);
+
+      // Partager le fichier
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(file.uri, {
+          mimeType: 'application/gpx+xml',
+          dialogTitle: `Partager ${selectedSport.nom} - ${distanceCalc.distance.toFixed(2)}km`
+        });
+      } else {
+        Alert.alert('Succès', `Fichier sauvegardé: ${fileName}`);
+      }
+    } catch (error) {
+      console.error('Erreur export GPX:', error);
+      Alert.alert('Erreur', 'Impossible d\'exporter le fichier GPX');
     }
   };
 
@@ -355,5 +458,6 @@ export const useTrackingLogic = (selectedSport: any) => {
     handleNavigateAway,
     handleNewSession,
     handleManualSplit,
+    handleExportGPX,
   };
 };

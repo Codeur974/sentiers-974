@@ -554,6 +554,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                 <View className="flex-row space-x-2">
                   <TouchableOpacity
                     className="px-3 py-1.5 rounded-lg border"
+                    activeOpacity={1}
                     style={{
                       backgroundColor: isDistance ? "#2563eb" : "#e5e7eb",
                       borderColor: isDistance ? "#2563eb" : "#d1d5db",
@@ -566,6 +567,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   </TouchableOpacity>
                   <TouchableOpacity
                     className="px-3 py-1.5 rounded-lg border"
+                    activeOpacity={1}
                     style={{
                       backgroundColor: !isDistance ? "#2563eb" : "#e5e7eb",
                       borderColor: !isDistance ? "#2563eb" : "#d1d5db",

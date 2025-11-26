@@ -20,14 +20,21 @@ class UploadService {
    */
   async uploadImage(uri: string): Promise<string> {
     try {
+      console.log('📤 Début upload vers:', API_BASE_URL);
+      console.log('📄 URI fichier:', uri);
+
       // Convertir l'image en base64
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
+      console.log('✅ Conversion base64 OK, taille:', base64.length);
+
       // Déterminer le type MIME
       const mimeType = uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
       const base64WithPrefix = `data:${mimeType};base64,${base64}`;
+
+      console.log('🌐 Envoi requête vers:', `${API_BASE_URL}/api/upload`);
 
       // Envoyer au backend
       const response = await fetch(`${API_BASE_URL}/api/upload`, {
@@ -40,15 +47,23 @@ class UploadService {
         }),
       });
 
+      console.log('📡 Réponse statut:', response.status);
+
       const data = await response.json();
 
+      console.log('📦 Données réponse:', data);
+
       if (!data.success) {
+        console.error('❌ Upload échoué:', data.error);
         throw new Error(data.error || 'Erreur lors de l\'upload');
       }
 
+      console.log('✅ Upload réussi, URL:', data.data.url);
       return data.data.url;
     } catch (error) {
-      console.error('Erreur upload image:', error);
+      console.error('❌ Erreur upload image:', error);
+      console.error('❌ Type erreur:', error.constructor.name);
+      console.error('❌ Message:', error.message);
       throw error;
     }
   }

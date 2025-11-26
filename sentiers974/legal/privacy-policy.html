@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Politique de Confidentialité - Sentiers 974</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2196F3;
+            border-bottom: 3px solid #2196F3;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1976D2;
+            margin-top: 30px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 20px;
+        }
+        .update-date {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin: 10px 0;
+        }
+        .highlight {
+            background-color: #E3F2FD;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            margin: 20px 0;
+        }
+        a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Politique de Confidentialité</h1>
+        <p class="update-date">Dernière mise à jour : 21 novembre 2025</p>
+
+        <div class="highlight">
+            <strong>En résumé :</strong> Sentiers 974 respecte votre vie privée. Nous collectons uniquement les données nécessaires au fonctionnement de l'application (GPS, photos) et ne les partageons jamais avec des tiers.
+        </div>
+
+        <h2>1. Introduction</h2>
+        <p>
+            Bienvenue sur <strong>Sentiers 974</strong>, l'application de tracking GPS multi-sports pour La Réunion.
+            Votre confidentialité est importante pour nous. Cette politique explique quelles données nous collectons,
+            comment nous les utilisons et quels sont vos droits.
+        </p>
+
+        <h2>2. Données Collectées</h2>
+
+        <h3>2.1 Données de Localisation GPS</h3>
+        <p>Nous collectons vos données de géolocalisation lorsque vous enregistrez une session sportive :</p>
+        <ul>
+            <li><strong>Latitude et longitude :</strong> Pour tracer votre parcours sur la carte</li>
+            <li><strong>Altitude :</strong> Pour calculer le dénivelé de votre activité</li>
+            <li><strong>Vitesse :</strong> Pour calculer votre vitesse moyenne et maximale</li>
+            <li><strong>Précision GPS :</strong> Pour filtrer les points imprécis et améliorer la qualité du tracé</li>
+        </ul>
+        <p class="highlight">
+            <strong>Important :</strong> La localisation GPS est collectée <strong>uniquement pendant vos sessions actives</strong>.
+            Nous ne suivons pas votre position en arrière-plan ou lorsque l'application est fermée.
+        </p>
+
+        <h3>2.2 Photos et Médias</h3>
+        <ul>
+            <li><strong>Photos :</strong> Vous pouvez ajouter des photos à vos sessions depuis votre galerie ou en prenant une photo avec la caméra</li>
+            <li><strong>Géolocalisation des photos :</strong> Si activée, les photos contiennent les coordonnées GPS du lieu où elles ont été prises</li>
+        </ul>
+
+        <h3>2.3 Données de Session</h3>
+        <p>Pour chaque activité sportive enregistrée, nous stockons :</p>
+        <ul>
+            <li>Type de sport (course, vélo, randonnée, etc.)</li>
+            <li>Date et heure de début/fin</li>
+            <li>Distance parcourue</li>
+            <li>Durée totale et temps en mouvement</li>
+            <li>Vitesse moyenne et maximale</li>
+            <li>Dénivelé positif et négatif</li>
+            <li>Calories brûlées (estimation)</li>
+            <li>Points d'intérêt (POI) ajoutés manuellement</li>
+        </ul>
+
+        <h3>2.4 Données de Compte Utilisateur</h3>
+        <p>Si vous créez un compte (optionnel) :</p>
+        <ul>
+            <li>Adresse email</li>
+            <li>Mot de passe (stocké de manière chiffrée avec bcrypt)</li>
+            <li>Nom d'utilisateur (optionnel)</li>
+        </ul>
+
+        <h3>2.5 Données Techniques</h3>
+        <ul>
+            <li>Identifiant unique de l'appareil (deviceId) pour les utilisateurs anonymes</li>
+            <li>Version de l'application</li>
+            <li>Système d'exploitation (Android/iOS)</li>
+            <li>Logs d'erreurs en cas de crash (anonymisés)</li>
+        </ul>
+
+        <h2>3. Utilisation des Données</h2>
+        <p>Nous utilisons vos données uniquement pour :</p>
+        <ul>
+            <li>✅ Afficher vos sessions sportives sur la carte</li>
+            <li>✅ Calculer vos statistiques (distance, vitesse, calories, etc.)</li>
+            <li>✅ Générer des graphiques de performance</li>
+            <li>✅ Permettre l'export au format GPX vers Strava ou Garmin Connect</li>
+            <li>✅ Synchroniser vos données entre vos appareils (si compte créé)</li>
+            <li>✅ Améliorer l'application et corriger les bugs</li>
+        </ul>
+
+        <h2>4. Stockage des Données</h2>
+
+        <h3>4.1 Stockage Local</h3>
+        <p>
+            Vos données sont d'abord stockées localement sur votre appareil via AsyncStorage.
+            Cela permet à l'application de fonctionner <strong>100% hors-ligne</strong>.
+        </p>
+
+        <h3>4.2 Stockage Cloud (MongoDB Atlas)</h3>
+        <p>
+            Si une connexion internet est disponible, vos sessions sont automatiquement sauvegardées
+            dans notre base de données MongoDB Atlas (hébergée en Europe) pour :
+        </p>
+        <ul>
+            <li>Sauvegarder vos données en cas de perte de votre appareil</li>
+            <li>Synchroniser entre plusieurs appareils</li>
+            <li>Générer l'historique de vos activités</li>
+        </ul>
+
+        <h3>4.3 Durée de Conservation</h3>
+        <ul>
+            <li><strong>Sessions actives :</strong> Conservées indéfiniment (sauf suppression manuelle)</li>
+            <li><strong>Compte utilisateur :</strong> Conservé tant que vous ne le supprimez pas</li>
+            <li><strong>Logs d'erreurs :</strong> Supprimés après 90 jours</li>
+        </ul>
+
+        <h2>5. Partage des Données</h2>
+        <p class="highlight">
+            <strong>Nous ne vendons JAMAIS vos données personnelles.</strong><br>
+            <strong>Nous ne partageons JAMAIS vos données avec des tiers à des fins publicitaires.</strong>
+        </p>
+
+        <p>Les seuls cas où vos données peuvent être partagées :</p>
+        <ul>
+            <li><strong>Export GPX :</strong> Si vous exportez manuellement une session vers Strava/Garmin,
+                ces services recevront le fichier GPX que vous leur envoyez</li>
+            <li><strong>Obligation légale :</strong> Si la loi nous l'exige (ex : demande judiciaire)</li>
+        </ul>
+
+        <h2>6. Sécurité</h2>
+        <p>Nous mettons en œuvre des mesures de sécurité pour protéger vos données :</p>
+        <ul>
+            <li>🔒 <strong>Chiffrement HTTPS :</strong> Toutes les communications avec notre serveur sont chiffrées</li>
+            <li>🔒 <strong>Mots de passe :</strong> Stockés avec bcrypt (hash sécurisé, impossible à déchiffrer)</li>
+            <li>🔒 <strong>Tokens JWT :</strong> Authentification sécurisée avec expiration automatique (30 jours)</li>
+            <li>🔒 <strong>MongoDB Atlas :</strong> Base de données sécurisée avec accès restreint par IP</li>
+        </ul>
+
+        <h2>7. Vos Droits (RGPD)</h2>
+        <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous avez le droit de :</p>
+
+        <h3>7.1 Droit d'Accès</h3>
+        <p>Vous pouvez consulter toutes vos données dans l'application (onglet Historique).</p>
+
+        <h3>7.2 Droit de Rectification</h3>
+        <p>Vous pouvez modifier vos informations de compte dans l'écran "Mon Profil".</p>
+
+        <h3>7.3 Droit à l'Effacement</h3>
+        <p>Vous pouvez supprimer :</p>
+        <ul>
+            <li>Une session spécifique (bouton Supprimer dans l'historique)</li>
+            <li>Toutes vos sessions d'un jour (bouton Supprimer dans l'historique)</li>
+            <li>Votre compte complet et toutes vos données (bouton "Supprimer mon compte" dans Profil)</li>
+        </ul>
+
+        <h3>7.4 Droit à la Portabilité</h3>
+        <p>
+            Vous pouvez exporter vos sessions au format GPX standard pour les importer
+            dans d'autres applications (Strava, Garmin Connect, etc.).
+        </p>
+
+        <h3>7.5 Droit d'Opposition</h3>
+        <p>
+            Vous pouvez à tout moment désactiver les permissions GPS/Photos dans les paramètres de votre appareil.
+            L'application continuera de fonctionner en mode dégradé.
+        </p>
+
+        <h2>8. Cookies et Trackers</h2>
+        <p class="highlight">
+            <strong>Sentiers 974 n'utilise AUCUN cookie, tracker publicitaire ou outil d'analytics tiers.</strong><br>
+            Nous ne suivons pas votre comportement à des fins marketing.
+        </p>
+
+        <h2>9. Utilisateurs Mineurs</h2>
+        <p>
+            Sentiers 974 est destiné aux utilisateurs de <strong>13 ans et plus</strong>.
+            Si vous avez moins de 13 ans, veuillez utiliser l'application avec l'accord de vos parents.
+        </p>
+
+        <h2>10. Modifications de Cette Politique</h2>
+        <p>
+            Nous pouvons mettre à jour cette politique de confidentialité de temps en temps.
+            Toute modification sera notifiée via :
+        </p>
+        <ul>
+            <li>Une notification dans l'application</li>
+            <li>La mise à jour de la date en haut de ce document</li>
+        </ul>
+        <p>
+            Votre utilisation continue de l'application après les modifications constitue
+            votre acceptation de la nouvelle politique.
+        </p>
+
+        <h2>11. Contact</h2>
+        <p>Pour toute question concernant cette politique de confidentialité ou l'exercice de vos droits :</p>
+        <ul>
+            <li><strong>Email :</strong> <a href="mailto:support@sentiers974.com">support@sentiers974.com</a></li>
+            <li><strong>App :</strong> Écran "Mon Profil" → "Nous Contacter"</li>
+        </ul>
+
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #ddd;">
+
+        <p style="text-align: center; color: #666; font-size: 14px;">
+            © 2025 Sentiers 974. Tous droits réservés.<br>
+            Application développée pour les sportifs de La Réunion 🏝️
+        </p>
+    </div>
+</body>
+</html>
