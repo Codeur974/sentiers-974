@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 
@@ -24,12 +24,12 @@ export default function Layout({
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={['bottom']}>
-        {/* Status Bar avec fond transparent pour qu'elle soit visible */}
-        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent={true} />
+        {/* Status Bar */}
+        <StatusBar barStyle="dark-content" />
 
         {/* Header - conditionnel */}
         {(headerTitle || showBackButton || headerButtons) && (
-          <View className="bg-blue-600 px-4 py-2 flex-row items-center justify-between" style={{ paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 8 : 8 }}>
+          <View className="bg-blue-600 px-4 py-2 flex-row items-center justify-between">
             <View className="flex-row items-center flex-1">
               {showBackButton && (
                 <TouchableOpacity

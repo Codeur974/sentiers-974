@@ -51,7 +51,13 @@
           "mediaLibraryPermission": "L'application accède à votre galerie pour vous permettre de partager vos photos d'aventures."
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-system-ui",
+        {
+          "userInterfaceStyle": "light"
+        }
+      ]
     ],
     "extra": {
       "eas": {
