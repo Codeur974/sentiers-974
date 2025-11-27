@@ -23,10 +23,10 @@ export default function Layout({
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['bottom']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         {/* Header - conditionnel */}
         {(headerTitle || showBackButton || headerButtons) && (
-          <View className="bg-blue-600 px-4 py-3 flex-row items-center justify-between">
+          <View className="bg-blue-600 px-4 py-2 flex-row items-center justify-between">
             <View className="flex-row items-center flex-1">
               {showBackButton && (
                 <TouchableOpacity
@@ -51,7 +51,7 @@ export default function Layout({
 
         {/* Footer */}
         {(footerButtons || showHomeButton) && (
-          <View className="bg-white px-4 py-3 pb-2 border-t border-gray-300 shadow-lg">
+          <View className="bg-white px-4 py-2 border-t border-gray-300 shadow-lg">
             <View className="flex-row justify-between items-center">
               {/* Bouton Home (toujours présent sauf HomeScreen) - en première position */}
               {showHomeButton && (
