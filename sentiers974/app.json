@@ -20,11 +20,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.anonymous.sentiers974",
       "permissions": [
         "android.permission.RECORD_AUDIO"
-      ]
+      ],
+      "statusBar": {
+        "translucent": true,
+        "backgroundColor": "#00000000"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png",
