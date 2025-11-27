@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com';
 
@@ -23,16 +23,20 @@ class UploadService {
       console.log('📤 Début upload vers:', API_BASE_URL);
       console.log('📄 URI fichier:', uri);
 
-      // Convertir l'image en base64
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      // Manipuler l'image pour obtenir base64 (compatible Expo Go)
+      const manipulatedImage = await manipulateAsync(
+        uri,
+        [{ resize: { width: 1200 } }], // Resize pour optimiser la taille
+        { compress: 0.8, format: SaveFormat.JPEG, base64: true }
+      );
 
-      console.log('✅ Conversion base64 OK, taille:', base64.length);
+      console.log('✅ Conversion base64 OK, taille:', manipulatedImage.base64?.length || 0);
 
-      // Déterminer le type MIME
-      const mimeType = uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
-      const base64WithPrefix = `data:${mimeType};base64,${base64}`;
+      if (!manipulatedImage.base64) {
+        throw new Error('Impossible de convertir l\'image en base64');
+      }
+
+      const base64WithPrefix = `data:image/jpeg;base64,${manipulatedImage.base64}`;
 
       console.log('🌐 Envoi requête vers:', `${API_BASE_URL}/api/upload`);
 

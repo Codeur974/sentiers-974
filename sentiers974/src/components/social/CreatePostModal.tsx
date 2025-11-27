@@ -10,7 +10,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Keyboard
+  Keyboard,
+  SafeAreaView
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { SocialPhoto, CreatePostData, SocialPost } from '../../types/social';
@@ -293,8 +294,8 @@ export default function CreatePostModal({
     } catch (error) {
       console.error('❌ Erreur création post:', error);
       Alert.alert(
-        'Erreur',
-        'Impossible d\'uploader les photos. Vérifiez votre connexion internet et réessayez.'
+        'Erreur Upload',
+        `Impossible d\'uploader les photos.\n\nDétails: ${error.message || error}\n\nVérifiez votre connexion internet.`
       );
       setIsSubmitting(false);
     }
@@ -309,14 +310,15 @@ export default function CreatePostModal({
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      >
-        <View className="flex-1 bg-white">
-          {/* Header */}
-          <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+      <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <View className="flex-1 bg-white">
+            {/* Header */}
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
             <TouchableOpacity onPress={handleClose}>
               <Text className="text-blue-500 font-semibold text-lg">Annuler</Text>
             </TouchableOpacity>
@@ -460,6 +462,7 @@ export default function CreatePostModal({
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
+      </SafeAreaView>
     </Modal>
   );
 }

@@ -196,23 +196,28 @@ export default function CommentsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: 20 }}>
-      {/* Header */}
-      <View className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white" style={{ marginTop: 20 }}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text className="text-blue-500 text-16">← Retour</Text>
-        </TouchableOpacity>
-        <Text className="text-lg font-bold">Commentaires</Text>
-        <View className="w-16" />
-      </View>
-
-      {/* Liste des commentaires */}
-      <ScrollView
-        className="flex-1 p-4"
-        keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
-        style={{ marginBottom: keyboardHeight > 0 ? keyboardHeight + 40 : 100 }}
+    <SafeAreaView className="flex-1 bg-white">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
+        {/* Header */}
+        <View className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white">
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text className="text-blue-500 text-16">← Retour</Text>
+          </TouchableOpacity>
+          <Text className="text-lg font-bold">Commentaires</Text>
+          <View className="w-16" />
+        </View>
+
+        {/* Liste des commentaires */}
+        <ScrollView
+          className="flex-1 p-4"
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120 }}
+        >
         {post.comments && post.comments.length > 0 ? (
           post.comments.slice().reverse().map((comment) => (
             <View
@@ -288,12 +293,7 @@ export default function CommentsScreen() {
       </ScrollView>
 
       {/* Zone de saisie fixe en bas */}
-      <View
-        className="absolute left-0 right-0 p-4 border-t border-gray-200 bg-white"
-        style={{
-          bottom: keyboardHeight > 0 ? keyboardHeight + 40 : 20,
-        }}
-      >
+      <View className="p-4 border-t border-gray-200 bg-white">
         {/* Photos sélectionnées */}
         {selectedPhotos.length > 0 && (
           <ScrollView horizontal className="mb-3" showsHorizontalScrollIndicator={false}>
@@ -397,6 +397,7 @@ export default function CommentsScreen() {
           </View>
         </View>
       )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
