@@ -54,7 +54,7 @@ export const useTrackingLogic = (selectedSport: any) => {
   const sportConfig = useMemo(() => {
     const defaultConfig = {
       maxSpeed: 35,
-      minDistance: 0.005,
+      minDistance: 0.002,
       accuracyThreshold: 30,
       minPollingInterval: 1000,
       maxPollingInterval: 2500,
@@ -70,7 +70,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Course': {
         ...defaultConfig,
         maxSpeed: 25,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 30,
         maxPollingInterval: 2000,
         speedSmoothingWindow: 5,
@@ -78,14 +78,14 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Trail': {
         ...defaultConfig,
         maxSpeed: 20,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 35,
         maxPollingInterval: 2000,
       },
       'Marche': {
         ...defaultConfig,
         maxSpeed: 8,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 35,
         allowSlowPolling: false,
         maxPollingInterval: 1500,
@@ -94,7 +94,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       'Randonnée': {
         ...defaultConfig,
         maxSpeed: 10,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 40,
         maxPollingInterval: 2000,
         speedSmoothingWindow: 5,
@@ -102,13 +102,13 @@ export const useTrackingLogic = (selectedSport: any) => {
       'VTT': {
         ...defaultConfig,
         maxSpeed: 45,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 30,
       },
       'Vélo': {
         ...defaultConfig,
         maxSpeed: 50,
-        minDistance: 0.005,
+        minDistance: 0.002,
         accuracyThreshold: 25,
         maxPollingInterval: 2000,
       },
@@ -198,7 +198,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       interval = setInterval(() => setDuration(getDuration()), 1000);
     }
     return () => clearInterval(interval);
-  }, [status, getDuration]);
+  }, [status]); // Retirer getDuration pour éviter re-création interval
 
   useEffect(() => {
     if (status === "running" && selectedSport && distanceCalc.distance > 0) {
@@ -291,14 +291,29 @@ export const useTrackingLogic = (selectedSport: any) => {
 
   const handleStartTracking = async () => {
     setError(null);
-    await persistence.createSession(selectedSport, coords, address || '');
-    const gpsSuccess = await gpsTracking.startGPSTracking();
-    if (!gpsSuccess) return;
-    const sessionSuccess = start();
-    if (sessionSuccess) {
-      setDuration(0);
-      setSteps(0);
-    }
+
+    // Démarrer la session tout de suite pour ne pas bloquer l'UI
+    const sessionStarted = start();
+    if (!sessionStarted) return;
+    setDuration(0);
+    setSteps(0);
+
+    // Création de session en arrière-plan (réseau potentiellement lent)
+    persistence.createSession(selectedSport, coords, address || '').catch((err: any) => {
+      console.log('⚠️ Création de session en arrière-plan échouée', err?.message || err);
+    });
+
+    // Lancer le GPS sans bloquer; si échec on arrête proprement
+    gpsTracking.startGPSTracking().then((success: boolean) => {
+      if (!success) {
+        setError('GPS indisponible');
+        stop();
+      }
+    }).catch((err: any) => {
+      console.log('⚠️ GPS start error', err?.message || err);
+      setError('GPS indisponible');
+      stop();
+    });
   };
 
   const handlePauseTracking = () => pause();

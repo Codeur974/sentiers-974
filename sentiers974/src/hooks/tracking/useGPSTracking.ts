@@ -1,21 +1,15 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import * as Location from 'expo-location';
 import { useLocationStore } from '../../store/useLocationStore';
 
 /**
- * Hook pour gérer le tracking GPS
- * - Polling GPS adaptatif (1-3s selon conditions)
- * - Gestion permissions
- * - Timeout intelligent
+ * Hook GPS "style Strava" :
+ * - Premier fix agressif (Balanced puis ReducedAccuracy, timeout 8s)
+ * - Watch haute précision 1s / 1m pour flux dense
+ * - Pas d'impact sur sessions/photos
  */
-export const useGPSTracking = (sportConfig: any) => {
-  const gpsPollingInterval = useRef<any>(null);
-  const lastPollTimestamp = useRef(0);
-  const minPollingInterval = sportConfig?.minPollingInterval ?? 1000;
-  const maxPollingInterval = sportConfig?.maxPollingInterval ?? 3000;
-  const allowSlowPolling = sportConfig?.allowSlowPolling ?? true;
-  const currentPollingInterval = useRef(minPollingInterval);
-  const consecutiveTimeouts = useRef(0);
+export const useGPSTracking = (_sportConfig: any) => {
+  const hasFirstFix = useRef(false);
 
   const {
     setCoords,
@@ -28,14 +22,11 @@ export const useGPSTracking = (sportConfig: any) => {
 
   const startGPSTracking = async () => {
     try {
-      currentPollingInterval.current = minPollingInterval;
-      consecutiveTimeouts.current = 0;
-      lastPollTimestamp.current = 0;
+      hasFirstFix.current = false;
       setIsLocating(true);
       setError(null);
       setWatching(false);
 
-      // Vérifier permissions
       const { status: permissionStatus } = await Location.requestForegroundPermissionsAsync();
       if (permissionStatus !== 'granted') {
         setError('Permission GPS requise pour le tracking');
@@ -43,31 +34,61 @@ export const useGPSTracking = (sportConfig: any) => {
         setIsLocating(false);
         return false;
       }
-
       setPermission(true);
 
-      // Polling GPS adaptatif (ajuste selon conditions)
-      const pollGPS = async () => {
-        try {
-          // Timeout adaptatif : 10s (assez pour GPS satellite pur)
-          const locationPromise = Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.BestForNavigation,
-            maximumAge: 1000, // Cache récent acceptable
-          });
+      // Nettoyer une éventuelle subscription existante
+      const { watchSubscription: existing } = useLocationStore.getState();
+      if (existing) {
+        existing.remove();
+        setWatchSubscription(null);
+      }
 
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('GPS timeout')), 10000)
-          );
-
-          const location = await Promise.race([locationPromise, timeoutPromise]) as any;
-
-          // Ignorer si c'est le même timestamp (cached)
-          if (location.timestamp === lastPollTimestamp.current) {
-            return;
+      // Premier fix agressif : Balanced puis ReducedAccuracy, timeout total 8s
+      const tryFirstFix = async () => {
+        const attempts = [
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced, maximumAge: 1000 }),
+          Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Reduced, maximumAge: 2000 }),
+        ];
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('first fix timeout')), 8000));
+        for (const attempt of attempts) {
+          try {
+            const loc = await Promise.race([attempt, timeout]) as any;
+            if (loc?.coords) return loc;
+          } catch (_e) {
+            continue;
           }
+        }
+        throw new Error('first fix failed');
+      };
 
-          lastPollTimestamp.current = location.timestamp;
+      try {
+        const firstLocation = await tryFirstFix();
+        const coords = {
+          latitude: firstLocation.coords.latitude,
+          longitude: firstLocation.coords.longitude,
+          altitude: firstLocation.coords.altitude,
+          accuracy: firstLocation.coords.accuracy,
+          speed: firstLocation.coords.speed,
+          timestamp: firstLocation.timestamp || Date.now(),
+        };
+        hasFirstFix.current = true;
+        setCoords(coords);
+        setError(null);
+        setIsLocating(false);
+      } catch {
+        // On continue quand même avec le watch
+      }
 
+      // Watch haute précision (1s / 1m)
+      const subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.BestForNavigation,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (location) => {
+          if (!location || !location.coords) return;
+          hasFirstFix.current = true;
           const coords = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -76,50 +97,14 @@ export const useGPSTracking = (sportConfig: any) => {
             speed: location.coords.speed,
             timestamp: location.timestamp || Date.now(),
           };
-
           setCoords(coords);
           setError(null);
-
-          // GPS OK → réduire intervalle si possible
-          consecutiveTimeouts.current = 0;
-          if (currentPollingInterval.current > minPollingInterval) {
-            currentPollingInterval.current = Math.max(
-              minPollingInterval,
-              currentPollingInterval.current - 500
-            );
-            restartPolling();
-          }
-        } catch (error: any) {
-          consecutiveTimeouts.current++;
-
-          // GPS lent → augmenter intervalle progressivement
-          if (
-            allowSlowPolling &&
-            consecutiveTimeouts.current >= 3 &&
-            currentPollingInterval.current < maxPollingInterval
-          ) {
-            currentPollingInterval.current = Math.min(
-              maxPollingInterval,
-              currentPollingInterval.current + 500
-            );
-            restartPolling();
-          }
+          setIsLocating(false);
+          setWatching(true);
         }
-      };
+      );
 
-      const restartPolling = () => {
-        if (gpsPollingInterval.current) {
-          clearInterval(gpsPollingInterval.current);
-          gpsPollingInterval.current = setInterval(pollGPS, currentPollingInterval.current);
-        }
-      };
-
-      // Premier poll immédiat
-      await pollGPS();
-
-      // Polling adaptatif (démarre à l'intervalle minimum du sport)
-      gpsPollingInterval.current = setInterval(pollGPS, currentPollingInterval.current);
-
+      setWatchSubscription(subscription);
       setWatching(true);
       setIsLocating(false);
       return true;
@@ -132,18 +117,11 @@ export const useGPSTracking = (sportConfig: any) => {
   };
 
   const stopGPSTracking = () => {
-    if (gpsPollingInterval.current) {
-      clearInterval(gpsPollingInterval.current);
-      gpsPollingInterval.current = null;
-    }
-
-    // Nettoyer watchSubscription si existe
     const { watchSubscription } = useLocationStore.getState();
     if (watchSubscription) {
       watchSubscription.remove();
       setWatchSubscription(null);
     }
-
     setWatching(false);
   };
 
