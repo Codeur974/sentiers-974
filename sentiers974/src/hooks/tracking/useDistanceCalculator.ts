@@ -105,15 +105,16 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const minDistanceMetersBase = (sportConfig?.minDistance ?? 0.002) * 1000; // km -> m
     let minDistanceMeters = minDistanceMetersBase;
     if (isCourse) {
-      minDistanceMeters = 1; // Course : capter vite les variations mais éviter le bruit extrême
+      minDistanceMeters = 0.5; // Course : seuil bas (0.5m) pour capter toutes les variations
     } else {
+      // Marche/Randonnée : seuil très bas (0.5m) pour capter tous les mouvements en ville
       if (coords.accuracy) {
-        const adaptive = Math.min(3, Math.max(1, coords.accuracy / 20)); // e.g. acc 40m -> 2m
+        const adaptive = Math.min(2, Math.max(0.5, coords.accuracy / 40)); // e.g. acc 40m -> 1m
         minDistanceMeters = isInitialPhase
           ? Math.min(minDistanceMetersBase, adaptive)
-          : Math.max(minDistanceMetersBase, adaptive);
+          : Math.max(0.5, adaptive); // Minimum absolu 0.5m au lieu de 2m
       } else if (isInitialPhase) {
-        minDistanceMeters = Math.min(minDistanceMetersBase, 1);
+        minDistanceMeters = Math.min(minDistanceMetersBase, 0.5);
       }
     }
 
