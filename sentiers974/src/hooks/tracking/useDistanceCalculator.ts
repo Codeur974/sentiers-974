@@ -18,6 +18,8 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
   const recentMovementWindow = useRef<Array<{ time: number; distance: number }>>([]);
   const speedHistoryWindow = useRef<Array<number>>([]); // Fenêtre glissante courte
 
+  const isCourse = sportConfig?.nom === 'Course';
+
   // Haversine
   const calculateDistance = (coord1: any, coord2: any): number => {
     const R = 6371.008; // km
@@ -69,10 +71,13 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     // Accuracy : tolérance renforcée en phase d'accroche
     const baseAccuracyThreshold = sportConfig?.accuracyThreshold ?? 35;
     const isInitialPhase = trackingPath.length < 3 || distance < 0.05; // ~50m
-    const accuracyThreshold = isInitialPhase
-      ? Math.max(baseAccuracyThreshold, 60)
-      : Math.max(baseAccuracyThreshold, 50);
-    if (coords.accuracy && coords.accuracy > accuracyThreshold) {
+    const accuracyThreshold = isCourse
+      ? Math.max(baseAccuracyThreshold, 80) // Course : très permissif pour ne pas bloquer la vitesse
+      : (isInitialPhase
+          ? Math.max(baseAccuracyThreshold, 60)
+          : Math.max(baseAccuracyThreshold, 50));
+    const poorAccuracy = coords.accuracy && coords.accuracy > accuracyThreshold;
+    if (poorAccuracy && !isCourse) {
       lastCoords.current = { ...coords };
       return;
     }
@@ -83,7 +88,9 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const newDist = calculateDistance(lastPoint, newPoint); // km
     const distanceMeters = newDist * 1000;
 
-    const teleportThreshold = coords.accuracy > 50 ? 50 : 20; // m/s
+    const teleportThreshold = isCourse
+      ? (coords.accuracy > 50 ? 70 : 30) // Course : encore plus tolérant pour ne pas couper la vitesse
+      : (coords.accuracy > 50 ? 50 : 20);
     const maxDistPerSecond = teleportThreshold / 1000;
     if (newDist > maxDistPerSecond * Math.max(timeDiff, 1)) {
       lastCoords.current = { ...coords };
@@ -97,16 +104,21 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     // minDistance adaptatif à l'accuracy
     const minDistanceMetersBase = (sportConfig?.minDistance ?? 0.002) * 1000; // km -> m
     let minDistanceMeters = minDistanceMetersBase;
-    if (coords.accuracy) {
-      const adaptive = Math.min(3, Math.max(1, coords.accuracy / 20)); // e.g. acc 40m -> 2m
-      minDistanceMeters = isInitialPhase
-        ? Math.min(minDistanceMetersBase, adaptive)
-        : Math.max(minDistanceMetersBase, adaptive);
-    } else if (isInitialPhase) {
-      minDistanceMeters = Math.min(minDistanceMetersBase, 1);
+    if (isCourse) {
+      minDistanceMeters = 1; // Course : capter vite les variations mais éviter le bruit extrême
+    } else {
+      if (coords.accuracy) {
+        const adaptive = Math.min(3, Math.max(1, coords.accuracy / 20)); // e.g. acc 40m -> 2m
+        minDistanceMeters = isInitialPhase
+          ? Math.min(minDistanceMetersBase, adaptive)
+          : Math.max(minDistanceMetersBase, adaptive);
+      } else if (isInitialPhase) {
+        minDistanceMeters = Math.min(minDistanceMetersBase, 1);
+      }
     }
 
     const isLikelyStopped = gpsSpeedKmh !== null ? gpsSpeedKmh < 0.5 : false;
+    // Si course et accuracy médiocre, autoriser quand même l'accumulation pour que le fallback soit crédible
     const shouldAddDistance = distanceMeters >= minDistanceMeters;
 
     if (newDist > 0 && shouldAddDistance) {
@@ -126,10 +138,20 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const maxReasonableSpeed = (sportConfig?.maxSpeed || 35) * 2;
     let rawSpeedKmh = 0;
 
-    if (gpsSpeedKmh !== null && coords.accuracy && coords.accuracy < 50) {
-      rawSpeedKmh = gpsSpeedKmh;
+    const fallbackSpeed = Math.max((newDist / Math.max(timeDiff, isCourse ? 0.2 : 0.5)) * 3600, 0);
+
+    if (isCourse) {
+      // Course : prendre le meilleur des deux (natif ou distance/temps) pour éviter un plafonnement bas
+      const candidates = [];
+      if (gpsSpeedKmh !== null) candidates.push(gpsSpeedKmh);
+      candidates.push(fallbackSpeed);
+      rawSpeedKmh = Math.max(...candidates);
     } else {
-      rawSpeedKmh = Math.max((newDist / Math.max(timeDiff, 0.5)) * 3600, 0);
+      if (gpsSpeedKmh !== null && coords.accuracy && coords.accuracy < 50) {
+        rawSpeedKmh = gpsSpeedKmh;
+      } else {
+        rawSpeedKmh = fallbackSpeed;
+      }
     }
 
     if (rawSpeedKmh > maxReasonableSpeed) {
@@ -139,8 +161,8 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
       rawSpeedKmh = 0;
     }
 
-    // Lissage adaptatif : si accuracy >25m, fenêtre 1 pour réactivité
-    const maxWindow = coords.accuracy && coords.accuracy > 25 ? 1 : 2;
+    // Lissage adaptatif : Course = fenêtre 1, sinon accuracy >25m => 1, sinon 2
+    const maxWindow = isCourse ? 1 : (coords.accuracy && coords.accuracy > 25 ? 1 : 2);
     speedHistoryWindow.current.push(rawSpeedKmh);
     while (speedHistoryWindow.current.length > maxWindow) {
       speedHistoryWindow.current.shift();
@@ -154,7 +176,10 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
       ? medianSpeed
       : alpha * medianSpeed + (1 - alpha) * lastGpsSpeed.current;
 
-    const displaySpeed = Math.round(emaSpeed * 10) / 10;
+    const baseDisplaySpeed = Math.round(emaSpeed * 10) / 10;
+    const displaySpeed = isCourse
+      ? Math.round(rawSpeedKmh * 10) / 10 // Course : pas d'inertie, vitesse la plus réactive
+      : baseDisplaySpeed;
 
     const isLowSpeed = displaySpeed < 0.5;
     if (isLowSpeed) {
@@ -164,16 +189,17 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     }
 
     let finalSpeed = displaySpeed;
-    if (lowSpeedDurationMs.current >= 300) {
+    const lowSpeedClamp = isCourse ? 200 : 300; // Course plus réactif
+    if (lowSpeedDurationMs.current >= lowSpeedClamp) {
       finalSpeed = 0;
-      lowSpeedDurationMs.current = 300;
+      lowSpeedDurationMs.current = lowSpeedClamp;
     }
     if (finalSpeed < 0.5) {
       finalSpeed = 0;
     }
 
     setInstantSpeed(finalSpeed);
-    lastGpsSpeed.current = emaSpeed;
+    lastGpsSpeed.current = isCourse ? finalSpeed : emaSpeed;
     if (finalSpeed > 0.5) {
       setMaxSpeed((prev) => Math.max(prev, finalSpeed));
     }
