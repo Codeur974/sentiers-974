@@ -17,6 +17,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
   const lowSpeedDurationMs = useRef<number>(0);
   const recentMovementWindow = useRef<Array<{ time: number; distance: number }>>([]);
   const speedHistoryWindow = useRef<Array<number>>([]); // Fenêtre glissante courte
+  const wasStoppedRecently = useRef<boolean>(false); // Détection reprise après pause
 
   const isCourse = sportConfig?.nom === 'Course';
 
@@ -133,6 +134,23 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
         return [...prev, { ...newPoint, timestamp: coords.timestamp }];
       });
       recentMovementWindow.current.push({ time: now, distance: newDist });
+    }
+
+    // Détection reprise après pause : GPS indique mouvement mais lastGpsSpeed = 0
+    const isResumingFromStop = (gpsSpeedKmh !== null && gpsSpeedKmh > 1.0 && lastGpsSpeed.current === 0) ||
+                                (distanceMeters > 5 && instantSpeed === 0);
+
+    if (isResumingFromStop && !wasStoppedRecently.current) {
+      // Débloquer : initialiser fenêtre avec GPS natif pour éviter pic
+      if (gpsSpeedKmh !== null && gpsSpeedKmh > 0.5) {
+        speedHistoryWindow.current = [gpsSpeedKmh]; // Démarrer avec vitesse GPS réelle
+      } else {
+        speedHistoryWindow.current = [];
+      }
+      lowSpeedDurationMs.current = 0;
+      wasStoppedRecently.current = true;
+    } else if (!isResumingFromStop) {
+      wasStoppedRecently.current = false;
     }
 
     // Calcul vitesse
