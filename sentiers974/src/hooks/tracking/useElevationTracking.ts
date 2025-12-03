@@ -58,11 +58,20 @@ export const useElevationTracking = (coords: any, status: string) => {
     setLastAltitude(null);
   };
 
+  const hydrate = (data: { elevationGain?: number; elevationLoss?: number; minAltitude?: number | null; maxAltitude?: number | null; lastAltitude?: number | null }) => {
+    if (data.elevationGain !== undefined) setElevationGain(data.elevationGain);
+    if (data.elevationLoss !== undefined) setElevationLoss(data.elevationLoss);
+    if (data.minAltitude !== undefined) setMinAltitude(data.minAltitude);
+    if (data.maxAltitude !== undefined) setMaxAltitude(data.maxAltitude);
+    if (data.lastAltitude !== undefined) setLastAltitude(data.lastAltitude);
+  };
+
   return {
     elevationGain,
     elevationLoss,
     minAltitude,
     maxAltitude,
+    hydrate,
     reset,
   };
 };

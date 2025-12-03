@@ -71,7 +71,7 @@ export default function FooterNavigation({ currentPage, onEnregistrer }: FooterN
       key: "Tracking",
       label: "Suivi",
       emoji: "📊",
-      onPress: () => navigation.navigate("Tracking" as never)
+      onPress: () => (navigation as any).navigate("Tracking", { showSuiviMode: true })
     }
   ];
 

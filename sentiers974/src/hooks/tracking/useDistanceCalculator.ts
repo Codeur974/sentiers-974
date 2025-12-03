@@ -240,6 +240,12 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     return () => clearInterval(stopDetection);
   }, [status, instantSpeed]);
 
+  const hydrate = (data: { distance?: number; trackingPath?: Array<{latitude: number; longitude: number; timestamp: number}>; maxSpeed?: number; }) => {
+    if (data.distance !== undefined) setDistance(data.distance);
+    if (data.trackingPath !== undefined) setTrackingPath(data.trackingPath);
+    if (data.maxSpeed !== undefined) setMaxSpeed(data.maxSpeed);
+  };
+
   const reset = () => {
     setDistance(0);
     setInstantSpeed(0);
@@ -258,6 +264,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     instantSpeed,
     maxSpeed,
     trackingPath,
+    hydrate,
     reset,
   };
 };

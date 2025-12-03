@@ -1,5 +1,5 @@
 import * as Location from "expo-location";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Alert } from "react-native";
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -14,6 +14,7 @@ import {
   useElevationTracking,
   useSplits,
   useSessionPersistence,
+  useTrackingStatePersistence,
 } from "./tracking";
 
 /**
@@ -47,8 +48,15 @@ export const useTrackingLogic = (selectedSport: any) => {
     timestamp: number;
   }>>([]);
 
-  const { status, start, pause, resume, stop, reset, duration: getDuration } = useSessionStore();
-  const { coords, address, watching, locationError, setCoords, setPermission, setError, setIsLocating } = useLocationStore();
+  const { status, start, pause, resume, stop, reset, duration: getDuration, hydrate } = useSessionStore();
+  const { coords, address, watching, locationError, setCoords, setPermission, setError, setIsLocating, setAddress } = useLocationStore();
+  const trackingState = useTrackingStatePersistence();
+  const { snapshot, isHydrating, saveSnapshot, clearSnapshot } = trackingState;
+  const hasHydratedState = useRef(false);
+  const restoredFromSnapshot = useRef(false);
+  const hasRestartedGPS = useRef(false);
+  const [hydratedSport, setHydratedSport] = useState<any>(null);
+  const activeSport = selectedSport || hydratedSport;
 
   // Mémoriser sportConfig pour éviter re-création à chaque render
   const sportConfig = useMemo(() => {
@@ -62,7 +70,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       speedSmoothingWindow: 6,
     };
 
-    if (!selectedSport) {
+    if (!activeSport) {
       return defaultConfig;
     }
 
@@ -155,8 +163,8 @@ export const useTrackingLogic = (selectedSport: any) => {
       },
     };
 
-    return sportConfigs[selectedSport.nom] || defaultConfig;
-  }, [selectedSport?.nom]); // Ne recalculer que si le sport change
+    return sportConfigs[activeSport.nom] || defaultConfig;
+  }, [activeSport?.nom]); // Ne recalculer que si le sport change
 
   // Hooks modulaires - Architecture propre
   const gpsTracking = useGPSTracking(sportConfig);
@@ -166,11 +174,72 @@ export const useTrackingLogic = (selectedSport: any) => {
   const persistence = useSessionPersistence();
 
   useEffect(() => {
-    if (selectedSport && !coords) {
+    if (isHydrating || hasHydratedState.current) return;
+
+    if (snapshot) {
+      const snap = snapshot;
+      hasHydratedState.current = true;
+      restoredFromSnapshot.current = true;
+
+      if (snap.selectedSport) {
+        setHydratedSport(snap.selectedSport);
+      }
+      if (snap.coords) {
+        setCoords(snap.coords);
+      }
+      if (snap.address) {
+        setAddress(snap.address);
+      }
+
+      distanceCalc.hydrate({
+        distance: snap.distance,
+        trackingPath: snap.trackingPath,
+      });
+
+      elevation.hydrate({
+        elevationGain: snap.elevationGain,
+        elevationLoss: snap.elevationLoss,
+      });
+
+      setDuration(snap.duration || 0);
+      setSteps(snap.steps || 0);
+      setAvgSpeed(snap.avgSpeed || 0);
+      setChartData(snap.chartData || []);
+
+      if (snap.status === "running" || snap.status === "paused" || snap.status === "stopped") {
+        hydrate(snap.duration || 0, snap.status);
+      }
+    } else {
+      hasHydratedState.current = true;
+      restoredFromSnapshot.current = false;
+    }
+  }, [isHydrating, snapshot, setCoords, setAddress, distanceCalc, elevation, hydrate]);
+
+  useEffect(() => {
+    // Relancer le watch GPS si une session est en cours/pausée et que le flux n'est pas actif
+    if (!hasHydratedState.current) return;
+    if (hasRestartedGPS.current) return;
+    if (status === "running" || status === "paused") {
+      if (!watching) {
+        gpsTracking.startGPSTracking().then((ok: boolean) => {
+          if (ok) {
+            hasRestartedGPS.current = true;
+          }
+        }).catch(() => {
+          // pas bloquant, on laisse l'utilisateur relancer
+        });
+      } else {
+        hasRestartedGPS.current = true;
+      }
+    }
+  }, [status, watching]);
+
+  useEffect(() => {
+    if (activeSport && !coords) {
       console.log("🎯 Sport sélectionné, localisation auto");
       getLocationForTracking();
     }
-  }, [selectedSport, coords]);
+  }, [activeSport, coords]);
 
   const getLocationForTracking = async () => {
     setIsLocating(true);
@@ -201,14 +270,14 @@ export const useTrackingLogic = (selectedSport: any) => {
   }, [status]); // Retirer getDuration pour éviter re-création interval
 
   useEffect(() => {
-    if (status === "running" && selectedSport && distanceCalc.distance > 0) {
+    if (status === "running" && activeSport && distanceCalc.distance > 0) {
       const stepsPerKmMap: Record<string, number> = {
         Course: 1300, Trail: 1400, Marche: 1250, Randonnée: 1200, Escalade: 800
       };
-      const stepsPerKm = stepsPerKmMap[selectedSport.nom] || 1200;
+      const stepsPerKm = stepsPerKmMap[activeSport.nom] || 1200;
       setSteps(Math.round(distanceCalc.distance * stepsPerKm));
     }
-  }, [status, selectedSport, distanceCalc.distance]);
+  }, [status, activeSport, distanceCalc.distance]);
 
   useEffect(() => {
     if (distanceCalc.distance > 0 && duration > 0) {
@@ -246,8 +315,50 @@ export const useTrackingLogic = (selectedSport: any) => {
   }, [coords, status, distanceCalc.instantSpeed, distanceCalc.distance]);
 
   useEffect(() => {
+    if (isHydrating || !hasHydratedState.current) return;
+
+    if (!activeSport || status === "idle") {
+      clearSnapshot();
+      return;
+    }
+
+    saveSnapshot({
+      sessionId: persistence.sessionId,
+      status,
+      duration,
+      selectedSport: activeSport,
+      coords,
+      address,
+      distance: distanceCalc.distance,
+      trackingPath: distanceCalc.trackingPath,
+      steps,
+      avgSpeed,
+      chartData,
+      elevationGain: elevation.elevationGain,
+      elevationLoss: elevation.elevationLoss,
+    });
+  }, [
+    isHydrating,
+    saveSnapshot,
+    clearSnapshot,
+    activeSport,
+    status,
+    duration,
+    coords,
+    address,
+    distanceCalc.distance,
+    distanceCalc.trackingPath,
+    steps,
+    avgSpeed,
+    chartData,
+    elevation.elevationGain,
+    elevation.elevationLoss,
+    persistence.sessionId,
+  ]);
+
+  useEffect(() => {
     const checkInitialPermissions = async () => {
-      if (selectedSport && !initialPermissionChecked) {
+      if (activeSport && !initialPermissionChecked) {
         setInitialPermissionChecked(true);
         try {
           const { status: permissionStatus } = await Location.getForegroundPermissionsAsync();
@@ -265,7 +376,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       }
     };
     checkInitialPermissions();
-  }, [selectedSport, initialPermissionChecked]);
+  }, [activeSport, initialPermissionChecked]);
 
   useEffect(() => {
     return () => {
@@ -274,14 +385,14 @@ export const useTrackingLogic = (selectedSport: any) => {
   }, [watching]);
 
   const calculateCalories = () => {
-    if (!selectedSport || distanceCalc.distance <= 0) return 0;
-    const sportType = getSportType(selectedSport.nom);
+    if (!activeSport || distanceCalc.distance <= 0) return 0;
+    const sportType = getSportType(activeSport.nom);
     const metrics = getSportMetrics(sportType);
     const baseCaloriesPerKm: Record<string, number> = {
       Course: 60, Trail: 65, Marche: 45, Randonnée: 50, Escalade: 80,
       VTT: 35, Vélo: 30, Natation: 120, SUP: 40, Surf: 45, Kayak: 35
     };
-    let calories = (baseCaloriesPerKm[selectedSport.nom] || 50) * metrics.caloriesMultiplier;
+    let calories = (baseCaloriesPerKm[activeSport.nom] || 50) * metrics.caloriesMultiplier;
     const { min, normal, max } = metrics.speedRange;
     if (distanceCalc.instantSpeed > max * 0.8) calories *= 1.3;
     else if (distanceCalc.instantSpeed > normal) calories *= 1.1;
@@ -291,6 +402,8 @@ export const useTrackingLogic = (selectedSport: any) => {
 
   const handleStartTracking = async () => {
     setError(null);
+    restoredFromSnapshot.current = false;
+    hasRestartedGPS.current = false;
 
     // Démarrer la session tout de suite pour ne pas bloquer l'UI
     const sessionStarted = start();
@@ -299,7 +412,7 @@ export const useTrackingLogic = (selectedSport: any) => {
     setSteps(0);
 
     // Création de session en arrière-plan (réseau potentiellement lent)
-    persistence.createSession(selectedSport, coords, address || '').catch((err: any) => {
+    persistence.createSession(activeSport, coords, address || '').catch((err: any) => {
       console.log('⚠️ Création de session en arrière-plan échouée', err?.message || err);
     });
 
@@ -333,8 +446,9 @@ export const useTrackingLogic = (selectedSport: any) => {
           onPress: async () => {
             console.log('❌ Utilisateur a cliqué NON - Suppression session');
             await persistence.clearSession();
-            // Ne PAS appeler resetTracking() pour garder status="stopped"
-            // et afficher les boutons Refaire/Export/Changer
+            await clearSnapshot();
+            resetTracking();
+            setHydratedSport(null);
           }
         },
         {
@@ -342,7 +456,7 @@ export const useTrackingLogic = (selectedSport: any) => {
           onPress: async () => {
             console.log('✅ Utilisateur a cliqué OUI - Sauvegarde session');
             await persistence.saveSession({
-              sport: selectedSport,
+              sport: activeSport,
               distance: distanceCalc.distance,
               duration: finalDuration,
               calories: calculateCalories(),
@@ -353,9 +467,10 @@ export const useTrackingLogic = (selectedSport: any) => {
               elevationGain: elevation.elevationGain,
               elevationLoss: elevation.elevationLoss
             });
+            await clearSnapshot();
             console.log('💾 Session sauvegardée');
-            // Ne PAS appeler resetTracking() ici pour garder le status "stopped"
-            // et afficher les boutons Export GPX / Refaire / Changer
+            resetTracking();
+            setHydratedSport(null);
           }
         }
       ]
@@ -371,6 +486,8 @@ export const useTrackingLogic = (selectedSport: any) => {
     distanceCalc.reset();
     elevation.reset();
     splits.reset();
+    hasRestartedGPS.current = false;
+    restoredFromSnapshot.current = false;
   };
 
   const handleBackToSelection = async () => {
@@ -378,11 +495,14 @@ export const useTrackingLogic = (selectedSport: any) => {
     gpsTracking.stopGPSTracking();
     setInitialPermissionChecked(false);
     await persistence.clearSession();
+    await clearSnapshot();
+    setHydratedSport(null);
   };
 
   const handleNavigateAway = () => console.log('🧭 Navigation temporaire');
   const handleNewSession = async () => {
     await persistence.clearSession();
+    await clearSnapshot();
     resetTracking();
   };
   const handleManualSplit = () => {
@@ -398,7 +518,7 @@ export const useTrackingLogic = (selectedSport: any) => {
         return;
       }
 
-      if (!selectedSport) {
+      if (!activeSport) {
         Alert.alert('Erreur', 'Sport non sélectionné');
         return;
       }
@@ -408,7 +528,7 @@ export const useTrackingLogic = (selectedSport: any) => {
         distanceCalc.trackingPath,
         chartData || [],
         {
-          sport: selectedSport.nom,
+          sport: activeSport.nom,
           startTime: Date.now() - duration,
           endTime: Date.now(),
           distance: distanceCalc.distance,
@@ -424,7 +544,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       const gpxContent = GPXExporter.generateGPX(sessionData);
 
       // Créer le fichier avec la nouvelle API
-      const fileName = `${selectedSport.nom}_${new Date().toISOString().split('T')[0]}.gpx`;
+      const fileName = `${activeSport.nom}_${new Date().toISOString().split('T')[0]}.gpx`;
       const file = new File(Paths.document, fileName);
       file.write(gpxContent);
 
@@ -432,7 +552,7 @@ export const useTrackingLogic = (selectedSport: any) => {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(file.uri, {
           mimeType: 'application/gpx+xml',
-          dialogTitle: `Partager ${selectedSport.nom} - ${distanceCalc.distance.toFixed(2)}km`
+          dialogTitle: `Partager ${activeSport.nom} - ${distanceCalc.distance.toFixed(2)}km`
         });
       } else {
         Alert.alert('Succès', `Fichier sauvegardé: ${fileName}`);
@@ -465,6 +585,7 @@ export const useTrackingLogic = (selectedSport: any) => {
     splits: splits.splits,
     splitStats: splits.getSplitStats(),
     chartData,
+    activeSport,
     handleStartTracking,
     handlePauseTracking,
     handleResumeTracking,

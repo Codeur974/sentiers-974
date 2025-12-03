@@ -13,6 +13,7 @@ type SessionState = {
   stop: () => boolean;
   reset: () => boolean;
   hardReset: () => void;
+  hydrate: (durationMs: number, status: SessionStatus) => void;
 
   //  Getter ajouté ici
   duration: () => number;
@@ -66,6 +67,14 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   hardReset: () => {
     set({ status: "idle", startedAt: undefined, endedAt: undefined });
+  },
+
+  hydrate: (durationMs, status) => {
+    const now = Date.now();
+    const safeDuration = Math.max(durationMs || 0, 0);
+    const startedAt = now - safeDuration;
+    const endedAt = status === "paused" || status === "stopped" ? now : undefined;
+    set({ status, startedAt, endedAt });
   },
 
   //  Getter ici
