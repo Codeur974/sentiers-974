@@ -444,8 +444,21 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
             const orphanPhotos: PhotoItem[] = [];
             group.photos.forEach((photo) => {
               if (photo.sessionId && sessionGroups[photo.sessionId]) {
+                // Photo associée à une session connue
+                sessionGroups[photo.sessionId].photos.push(photo);
+              } else if (photo.sessionId) {
+                // Photo avec sessionId mais session pas encore dans les stats
+                // Créer un groupe temporaire pour cette session
+                if (!sessionGroups[photo.sessionId]) {
+                  sessionGroups[photo.sessionId] = {
+                    sessionId: photo.sessionId,
+                    photos: [],
+                    performance: undefined, // Pas de stats encore
+                  };
+                }
                 sessionGroups[photo.sessionId].photos.push(photo);
               } else {
+                // Photo sans sessionId = vraiment orpheline
                 orphanPhotos.push(photo);
               }
             });
