@@ -345,13 +345,8 @@ export default function TrackingScreen({ route }: any) {
             <FooterNavigation
               currentPage="Tracking"
               onEnregistrer={() => {
-                // Si un tracking est en cours, revenir au tracking au lieu d'ouvrir la sélection
-                if (trackingLogic.activeSport && (trackingLogic.status === "running" || trackingLogic.status === "paused")) {
-                  setStayOnSuivi(false);
-                  setShowTrackingUI(true);
-                } else {
-                  setSportFilterVisible(true);
-                }
+                // Toujours ouvrir la sélection de sport depuis le bouton Enregistrer
+                setSportFilterVisible(true);
               }}
               onSuivi={() => {
                 setStayOnSuivi(true);
