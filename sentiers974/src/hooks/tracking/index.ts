@@ -4,3 +4,4 @@ export { useElevationTracking } from './useElevationTracking';
 export { useSplits } from './useSplits';
 export { useSessionPersistence } from './useSessionPersistence';
 export { useTrackingStatePersistence } from './useTrackingStatePersistence';
+export { useNetworkSync } from './useNetworkSync';

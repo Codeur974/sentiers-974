@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../contexts/AuthContext';
+import { useDataStore } from '../../store/useDataStore';
 
 // Utiliser la variable d'environnement du .env
 const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
@@ -11,6 +12,7 @@ const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
  */
 export const useSessionPersistence = () => {
   const { user } = useAuth();
+  const { addToSyncQueue } = useDataStore();
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
 
@@ -159,9 +161,16 @@ export const useSessionPersistence = () => {
         throw new Error('MongoDB save failed');
       }
     } catch (mongoError) {
-      console.error('⚠️ MongoDB erreur, fallback AsyncStorage');
+      console.error('⚠️ MongoDB erreur, fallback AsyncStorage + ajout sync queue');
       await updateLocalStats(true);
       localStatsUpdated = true;
+
+      // Ajouter à la file de synchronisation pour retry automatique
+      await addToSyncQueue({
+        ...sessionData,
+        sessionId,
+        userId: user?.id || deviceId || 'anonymous'
+      });
     }
 
     if (!localStatsUpdated) {

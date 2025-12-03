@@ -17,10 +17,14 @@ import SignupScreen from "./screens/SignupScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 import { AuthProvider } from "./contexts/AuthContext";
+import { useNetworkSync } from "./hooks/tracking";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  // Activer la synchronisation automatique des sessions
+  useNetworkSync();
+
   // Initialiser le système d'automatisation au démarrage
   useEffect(() => {
     const initializeAutomation = async () => {
