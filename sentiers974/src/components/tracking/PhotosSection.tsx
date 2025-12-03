@@ -1,11 +1,11 @@
-﻿import React, {
+import React, {
   useState,
   useEffect,
   useImperativeHandle,
   forwardRef,
   useRef,
 } from "react";
-import { View, Text, Alert, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator } from "react-native";
 import { usePOIs } from '../../store/useDataStore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiService from "../../services/api";
@@ -104,6 +104,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     );
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [metric, setMetric] = useState<"distance" | "avgSpeed">("distance");
+    const [isLoadingMongoDB, setIsLoadingMongoDB] = useState(false);
     const { width: screenWidth } = useWindowDimensions();
 
     useEffect(() => {
@@ -111,13 +112,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       inflightDayStats.current.clear();
     }, [refreshTrigger]);
 
-    // Hooks personnalisÃ©s
+    // Hooks personnalisés
     const { activateSelectionMode, deactivateSelectionMode } =
       usePhotoSelection();
 
     const handleRefresh = () => {
       setRefreshTrigger((prev) => prev + 1);
-      reloadPois(); // Recharger aussi les POIs
+      reloadPois();
     };
 
     const { confirmDeletePhoto } = usePhotoDeleter(handleRefresh);
@@ -150,9 +151,9 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       if (isVisible) {
         reloadPois();
       }
-    }, [isVisible]); // eslint-disable-line react-hooks/exhaustive-deps // Maintenant stable grÃ¢ce Ã  useCallback
+    }, [isVisible]);
 
-    // Effet pour dÃ©sactiver la sÃ©lection quand toutes les sections sont fermÃ©es
+    // Effet pour désactiver la sélection quand toutes les sections sont fermées
     useEffect(() => {
       if (expandedSections.size === 0) {
         deactivateSelectionMode();
@@ -170,11 +171,10 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     const handleDeleteClick = async () => {
       const isFirstClick = activateSelectionMode();
       if (isFirstClick) {
-        // Si aucune section n'est ouverte, montrer directement le message
         if (expandedSections.size === 0) {
           Alert.alert(
-            "Aucune sÃ©lection",
-            "Vous devez ouvrir au moins une section et sÃ©lectionner des Ã©lÃ©ments Ã  supprimer."
+            "Aucune sélection",
+            "Vous devez ouvrir au moins une section et sélectionner des éléments à supprimer."
           );
           deactivateSelectionMode();
         }
@@ -184,8 +184,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       const totalCount = getSelectedCount();
       if (totalCount === 0) {
         Alert.alert(
-          "Aucune sÃ©lection",
-          "Vous devez sÃ©lectionner au moins un Ã©lÃ©ment Ã  supprimer."
+          "Aucune sélection",
+          "Vous devez sélectionner au moins un élément à supprimer."
         );
         return;
       }
@@ -193,7 +193,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       await deleteSelectedItems();
     };
 
-    // Fonctions pour gÃ©rer les photos
+    // Fonctions pour gérer les photos
     const handlePhotoPress = (photo: PhotoItem) => {
       setSelectedPhoto({
         uri: photo.uri,
@@ -206,8 +206,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     const toggleSection = (date: string) => {
       setExpandedSections((prev) => {
         const newSet = new Set<string>();
-        // Si la section est dÃ©jÃ  ouverte, on la ferme (set vide)
-        // Sinon on ouvre seulement cette section
         if (!prev.has(date)) {
           newSet.add(date);
         }
@@ -254,8 +252,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       return `${year}-${month}-${day}`;
     };
 
-    // Charger les performances d'une journÃ©e spÃ©cifique
-    const loadDayPerformance = async (
+    // Charger les performances d'une journée depuis AsyncStorage uniquement (rapide)
+    const loadDayPerformanceLocal = async (
       dateString: string
     ): Promise<DayPerformance | undefined> => {
       if (!dateString) return undefined;
@@ -264,68 +262,110 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         return dayStatsCache.current.get(dateString);
       }
 
+      try {
+        const statsKey = `daily_stats_${dateString}`;
+        const savedStats = await AsyncStorage.getItem(statsKey);
+        if (savedStats) {
+          const localStats = JSON.parse(savedStats);
+          dayStatsCache.current.set(dateString, localStats);
+          return localStats;
+        }
+      } catch (error) {
+        console.error("⚠️ Erreur lecture AsyncStorage:", error);
+      }
+
+      return undefined;
+    };
+
+    // Charger les performances d'une journée depuis MongoDB (lent)
+    const loadDayPerformanceRemote = async (
+      dateString: string
+    ): Promise<DayPerformance | undefined> => {
+      if (!dateString) return undefined;
+
       if (inflightDayStats.current.has(dateString)) {
         return inflightDayStats.current.get(dateString);
       }
 
       const fetchPromise = (async () => {
         try {
-        console.log("ðŸ” Tentative chargement MongoDB pour:", dateString);
-        const response = await apiService.getDailyStats(dateString);
+          console.log("🔍 Chargement MongoDB pour:", dateString);
+          const response = await apiService.getDailyStats(dateString);
 
-        if (response.success && response.data) {
-          console.log("âœ… Stats jour chargÃ©es depuis MongoDB:", dateString);
-          const mongoStats = (response.data as any)?.data || response.data;
+          if (response.success && response.data) {
+            console.log("✅ Stats jour chargées depuis MongoDB:", dateString);
+            const mongoStats = (response.data as any)?.data || response.data;
 
-          const adaptedStats: DayPerformance = {
-            totalDistance: mongoStats.totalDistance / 1000,
-            totalTime: mongoStats.totalDuration,
-            totalCalories: mongoStats.totalCalories,
-            avgSpeed: mongoStats.avgSpeed,
-            sessions: mongoStats.totalSessions,
-            maxSpeed: mongoStats.maxSpeed,
-            totalSteps: mongoStats.totalSteps || 0,
-            sessionsList:
-              mongoStats.sessions?.map((session: any) => ({
-                distance: session.distance,
-                duration: session.duration,
-                calories: 0,
-                avgSpeed: session.avgSpeed || 0,
-                maxSpeed: session.maxSpeed || 0,
-                steps: session.steps || 0,
-                sport: session.sport,
-                sessionId: session.id,
-                timestamp: new Date(session.createdAt).getTime(),
-              })) || [],
-          };
-          return adaptedStats;
-        }
+            const adaptedStats: DayPerformance = {
+              totalDistance: mongoStats.totalDistance / 1000,
+              totalTime: mongoStats.totalDuration,
+              totalCalories: mongoStats.totalCalories,
+              avgSpeed: mongoStats.avgSpeed,
+              sessions: mongoStats.totalSessions,
+              maxSpeed: mongoStats.maxSpeed,
+              totalSteps: mongoStats.totalSteps || 0,
+              sessionsList:
+                mongoStats.sessions?.map((session: any) => ({
+                  distance: session.distance,
+                  duration: session.duration,
+                  calories: 0,
+                  avgSpeed: session.avgSpeed || 0,
+                  maxSpeed: session.maxSpeed || 0,
+                  steps: session.steps || 0,
+                  sport: session.sport,
+                  sessionId: session.id,
+                  timestamp: new Date(session.createdAt).getTime(),
+                })) || [],
+            };
 
-        // Fallback vers AsyncStorage
-        const statsKey = `daily_stats_${dateString}`;
-        const savedStats = await AsyncStorage.getItem(statsKey);
-        if (savedStats) {
-          return JSON.parse(savedStats);
-        }
+            dayStatsCache.current.set(dateString, adaptedStats);
+            return adaptedStats;
+          }
 
-        return undefined;
+          return undefined;
         } catch (error) {
-        console.error("âŒ Erreur chargement stats jour:", error);
-        return undefined;
+          console.error("❌ Erreur chargement MongoDB:", error);
+          return undefined;
         }
       })();
 
       inflightDayStats.current.set(dateString, fetchPromise);
       const result = await fetchPromise;
       inflightDayStats.current.delete(dateString);
-      dayStatsCache.current.set(dateString, result);
       return result;
     };
 
-    // Grouper les photos par jour et charger les performances
+    // Fonction helper pour associer photos aux sessions
+    const associatePhotosToSessions = (
+      photos: PhotoItem[],
+      sessionGroups: Record<string, SessionGroup>
+    ) => {
+      const orphanPhotos: PhotoItem[] = [];
+
+      photos.forEach((photo) => {
+        if (photo.sessionId && sessionGroups[photo.sessionId]) {
+          sessionGroups[photo.sessionId].photos.push(photo);
+        } else if (photo.sessionId) {
+          if (!sessionGroups[photo.sessionId]) {
+            sessionGroups[photo.sessionId] = {
+              sessionId: photo.sessionId,
+              photos: [],
+              performance: undefined,
+            };
+          }
+          sessionGroups[photo.sessionId].photos.push(photo);
+        } else {
+          orphanPhotos.push(photo);
+        }
+      });
+
+      return orphanPhotos;
+    };
+
+    // PHASE 1: Chargement rapide depuis AsyncStorage
     useEffect(() => {
-      const loadGroupsWithPerformance = async () => {
-        // CrÃ©er les photos Ã  partir des POI
+      const loadLocalData = async () => {
+        // Créer les photos à partir des POI
         const allPhotos: PhotoItem[] = pois.map((poi) => ({
           id: poi.id,
           uri:
@@ -359,23 +399,69 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           return groups;
         }, {} as Record<string, PhotoGroup>);
 
-        // Convertir en array et charger les performances
         const groupsArray = Object.values(groupedByDate);
 
-        // RÃ©cupÃ©rer toutes les sessions des 30 derniers jours
-        const allDatesWithPerformance = new Set<string>();
-        groupsArray.forEach((group) => allDatesWithPerformance.add(group.date));
+        // Charger uniquement depuis AsyncStorage (rapide)
+        const localGroups = await Promise.all(
+          groupsArray.map(async (group) => {
+            const performance = await loadDayPerformanceLocal(group.date);
+
+            const sessionGroups: Record<string, SessionGroup> = {};
+
+            if (performance?.sessionsList) {
+              performance.sessionsList.forEach((sessionPerformance) => {
+                if (!sessionGroups[sessionPerformance.sessionId]) {
+                  sessionGroups[sessionPerformance.sessionId] = {
+                    sessionId: sessionPerformance.sessionId,
+                    photos: [],
+                    performance: sessionPerformance,
+                  };
+                }
+              });
+            }
+
+            const orphanPhotos = associatePhotosToSessions(group.photos, sessionGroups);
+
+            return {
+              ...group,
+              performance,
+              sessionGroups: Object.values(sessionGroups),
+              orphanPhotos,
+            };
+          })
+        );
+
+        // Trier par date (plus récent en premier)
+        const sortedGroups = localGroups.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        setPhotoGroups(sortedGroups);
+        setExpandedSections(new Set());
+      };
+
+      loadLocalData();
+    }, [pois, refreshTrigger]);
+
+    // PHASE 2: Chargement depuis MongoDB en arrière-plan
+    useEffect(() => {
+      const loadRemoteData = async () => {
+        setIsLoadingMongoDB(true);
 
         try {
           const today = new Date();
           const thirtyDaysAgo = new Date(today);
           thirtyDaysAgo.setDate(today.getDate() - 30);
 
+          // Récupérer toutes les sessions MongoDB
           const sessionsResponse = await apiService.getUserSessions({
             limit: 100,
             dateFrom: thirtyDaysAgo.toISOString(),
             dateTo: today.toISOString(),
           });
+
+          const allDatesWithPerformance = new Set<string>();
+          photoGroups.forEach((group) => allDatesWithPerformance.add(group.date));
 
           if (sessionsResponse.success && sessionsResponse.data) {
             const sessions = Array.isArray(sessionsResponse.data)
@@ -392,99 +478,120 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               });
             }
           }
-        } catch (error) {
-          console.error("âŒ Erreur rÃ©cupÃ©ration sessions MongoDB:", error);
-        }
 
-        // CrÃ©er les groupes finaux avec performances
-        const validDates = Array.from(allDatesWithPerformance).filter(
-          (date) =>
-            date &&
-            date !== "null" &&
-            date !== "undefined" &&
-            !date.includes("NaN")
-        );
+          const validDates = Array.from(allDatesWithPerformance).filter(
+            (date) =>
+              date &&
+              date !== "null" &&
+              date !== "undefined" &&
+              !date.includes("NaN")
+          );
 
-        const allGroups = validDates.map((date) => {
-          const existingGroup = groupsArray.find((g) => g.date === date);
-          return (
-            existingGroup || {
-              date,
-              displayDate: new Date(date).toLocaleDateString("fr-FR", {
+          // Créer les photos depuis POI
+          const allPhotos: PhotoItem[] = pois.map((poi) => ({
+            id: poi.id,
+            uri:
+              poi.photoUri ||
+              "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
+            title: poi.title,
+            note: poi.note,
+            sessionId: poi.sessionId,
+            createdAt: poi.createdAt,
+            source: poi.source === "mongodb" ? "backend" : "poi",
+          }));
+
+          const groupedByDate = allPhotos.reduce((groups, photo) => {
+            const date = getLocalDateString(photo.createdAt);
+            const displayDate = new Date(photo.createdAt).toLocaleDateString(
+              "fr-FR",
+              {
                 weekday: "long",
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-              }),
-              photos: [],
-            }
-          );
-        });
-
-        const groupsWithPerformance = await Promise.all(
-          allGroups.map(async (group) => {
-            const performance = await loadDayPerformance(group.date);
-
-            // CrÃ©er des groupes par session
-            const sessionGroups: Record<string, SessionGroup> = {};
-
-            if (performance?.sessionsList) {
-              performance.sessionsList.forEach((sessionPerformance) => {
-                if (!sessionGroups[sessionPerformance.sessionId]) {
-                  sessionGroups[sessionPerformance.sessionId] = {
-                    sessionId: sessionPerformance.sessionId,
-                    photos: [], // Nouvel array pour chaque session
-                    performance: sessionPerformance,
-                  };
-                }
-              });
-            }
-
-            // Associer les photos aux sessions
-            const orphanPhotos: PhotoItem[] = [];
-            group.photos.forEach((photo) => {
-              if (photo.sessionId && sessionGroups[photo.sessionId]) {
-                // Photo associée à une session connue
-                sessionGroups[photo.sessionId].photos.push(photo);
-              } else if (photo.sessionId) {
-                // Photo avec sessionId mais session pas encore dans les stats
-                // Créer un groupe temporaire pour cette session
-                if (!sessionGroups[photo.sessionId]) {
-                  sessionGroups[photo.sessionId] = {
-                    sessionId: photo.sessionId,
-                    photos: [],
-                    performance: undefined, // Pas de stats encore
-                  };
-                }
-                sessionGroups[photo.sessionId].photos.push(photo);
-              } else {
-                // Photo sans sessionId = vraiment orpheline
-                orphanPhotos.push(photo);
               }
-            });
+            );
 
-            return {
-              ...group,
-              performance,
-              sessionGroups: Object.values(sessionGroups),
-              orphanPhotos,
-            };
-          })
-        );
+            if (!groups[date]) {
+              groups[date] = { date, displayDate, photos: [] };
+            }
 
-        // Trier par date (plus rÃ©cent en premier)
-        const sortedGroups = groupsWithPerformance.sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+            groups[date].photos.push(photo);
+            return groups;
+          }, {} as Record<string, PhotoGroup>);
 
-        setPhotoGroups(sortedGroups);
-        setExpandedSections(new Set());
+          const groupsArray = Object.values(groupedByDate);
+
+          const allGroups = validDates.map((date) => {
+            const existingGroup = groupsArray.find((g) => g.date === date);
+            return (
+              existingGroup || {
+                date,
+                displayDate: new Date(date).toLocaleDateString("fr-FR", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }),
+                photos: [],
+              }
+            );
+          });
+
+          // Charger les performances depuis MongoDB
+          const remoteGroups = await Promise.all(
+            allGroups.map(async (group) => {
+              const performance = await loadDayPerformanceRemote(group.date);
+
+              const sessionGroups: Record<string, SessionGroup> = {};
+
+              if (performance?.sessionsList) {
+                performance.sessionsList.forEach((sessionPerformance) => {
+                  if (!sessionGroups[sessionPerformance.sessionId]) {
+                    sessionGroups[sessionPerformance.sessionId] = {
+                      sessionId: sessionPerformance.sessionId,
+                      photos: [],
+                      performance: sessionPerformance,
+                    };
+                  }
+                });
+              }
+
+              const orphanPhotos = associatePhotosToSessions(group.photos, sessionGroups);
+
+              return {
+                ...group,
+                performance,
+                sessionGroups: Object.values(sessionGroups),
+                orphanPhotos,
+              };
+            })
+          );
+
+          // Trier par date
+          const sortedGroups = remoteGroups.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          );
+
+          setPhotoGroups(sortedGroups);
+        } catch (error) {
+          console.error("❌ Erreur chargement MongoDB:", error);
+        } finally {
+          setIsLoadingMongoDB(false);
+        }
       };
 
-      loadGroupsWithPerformance();
+      // Délai de 100ms pour laisser l'affichage local se faire
+      const timer = setTimeout(() => {
+        if (photoGroups.length > 0) {
+          loadRemoteData();
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
     }, [pois, refreshTrigger]);
 
-    // VÃ©rifier s'il y a des sessions mÃªme sans photos
+    // Vérifier s'il y a des sessions même sans photos
     const hasAnySessions = photoGroups.some(
       (group) => group.sessionGroups && group.sessionGroups.length > 0
     );
@@ -497,8 +604,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           </Text>
           <Text className="text-center text-gray-500 text-sm">
             {photoGroups.length === 0 && !hasAnySessions
-              ? "Aucune activitÃ© pour le moment.\nCommencez un entraÃ®nement pour crÃ©er votre historique !"
-              : "Historique masquÃ©"}
+              ? "Aucune activité pour le moment.\nCommencez un entraînement pour créer votre historique !"
+              : "Historique masqué"}
           </Text>
         </View>
       );
@@ -506,11 +613,19 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
 
     return (
       <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
-        <Text className="text-blue-800 font-bold text-lg mb-3 text-center">
-          Mon Historique
-        </Text>
+        {/* Header avec indicateur de sync MongoDB */}
+        <View className="flex-row items-center justify-center mb-3">
+          <Text className="text-blue-800 font-bold text-lg text-center">
+            Mon Historique
+          </Text>
+          {isLoadingMongoDB && (
+            <View className="ml-2">
+              <ActivityIndicator size="small" color="#1e40af" />
+            </View>
+          )}
+        </View>
 
-        {/* Graphique de progression (distance ou vitesse moyenne par session) */}
+        {/* Graphique de progression */}
         {(() => {
           const allSessions = photoGroups
             .flatMap((group) => group.sessionGroups || [])
@@ -629,10 +744,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
             .filter((group) => expandedSections.has(group.date))
             .flatMap((group) =>
               [
-                // Photos dans les sessions
                 ...(group.sessionGroups?.flatMap((session) => session.photos) ||
                   []),
-                // Photos orphelines
                 ...(group.orphanPhotos || []),
               ].map((photo) => photo.id)
             )}
@@ -654,7 +767,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
 
             return (
               <View key={group.date} className="mb-3">
-                {/* Header de jour */}
                 <PhotoDayHeader
                   group={group}
                   isExpanded={isExpanded}
@@ -663,7 +775,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   onInteraction={onInteraction}
                 />
 
-                {/* Contenu du jour */}
                 {isExpanded && (
                   <PhotoDayContent
                     group={group}
@@ -678,14 +789,14 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           })}
         </View>
 
-        {/* Modal photo plein Ã©cran */}
+        {/* Modal photo plein écran */}
         <PhotoModal
           visible={selectedPhoto !== null}
           photo={selectedPhoto}
           onClose={() => setSelectedPhoto(null)}
         />
 
-        {/* Modal d'ajout de photo oubliÃ©e */}
+        {/* Modal d'ajout de photo oubliée */}
         <AddPhotoModal
           visible={showAddPhotoModal}
           photoTitle={photoTitle}
