@@ -38,6 +38,25 @@ export default function TrackingScreen({ route }: any) {
   const filterRef = useRef<FilterRef>(null);
   const navigation = useNavigation();
   const { setRecording, setPaused, resetRecording, setSelectedSport: setStoreSport } = useRecordingStore();
+  const [showTrackingUI, setShowTrackingUI] = useState(!!selectedSport);
+  const [stayOnSuivi, setStayOnSuivi] = useState(false);
+  const hasOpenedSportSelection = useRef(false);
+
+  useEffect(() => {
+    // Réhydratation : récupérer le sport actif, mais ne pas forcer l'affichage tracking si on est en mode Suivi
+    if (stayOnSuivi) return;
+    if (!selectedSport && trackingLogic.activeSport) {
+      setSelectedSport(trackingLogic.activeSport);
+      setStoreSport(trackingLogic.activeSport);
+    }
+  }, [selectedSport, trackingLogic.activeSport, setStoreSport, stayOnSuivi]);
+
+  // Si un sport est sélectionné manuellement (ou via la modale), forcer l'affichage du tracking
+  useEffect(() => {
+    if (selectedSport && !showTrackingUI) {
+      setShowTrackingUI(true);
+    }
+  }, [selectedSport, showTrackingUI]);
 
   // Mettre à jour le header selon l'état actuel (sport choisi ou non)
   useEffect(() => {
@@ -59,11 +78,21 @@ export default function TrackingScreen({ route }: any) {
     if (route?.params?.selectedSport && route.params.selectedSport !== selectedSport) {
       setSelectedSport(route.params.selectedSport);
     }
-    // Ouvrir automatiquement la sélection de sport si demandé
-    if (route?.params?.openSportSelection) {
+    // Ouvrir automatiquement la sélection de sport si demandé (une seule fois)
+    if (route?.params?.openSportSelection && !hasOpenedSportSelection.current) {
       setSportFilterVisible(true);
+      hasOpenedSportSelection.current = true;
     }
-  }, [route?.params?.selectedSport, route?.params?.openSportSelection]);
+    // Si showSuiviMode est passé, forcer l'affichage du mode Suivi
+    if (route?.params?.showSuiviMode) {
+      setStayOnSuivi(true);
+      setShowTrackingUI(false);
+    } else if (route?.params?.showSuiviMode === undefined && trackingLogic.activeSport) {
+      // Si on arrive sans paramètre showSuiviMode et qu'un tracking est actif, afficher le tracking
+      setStayOnSuivi(false);
+      setShowTrackingUI(true);
+    }
+  }, [route?.params?.selectedSport, route?.params?.openSportSelection, route?.params?.showSuiviMode, trackingLogic.activeSport]);
 
   // Synchroniser l'état d'enregistrement avec l'indicateur global
   useEffect(() => {
@@ -311,11 +340,43 @@ export default function TrackingScreen({ route }: any) {
     <View className="flex-1">
       <Layout
         showHomeButton={false}
-        footerButtons={!selectedSport ? <FooterNavigation currentPage="Tracking" onEnregistrer={() => setSportFilterVisible(true)} /> : null}
+        footerButtons={
+          !selectedSport || stayOnSuivi ? (
+            <FooterNavigation
+              currentPage="Tracking"
+              onEnregistrer={() => {
+                // Si un tracking est en cours, revenir au tracking au lieu d'ouvrir la sélection
+                if (trackingLogic.activeSport && (trackingLogic.status === "running" || trackingLogic.status === "paused")) {
+                  setStayOnSuivi(false);
+                  setShowTrackingUI(true);
+                } else {
+                  setSportFilterVisible(true);
+                }
+              }}
+              onSuivi={() => {
+                setStayOnSuivi(true);
+                setShowTrackingUI(false);
+              }}
+            />
+          ) : null
+        }
       >
-        {!selectedSport ? (
+        {!selectedSport || stayOnSuivi ? (
           <ScrollView className="flex-1 bg-white">
             <View className="p-4">
+              {trackingLogic.activeSport && (trackingLogic.status === "running" || trackingLogic.status === "paused") && (
+                <TouchableOpacity
+                  onPress={() => {
+                    setStayOnSuivi(false);
+                    setShowTrackingUI(true);
+                  }}
+                  className="bg-blue-100 border border-blue-300 rounded-xl p-4 mb-4"
+                >
+                  <Text className="text-blue-800 font-semibold text-center">
+                    Reprendre le tracking en cours
+                  </Text>
+                </TouchableOpacity>
+              )}
               {/* Section Photos avec historique */}
               <PhotosSection
                 ref={photosSectionRef}
@@ -361,12 +422,12 @@ export default function TrackingScreen({ route }: any) {
                   </Text>
                 </View>
 
-                {/* Bouton Suivi - retour mode 1 */}
+                {/* Bouton Suivi - revenir au mode Suivi (liste) sans stopper la session */}
                 <View className="items-center flex-1">
                   <TouchableOpacity
                     onPress={() => {
-                      setSelectedSport(null);
-                      resetRecording();
+                      setShowTrackingUI(false);
+                      setStayOnSuivi(true);
                     }}
                     className="w-10 h-10 items-center justify-center mb-1"
                   >
@@ -528,8 +589,10 @@ export default function TrackingScreen({ route }: any) {
               </View>
               <Filter
                 ref={filterRef}
-                onSportSelect={(sport) => {
+                onSportSelect={async (sport) => {
                   setShowSportModal(false);
+                  // Reset complet avant de changer de sport
+                  await trackingLogic.handleNewSession();
                   setSelectedSport(sport);
                   setStoreSport(sport);
                 }}
@@ -554,6 +617,9 @@ export default function TrackingScreen({ route }: any) {
                   setSportFilterVisible(false);
                   setSelectedSport(sport);
                   setStoreSport(sport);
+                  // Quitter le mode Suivi et afficher le tracking
+                  setStayOnSuivi(false);
+                  setShowTrackingUI(true);
                 }}
                 onCloseFilter={() => setSportFilterVisible(false)}
                 autoOpen={true}

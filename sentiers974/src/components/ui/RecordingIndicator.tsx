@@ -4,7 +4,7 @@ import { useRecordingStore } from '../../store/useRecordingStore';
 import { useNavigation } from '@react-navigation/native';
 
 export default function RecordingIndicator() {
-  const { isRecording, isPaused, selectedSport } = useRecordingStore();
+  const { isRecording, isPaused } = useRecordingStore();
   const [opacity] = useState(new Animated.Value(1));
   const navigation = useNavigation();
 
@@ -36,12 +36,9 @@ export default function RecordingIndicator() {
   if (!isRecording && !isPaused) return null;
 
   const handlePress = () => {
-    if (selectedSport) {
-      navigation.navigate('Tracking' as never, { selectedSport } as never);
-    } else {
-      // Si pas de sport sélectionné, aller au mode 1
-      navigation.navigate('Tracking' as never);
-    }
+    // Ne pas passer selectedSport pour éviter la re-création des hooks GPS
+    // TrackingScreen récupérera le sport actif via trackingLogic.activeSport
+    (navigation as any).navigate('Tracking');
   };
 
   const getIndicatorContent = () => {
@@ -63,7 +60,7 @@ export default function RecordingIndicator() {
   const indicator = getIndicatorContent();
 
   return (
-    <TouchableOpacity onPress={handlePress}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={1}>
       <Animated.View style={{ opacity }}>
         <View style={{
           backgroundColor: indicator.backgroundColor,
