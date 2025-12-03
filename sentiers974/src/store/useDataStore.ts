@@ -44,6 +44,13 @@ interface POI {
   source?: 'local' | 'mongodb';
 }
 
+interface PendingSession {
+  id: string;
+  sessionData: any;
+  timestamp: number;
+  retryCount: number;
+}
+
 interface DataState {
   // Activities data
   activities: Activity[];
@@ -56,7 +63,11 @@ interface DataState {
   poisLoading: boolean;
   poisError: string | null;
   lastPoisUpdate: number | null;
-  
+
+  // Sync Queue data
+  pendingSessions: PendingSession[];
+  isSyncing: boolean;
+
   // Cache management
   cacheExpiry: number;
   
@@ -89,11 +100,18 @@ interface DataState {
   getPOIsForSession: (sessionId: string) => POI[];
   setPOIsLoading: (loading: boolean) => void;
   setPOIsError: (error: string | null) => void;
-  
+
+  // Sync Queue actions
+  addToSyncQueue: (sessionData: any) => Promise<void>;
+  removeFromSyncQueue: (id: string) => Promise<void>;
+  incrementRetry: (id: string) => Promise<void>;
+  setSyncing: (syncing: boolean) => void;
+  getPendingSessions: () => PendingSession[];
+
   // Cache management
   invalidateCache: () => void;
   isDataStale: () => boolean;
-  
+
   // Cleanup
   clearAll: () => void;
 }
@@ -113,7 +131,10 @@ export const useDataStore = create<DataState>()(
       poisLoading: false,
       poisError: null,
       lastPoisUpdate: null,
-      
+
+      pendingSessions: [],
+      isSyncing: false,
+
       cacheExpiry: CACHE_DURATION,
       
       // Activities actions
@@ -390,7 +411,47 @@ export const useDataStore = create<DataState>()(
         logger.error('Erreur POIs', error, 'DATA');
         set({ poisError: error });
       },
-      
+
+      // Sync Queue actions
+      addToSyncQueue: async (sessionData) => {
+        const newSession: PendingSession = {
+          id: `pending_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          sessionData,
+          timestamp: Date.now(),
+          retryCount: 0,
+        };
+
+        set(state => ({
+          pendingSessions: [...state.pendingSessions, newSession]
+        }));
+
+        logger.info('Session ajoutée à la sync queue', { id: newSession.id }, 'DATA');
+      },
+
+      removeFromSyncQueue: async (id) => {
+        set(state => ({
+          pendingSessions: state.pendingSessions.filter(s => s.id !== id)
+        }));
+
+        logger.info('Session retirée de la sync queue', { id }, 'DATA');
+      },
+
+      incrementRetry: async (id) => {
+        set(state => ({
+          pendingSessions: state.pendingSessions.map(s =>
+            s.id === id ? { ...s, retryCount: s.retryCount + 1 } : s
+          )
+        }));
+      },
+
+      setSyncing: (syncing) => {
+        set({ isSyncing: syncing });
+      },
+
+      getPendingSessions: () => {
+        return get().pendingSessions;
+      },
+
       // Cache management
       invalidateCache: () => {
         logger.debug('Cache invalidé', undefined, 'DATA');
@@ -436,7 +497,8 @@ export const useDataStore = create<DataState>()(
         activities: state.activities,
         lastActivitiesUpdate: state.lastActivitiesUpdate,
         pois: state.pois,
-        lastPoisUpdate: state.lastPoisUpdate
+        lastPoisUpdate: state.lastPoisUpdate,
+        pendingSessions: state.pendingSessions
       })
     }
   )
