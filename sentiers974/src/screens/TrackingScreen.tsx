@@ -341,7 +341,7 @@ export default function TrackingScreen({ route }: any) {
       <Layout
         showHomeButton={false}
         footerButtons={
-          !selectedSport || stayOnSuivi ? (
+          !showTrackingUI ? (
             <FooterNavigation
               currentPage="Tracking"
               onEnregistrer={() => {
@@ -356,7 +356,7 @@ export default function TrackingScreen({ route }: any) {
           ) : null
         }
       >
-        {!selectedSport || stayOnSuivi ? (
+        {!showTrackingUI ? (
           <ScrollView className="flex-1 bg-white">
             <View className="p-4">
               {trackingLogic.activeSport && (trackingLogic.status === "running" || trackingLogic.status === "paused") && (
