@@ -224,7 +224,7 @@ export const useDataStore = create<DataState>()(
         try {
           const [mongoPois, localPois] = await Promise.all([
             (Promise.race([
-              fetch('http://192.168.1.17:3001/api/pointofinterests'),
+              fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/pointofinterests`),
               new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
             ]) as Promise<Response>)
               .then(r => r.ok ? r.json() : [])
@@ -298,7 +298,7 @@ export const useDataStore = create<DataState>()(
               } as any);
             }
 
-            const response = await fetch('http://192.168.1.17:3001/api/sessions/' + data.sessionId + '/poi', {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${data.sessionId}/poi`, {
               method: 'POST',
               body: formData,
               signal: controller.signal,
@@ -363,7 +363,7 @@ export const useDataStore = create<DataState>()(
               const controller = new AbortController();
               const timeout = setTimeout(() => controller.abort(), 2000);
 
-              const response = await fetch(`http://192.168.1.17:3001/api/pointofinterests/${id}`, {
+              const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/pointofinterests/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 signal: controller.signal,

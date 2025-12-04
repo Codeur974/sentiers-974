@@ -2,9 +2,7 @@
 // Structure COMPLÈTE basée sur la liste exacte de randopitons.re
 
 // Production: Backend déployé sur Render avec HTTPS
-// Dev: Backend local (décommenter pour développement)
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com/api';
-// const API_BASE_URL = 'http://192.168.1.17:3001/api'; // Dev local
 
 export interface SentierReel {
   id: string;
