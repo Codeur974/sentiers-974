@@ -106,22 +106,35 @@ const mockPosts: SocialPost[] = [
 export default function HomeScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
 
   // Vérifier si l'utilisateur a déjà vu l'onboarding
-  // TEMPORAIREMENT DÉSACTIVÉ pour debug crash
-  // useEffect(() => {
-  //   const checkOnboarding = async () => {
-  //     const completed = await hasCompletedOnboarding();
-  //     setShowOnboarding(!completed);
-  //   };
-  //   checkOnboarding();
-  // }, []);
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const completed = await hasCompletedOnboarding();
+        setShowOnboarding(!completed);
+      } catch (error) {
+        console.error('Erreur vérification onboarding:', error);
+        setShowOnboarding(false); // En cas d'erreur, ne pas afficher
+      }
+    };
+    checkOnboarding();
+  }, []);
+
+  // Afficher un loader le temps de vérifier l'onboarding
+  if (showOnboarding === null) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <Text className="text-gray-600">Chargement...</Text>
+      </View>
+    );
+  }
 
   // Si onboarding nécessaire, l'afficher
-  // if (showOnboarding) {
-  //   return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
-  // }
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  }
 
   // Rendre la référence globalement accessible pour le scroll des commentaires
   React.useEffect(() => {
