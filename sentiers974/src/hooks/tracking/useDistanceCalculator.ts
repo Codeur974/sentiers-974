@@ -89,11 +89,26 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const newDist = calculateDistance(lastPoint, newPoint); // km
     const distanceMeters = newDist * 1000;
 
-    const teleportThreshold = isCourse
-      ? (coords.accuracy > 50 ? 70 : 30) // Course : encore plus tolérant pour ne pas couper la vitesse
-      : (coords.accuracy > 50 ? 50 : 20);
+    // Seuils adaptés par sport pour éviter les sauts GPS
+    const sportName = sportConfig?.nom || 'Marche';
+    const sportThresholds: Record<string, { good: number; poor: number }> = {
+      'Course': { good: 25, poor: 50 },      // Max 25m/s (90 km/h) si bon GPS
+      'Trail': { good: 20, poor: 40 },       // Max 20m/s (72 km/h)
+      'Marche': { good: 12, poor: 30 },      // Max 12m/s (43 km/h)
+      'Randonnée': { good: 12, poor: 30 },   // Max 12m/s (43 km/h)
+      'VTT': { good: 30, poor: 60 },         // Max 30m/s (108 km/h)
+      'Vélo': { good: 30, poor: 60 },        // Max 30m/s (108 km/h)
+      'Escalade': { good: 8, poor: 20 },     // Max 8m/s (29 km/h)
+      'Natation': { good: 10, poor: 25 },    // Max 10m/s (36 km/h)
+      'SUP': { good: 15, poor: 35 },         // Max 15m/s (54 km/h)
+      'Surf': { good: 40, poor: 80 },        // Max 40m/s (144 km/h)
+      'Kayak': { good: 18, poor: 40 },       // Max 18m/s (65 km/h)
+    };
+    const thresholds = sportThresholds[sportName] || { good: 12, poor: 30 };
+    const teleportThreshold = coords.accuracy && coords.accuracy > 50 ? thresholds.poor : thresholds.good;
     const maxDistPerSecond = teleportThreshold / 1000;
     if (newDist > maxDistPerSecond * Math.max(timeDiff, 1)) {
+      console.log(`🚫 Saut GPS rejeté: ${(newDist * 1000).toFixed(1)}m en ${timeDiff.toFixed(1)}s = ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
       lastCoords.current = { ...coords };
       return;
     }
