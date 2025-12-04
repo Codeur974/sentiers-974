@@ -106,20 +106,51 @@ const mockPosts: SocialPost[] = [
 export default function HomeScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
-
-  // ========================================
-  // TOUS LES HOOKS DOIVENT ÊTRE ICI EN HAUT
-  // (avant tout return conditionnel)
-  // ========================================
-
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
-  const [isFirstHomeLoad, setIsFirstHomeLoad] = useState(true);
-  const [sportFilterVisible, setSportFilterVisible] = useState(false);
-  const filterRef = useRef<FilterRef>(null);
+
+  // Vérifier si l'utilisateur a déjà vu l'onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const completed = await hasCompletedOnboarding();
+        setShowOnboarding(!completed);
+      } catch (error) {
+        console.error('Erreur vérification onboarding:', error);
+        setShowOnboarding(false); // En cas d'erreur, ne pas afficher
+      }
+    };
+    checkOnboarding();
+  }, []);
+
+  // Afficher un loader le temps de vérifier l'onboarding
+  if (showOnboarding === null) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <Text className="text-gray-600">Chargement...</Text>
+      </View>
+    );
+  }
+
+  // Si onboarding nécessaire, l'afficher
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  }
+
+  // Rendre la référence globalement accessible pour le scroll des commentaires
+  React.useEffect(() => {
+    (global as any).mainScrollRef = scrollViewRef;
+    return () => {
+      (global as any).mainScrollRef = null;
+    };
+  }, []);
 
   // Accès aux stores pour réinitialisation
   const { reset: resetLocation } = useLocationStore();
   const { reset: resetSession } = useSessionStore();
+
+  const [isFirstHomeLoad, setIsFirstHomeLoad] = useState(true);
+  const [sportFilterVisible, setSportFilterVisible] = useState(false);
+  const filterRef = useRef<FilterRef>(null);
 
   const {
     posts,
@@ -140,27 +171,6 @@ export default function HomeScreen() {
     error
   } = useSocialStore();
 
-  // Vérifier si l'utilisateur a déjà vu l'onboarding
-  useEffect(() => {
-    const checkOnboarding = async () => {
-      try {
-        const completed = await hasCompletedOnboarding();
-        setShowOnboarding(!completed);
-      } catch (error) {
-        console.error('Erreur vérification onboarding:', error);
-        setShowOnboarding(false); // En cas d'erreur, ne pas afficher
-      }
-    };
-    checkOnboarding();
-  }, []);
-
-  // Rendre la référence globalement accessible pour le scroll des commentaires
-  React.useEffect(() => {
-    (global as any).mainScrollRef = scrollViewRef;
-    return () => {
-      (global as any).mainScrollRef = null;
-    };
-  }, []);
 
   // Charger les posts au premier chargement
   React.useEffect(() => {
@@ -187,24 +197,6 @@ export default function HomeScreen() {
 
     }, [isFirstHomeLoad, resetLocation, resetSession, loadPosts])
   );
-
-  // ========================================
-  // RETURNS CONDITIONNELS APRÈS TOUS LES HOOKS
-  // ========================================
-
-  // Afficher un loader le temps de vérifier l'onboarding
-  if (showOnboarding === null) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-gray-600">Chargement...</Text>
-      </View>
-    );
-  }
-
-  // Si onboarding nécessaire, l'afficher
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
-  }
 
   // Handle sport selection and navigation
   const handleSportSelect = (sport: any) => {
@@ -334,27 +326,27 @@ export default function HomeScreen() {
           imageStyle={{ borderRadius: 0 }}
         >
           {/* Overlay sombre pour la lisibilité */}
-          <View
-            className="absolute inset-0"
-            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          <View 
+            className="absolute inset-0" 
+            style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} 
           />
-
+          
           <View className="items-center relative z-10">
-            <Text
+            <Text 
               className="text-5xl font-bold text-white mb-3 text-center"
               style={{ textShadowColor: 'rgba(0, 0, 0, 0.8)', textShadowOffset: { width: 3, height: 3 }, textShadowRadius: 6 }}
             >
               Sentiers 974
             </Text>
             <View className="flex-row items-center px-4 py-2 rounded-full mb-3" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-              <Text
+              <Text 
                 className="text-white text-xl font-bold"
                 style={{ textShadowColor: 'rgba(0, 0, 0, 0.7)', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 }}
               >
                 🏝️ La Réunion, l'île intense
               </Text>
             </View>
-            <Text
+            <Text 
               className="text-white text-center text-xl font-bold"
               style={{ textShadowColor: 'rgba(0, 0, 0, 0.7)', textShadowOffset: { width: 2, height: 2 }, textShadowRadius: 4 }}
             >
@@ -362,7 +354,7 @@ export default function HomeScreen() {
             </Text>
           </View>
         </ImageBackground>
-
+        
         <View className="px-4 bg-slate-50 flex-1">
           <LocationSection />
 
@@ -436,8 +428,8 @@ export default function HomeScreen() {
             position: 'relative',
           }}>
             {/* Bouton fermer positionné par-dessus le contenu */}
-            <TouchableOpacity
-              onPress={() => setSportFilterVisible(false)}
+            <TouchableOpacity 
+              onPress={() => setSportFilterVisible(false)} 
               style={{
                 position: 'absolute',
                 top: 8,
@@ -450,8 +442,8 @@ export default function HomeScreen() {
             >
               <Text style={{ fontSize: 18 }}>✕</Text>
             </TouchableOpacity>
-
-            <Filter
+            
+            <Filter 
               ref={filterRef}
               onSportSelect={handleSportSelect}
               onCloseFilter={() => {}}
