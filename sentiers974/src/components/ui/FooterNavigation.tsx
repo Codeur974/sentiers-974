@@ -7,12 +7,25 @@ import { useAuth } from "../../contexts/AuthContext";
 interface FooterNavigationProps {
   currentPage: "Home" | "Sports" | "Sentiers" | "Tracking" | "SentierDetail" | "Events";
   onEnregistrer?: () => void;
+  onSuivi?: () => void;
+  forceShowTrackingButton?: boolean;
 }
 
-export default function FooterNavigation({ currentPage, onEnregistrer }: FooterNavigationProps) {
+export const useSuiviNavigation = () => {
+  const navigation = useNavigation();
+  return () => (navigation as any).navigate("Tracking", { showSuiviMode: true });
+};
+
+export default function FooterNavigation({
+  currentPage,
+  onEnregistrer,
+  onSuivi,
+  forceShowTrackingButton = false,
+}: FooterNavigationProps) {
   const navigation = useNavigation();
   const { isRecording, selectedSport } = useRecordingStore();
   const { isAuthenticated } = useAuth();
+  const goToSuivi = onSuivi || useSuiviNavigation();
 
   const buttons = [
     {
@@ -71,19 +84,23 @@ export default function FooterNavigation({ currentPage, onEnregistrer }: FooterN
       key: "Tracking",
       label: "Suivi",
       emoji: "📊",
-      onPress: () => (navigation as any).navigate("Tracking", { showSuiviMode: true })
+      onPress: goToSuivi
     }
   ];
 
   // Filtrer le bouton de la page courante et masquer "Suivi" si non connecté
   const visibleButtons = buttons.filter(button => {
+    // Cacher "Enregistrer" pendant un enregistrement en cours
+    if (button.key === "Enregistrer" && isRecording) {
+      return false;
+    }
     // Masquer uniquement "Suivi" si l'utilisateur n'est pas connecté
     // "Enregistrer" reste visible et redirigera vers connexion
     if (!isAuthenticated && button.key === "Tracking") {
       return false;
     }
 
-    if (currentPage === "Tracking") {
+    if (currentPage === "Tracking" && !forceShowTrackingButton) {
       // Sur la page Tracking, on cache "Suivi" mais on garde "Enregistrer"
       return button.key !== "Tracking";
     }
