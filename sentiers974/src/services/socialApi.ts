@@ -1,9 +1,7 @@
 import { SocialPost, CreatePostData } from '../types/social';
 
 // Production: Backend déployé sur Render avec HTTPS
-// Dev: Backend local (décommenter pour développement)
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com';
-// const API_BASE_URL = 'http://192.168.1.17:3001'; // Dev local
 
 interface ApiResponse<T> {
   success: boolean;

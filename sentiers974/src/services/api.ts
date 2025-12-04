@@ -125,17 +125,6 @@ class ApiService {
 
   // Obtenir toutes les activités de l'utilisateur
   async getUserActivities() {
-    // Test de connexion backend d'abord
-    try {
-      console.log('🔌 Test connexion backend...');
-      const testResponse = await fetch(`http://192.168.1.17:3001/`);
-      const testResult = await testResponse.text();
-      console.log('✅ Backend accessible:', testResult);
-    } catch (error) {
-      console.error('❌ Backend inaccessible:', error);
-      return { success: false, message: 'Backend inaccessible' };
-    }
-    
     return this.request('/activities');
   }
 
