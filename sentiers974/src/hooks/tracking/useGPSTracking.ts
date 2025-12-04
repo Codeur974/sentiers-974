@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import * as Location from 'expo-location';
 import { useLocationStore } from '../../store/useLocationStore';
+import { Alert, Linking, Platform } from 'react-native';
 
 /**
  * Hook GPS "style Strava" :
@@ -32,6 +33,26 @@ export const useGPSTracking = (_sportConfig: any) => {
         setError('Permission GPS requise pour le tracking');
         setPermission(false);
         setIsLocating(false);
+
+        // Afficher un message guide pour activer le GPS dans les paramètres
+        Alert.alert(
+          '📍 Permission GPS refusée',
+          'Pour enregistrer vos parcours sportifs, l\'application a besoin d\'accéder à votre position GPS.\n\nVeuillez activer la permission dans les paramètres de votre appareil.',
+          [
+            { text: 'Plus tard', style: 'cancel' },
+            {
+              text: 'Ouvrir Paramètres',
+              onPress: () => {
+                if (Platform.OS === 'ios') {
+                  Linking.openURL('app-settings:');
+                } else {
+                  Linking.openSettings();
+                }
+              }
+            }
+          ]
+        );
+
         return false;
       }
       setPermission(true);

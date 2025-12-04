@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
+import apiService from '../services/api';
 
 /**
  * ⚙️ ÉCRAN DE PROFIL / PARAMÈTRES
@@ -58,11 +59,37 @@ export default function ProfileScreen() {
           text: 'Supprimer',
           style: 'destructive',
           onPress: async () => {
-            // TODO: Implémenter la suppression du compte
-            Alert.alert(
-              'Fonctionnalité à venir',
-              'La suppression de compte sera disponible prochainement'
-            );
+            try {
+              // Appel à l'API pour suppression complète (RGPD)
+              const result = await apiService.deleteAccount();
+
+              if (result.success) {
+                // Déconnecter l'utilisateur localement
+                await logout();
+
+                Alert.alert(
+                  'Compte supprimé',
+                  `Votre compte et ${result.data?.deletedSessions || 0} session(s) ont été supprimés définitivement.`,
+                  [
+                    {
+                      text: 'OK',
+                      onPress: () => navigation.navigate('Home' as never)
+                    }
+                  ]
+                );
+              } else {
+                Alert.alert(
+                  'Erreur',
+                  result.message || 'Impossible de supprimer le compte. Veuillez réessayer.'
+                );
+              }
+            } catch (error) {
+              console.error('❌ Erreur suppression compte:', error);
+              Alert.alert(
+                'Erreur',
+                'Une erreur est survenue lors de la suppression du compte.'
+              );
+            }
           }
         }
       ]
