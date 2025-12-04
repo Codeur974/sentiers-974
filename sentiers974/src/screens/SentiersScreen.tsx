@@ -222,6 +222,7 @@ export default function SentiersScreen() {
       <FlatList
         data={filteredSentiers}
         keyExtractor={(item) => item.id}
+        extraData={filteredSentiers.length}
         showsVerticalScrollIndicator={false}
         className="flex-1 bg-gray-50"
         ListHeaderComponent={() => (
