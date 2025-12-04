@@ -5,7 +5,7 @@ import React, {
   forwardRef,
   useRef,
 } from "react";
-import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator } from "react-native";
+import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator, DeviceEventEmitter } from "react-native";
 import { usePOIs } from '../../store/useDataStore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiService from "../../services/api";
@@ -152,6 +152,18 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         reloadPois();
       }
     }, [isVisible]);
+
+    // Écouter l'event sessionSaved pour recharger automatiquement
+    useEffect(() => {
+      const subscription = DeviceEventEmitter.addListener('sessionSaved', (data) => {
+        console.log('📢 PhotosSection: Event sessionSaved reçu', data);
+        handleRefresh();
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, []);
 
     // Effet pour désactiver la sélection quand toutes les sections sont fermées
     useEffect(() => {
@@ -568,10 +580,51 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
             })
           );
 
+          // Fusionner avec les données locales (Phase 1) pour éviter de perdre les données quand MongoDB échoue
+          console.log(`🔄 Début fusion - Remote: ${remoteGroups.length} groupes, Local: ${photoGroups.length} groupes`);
+
+          const mergedGroups = remoteGroups.map((remoteGroup) => {
+            const localGroup = photoGroups.find((g) => g.date === remoteGroup.date);
+
+            const remoteSessions = remoteGroup.sessionGroups?.length || 0;
+            const localSessions = localGroup?.sessionGroups?.length || 0;
+
+            console.log(`🔄 Date ${remoteGroup.date}: Remote ${remoteSessions} sessions, Local ${localSessions} sessions`);
+
+            // Si local a plus de sessions que MongoDB, garder local (car MongoDB peut avoir échoué ou être incomplet)
+            if (localSessions > remoteSessions) {
+              console.log(`✅ Merge: Garder ${localSessions} sessions locales pour ${remoteGroup.date} (local > remote)`);
+              return localGroup;
+            }
+
+            // Sinon utiliser les données MongoDB (même nombre ou MongoDB a plus)
+            if (remoteSessions > 0) {
+              console.log(`✅ Merge: Utiliser ${remoteSessions} sessions MongoDB pour ${remoteGroup.date}`);
+            }
+            return remoteGroup;
+          });
+
+          // Ajouter les groupes locaux qui n'existent pas dans MongoDB
+          photoGroups.forEach((localGroup) => {
+            const existsInRemote = mergedGroups.some((g) => g.date === localGroup.date);
+            const localSessions = localGroup.sessionGroups?.length || 0;
+
+            if (!existsInRemote && localSessions > 0) {
+              console.log(`✅ Merge: Ajouter groupe local ${localGroup.date} avec ${localSessions} sessions (absent de MongoDB)`);
+              mergedGroups.push(localGroup);
+            }
+          });
+
           // Trier par date
-          const sortedGroups = remoteGroups.sort(
+          const sortedGroups = mergedGroups.sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           );
+
+          console.log(`✅ Merge terminé: ${sortedGroups.length} groupes de dates`);
+          sortedGroups.forEach(group => {
+            const sessions = group.sessionGroups?.length || 0;
+            console.log(`  - ${group.date}: ${sessions} sessions`);
+          });
 
           setPhotoGroups(sortedGroups);
         } catch (error) {

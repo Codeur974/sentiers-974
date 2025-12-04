@@ -433,44 +433,68 @@ export const useTrackingLogic = (selectedSport: any) => {
   const handleResumeTracking = () => resume();
 
   const handleStopTracking = async () => {
-    stop();
-    gpsTracking.stopGPSTracking();
     const finalDuration = getDuration();
+
+    // 1ère confirmation : Arrêter le tracking ?
     Alert.alert(
-      "Enregistrer la session ?",
-      `Durée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
+      "Arrêter le tracking ?",
+      `Voulez-vous vraiment arrêter votre session ?\n\nDurée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
       [
         {
-          text: "Non",
+          text: "Annuler",
           style: "cancel",
-          onPress: async () => {
-            console.log('❌ Utilisateur a cliqué NON - Suppression session');
-            await persistence.clearSession();
-            await clearSnapshot();
-            resetTracking();
-            setHydratedSport(null);
+          onPress: () => {
+            console.log('↩️ Utilisateur a annulé l\'arrêt - Continue le tracking');
           }
         },
         {
-          text: "Oui",
+          text: "Arrêter",
+          style: "destructive",
           onPress: async () => {
-            console.log('✅ Utilisateur a cliqué OUI - Sauvegarde session');
-            await persistence.saveSession({
-              sport: activeSport,
-              distance: distanceCalc.distance,
-              duration: finalDuration,
-              calories: calculateCalories(),
-              avgSpeed: avgSpeed,
-              maxSpeed: distanceCalc.maxSpeed,
-              steps: steps,
-              trackingPath: distanceCalc.trackingPath,
-              elevationGain: elevation.elevationGain,
-              elevationLoss: elevation.elevationLoss
-            });
-            await clearSnapshot();
-            console.log('💾 Session sauvegardée');
-            resetTracking();
-            setHydratedSport(null);
+            console.log('⏹️ Utilisateur confirme l\'arrêt');
+            stop();
+            gpsTracking.stopGPSTracking();
+
+            // 2ème confirmation : Enregistrer la session ?
+            Alert.alert(
+              "Enregistrer la session ?",
+              `Souhaitez-vous sauvegarder cette session ?\n\nDurée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
+              [
+                {
+                  text: "Non",
+                  style: "cancel",
+                  onPress: async () => {
+                    console.log('❌ Utilisateur a cliqué NON - Suppression session');
+                    await persistence.clearSession();
+                    await clearSnapshot();
+                    resetTracking();
+                    setHydratedSport(null);
+                  }
+                },
+                {
+                  text: "Oui",
+                  onPress: async () => {
+                    console.log('✅ Utilisateur a cliqué OUI - Sauvegarde session');
+                    await persistence.saveSession({
+                      sport: activeSport,
+                      distance: distanceCalc.distance,
+                      duration: finalDuration,
+                      calories: calculateCalories(),
+                      avgSpeed: avgSpeed,
+                      maxSpeed: distanceCalc.maxSpeed,
+                      steps: steps,
+                      trackingPath: distanceCalc.trackingPath,
+                      elevationGain: elevation.elevationGain,
+                      elevationLoss: elevation.elevationLoss
+                    });
+                    await clearSnapshot();
+                    console.log('💾 Session sauvegardée');
+                    resetTracking();
+                    setHydratedSport(null);
+                  }
+                }
+              ]
+            );
           }
         }
       ]
