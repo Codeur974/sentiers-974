@@ -109,18 +109,19 @@ export default function HomeScreen() {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Vérifier si l'utilisateur a déjà vu l'onboarding
-  useEffect(() => {
-    const checkOnboarding = async () => {
-      const completed = await hasCompletedOnboarding();
-      setShowOnboarding(!completed);
-    };
-    checkOnboarding();
-  }, []);
+  // TEMPORAIREMENT DÉSACTIVÉ pour debug crash
+  // useEffect(() => {
+  //   const checkOnboarding = async () => {
+  //     const completed = await hasCompletedOnboarding();
+  //     setShowOnboarding(!completed);
+  //   };
+  //   checkOnboarding();
+  // }, []);
 
   // Si onboarding nécessaire, l'afficher
-  if (showOnboarding) {
-    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
-  }
+  // if (showOnboarding) {
+  //   return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  // }
 
   // Rendre la référence globalement accessible pour le scroll des commentaires
   React.useEffect(() => {
