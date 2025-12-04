@@ -56,6 +56,7 @@ export default function App() {
             component={HomeScreen}
             options={({ navigation }) => ({
               title: "Accueil",
+              headerBackVisible: false,
               headerRight: () => (
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <RecordingIndicator />

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { ScrollView, Text, TouchableOpacity, View, Modal } from "react-native";
 import Layout from "../components/ui/Layout";
 import { useRecordingStore } from "../store/useRecordingStore";
@@ -38,12 +38,13 @@ export default function TrackingScreen({ route }: any) {
   const filterRef = useRef<FilterRef>(null);
   const navigation = useNavigation();
   const { setRecording, setPaused, resetRecording, setSelectedSport: setStoreSport } = useRecordingStore();
+
   const [showTrackingUI, setShowTrackingUI] = useState(!!selectedSport);
   const [stayOnSuivi, setStayOnSuivi] = useState(false);
   const hasOpenedSportSelection = useRef(false);
 
   useEffect(() => {
-    // Réhydratation : récupérer le sport actif, mais ne pas forcer l'affichage tracking si on est en mode Suivi
+    // RÃ©hydratation : rÃ©cupÃ©rer le sport actif, mais ne pas forcer l'affichage tracking si on est en mode Suivi
     if (stayOnSuivi) return;
     if (!selectedSport && trackingLogic.activeSport) {
       setSelectedSport(trackingLogic.activeSport);
@@ -51,20 +52,21 @@ export default function TrackingScreen({ route }: any) {
     }
   }, [selectedSport, trackingLogic.activeSport, setStoreSport, stayOnSuivi]);
 
-  // Si un sport est sélectionné manuellement (ou via la modale), forcer l'affichage du tracking
+  // Si un sport est sÃ©lectionnÃ© manuellement (ou via la modale), forcer l'affichage du tracking
   useEffect(() => {
+    if (stayOnSuivi) return;
     if (selectedSport && !showTrackingUI) {
       setShowTrackingUI(true);
     }
-  }, [selectedSport, showTrackingUI]);
+  }, [selectedSport, showTrackingUI, stayOnSuivi]);
 
-  // Mettre à jour le header selon l'état actuel (sport choisi ou non)
+  // Mettre Ã  jour le header selon l'Ã©tat actuel (sport choisi ou non)
   useEffect(() => {
-    const enSession = !!selectedSport;
+    const enSession = !!selectedSport && !stayOnSuivi;
     navigation.setOptions({
       title: enSession ? "Session en cours" : "Mon Suivi",
     } as never);
-  }, [navigation, selectedSport]);
+  }, [navigation, selectedSport, stayOnSuivi]);
 
   // Sauvegarder le sport dans le store quand il change
   useEffect(() => {
@@ -73,28 +75,29 @@ export default function TrackingScreen({ route }: any) {
     }
   }, [selectedSport, setStoreSport]);
 
-  // Détecter les changements de paramètres de route
+  // DÃ©tecter les changements de paramÃ¨tres de route
   useEffect(() => {
     if (route?.params?.selectedSport && route.params.selectedSport !== selectedSport) {
       setSelectedSport(route.params.selectedSport);
     }
-    // Ouvrir automatiquement la sélection de sport si demandé (une seule fois)
+    // Ouvrir automatiquement la sÃ©lection de sport si demandÃ© (une seule fois)
     if (route?.params?.openSportSelection && !hasOpenedSportSelection.current) {
       setSportFilterVisible(true);
       hasOpenedSportSelection.current = true;
     }
-    // Si showSuiviMode est passé, forcer l'affichage du mode Suivi
-    if (route?.params?.showSuiviMode) {
+    // Si showSuiviMode est passé, gérer l'affichage
+    if (route?.params?.showSuiviMode === true) {
+      // Mode Suivi demandé explicitement
       setStayOnSuivi(true);
       setShowTrackingUI(false);
-    } else if (route?.params?.showSuiviMode === undefined && trackingLogic.activeSport) {
-      // Si on arrive sans paramètre showSuiviMode et qu'un tracking est actif, afficher le tracking
+    } else if (route?.params?.showSuiviMode === false && trackingLogic.activeSport) {
+      // Mode Tracking demandé explicitement (depuis RecordingIndicator)
       setStayOnSuivi(false);
       setShowTrackingUI(true);
     }
   }, [route?.params?.selectedSport, route?.params?.openSportSelection, route?.params?.showSuiviMode, trackingLogic.activeSport]);
 
-  // Synchroniser l'état d'enregistrement avec l'indicateur global
+  // Synchroniser l'Ã©tat d'enregistrement avec l'indicateur global
   useEffect(() => {
     const isRecording = trackingLogic.status === "running";
     const isPaused = trackingLogic.status === "paused";
@@ -102,10 +105,10 @@ export default function TrackingScreen({ route }: any) {
     setRecording(isRecording);
     setPaused(isPaused);
 
-    // Si arrêt complet, reset tout
+    // Si arrÃªt complet, reset tout
     if (trackingLogic.status === "stopped" || trackingLogic.status === "idle") {
       resetRecording();
-      // Fermer aussi la fenêtre de capture des moments quand la session s'arrête
+      // Fermer aussi la fenÃªtre de capture des moments quand la session s'arrÃªte
       setShowTrackingFooter(false);
     }
   }, [trackingLogic.status, setRecording, setPaused, resetRecording]);
@@ -121,9 +124,9 @@ export default function TrackingScreen({ route }: any) {
     setStoreSport(sport); // Sauvegarder dans le store global
   };
 
-  // Fonction appelée depuis PhotosSection pour créer un post avec photos sélectionnées
+  // Fonction appelÃ©e depuis PhotosSection pour crÃ©er un post avec photos sÃ©lectionnÃ©es
   const handleCreatePostFromPhotos = (photos: any[]) => {
-    console.log('📱 TrackingScreen: Création post avec', photos.length, 'photos');
+    console.log('ðŸ“± TrackingScreen: CrÃ©ation post avec', photos.length, 'photos');
 
     // Convertir les PhotoItem vers SocialPhoto format
     const socialPhotos: SocialPhoto[] = photos.map((photo, index) => ({
@@ -136,7 +139,7 @@ export default function TrackingScreen({ route }: any) {
     showCreatePostModal();
   };
 
-  // Gérer la soumission du post depuis le modal
+  // GÃ©rer la soumission du post depuis le modal
   const handleSubmitPost = (postData: any) => {
     if (editingPost) {
       updatePost(editingPost.id, postData);
@@ -150,7 +153,7 @@ export default function TrackingScreen({ route }: any) {
     // Interaction avec les photos
   };
 
-  // Icônes de tracking dans le footer
+  // IcÃ´nes de tracking dans le footer
   const getFooterButtons = () => {
     if (!selectedSport) {
       // Mode 1: Afficher les boutons de navigation (tous sauf Suivi)
@@ -162,24 +165,26 @@ export default function TrackingScreen({ route }: any) {
             <TouchableOpacity
               onPress={() => navigation.navigate("Home")}
               className="w-10 h-10 items-center justify-center mb-1"
+              activeOpacity={1}
             >
-              <Text className="text-base">🏠</Text>
+              <Text className="text-base">ðŸ </Text>
             </TouchableOpacity>
             <Text className="text-gray-700 text-xs font-medium">
               Accueil
             </Text>
           </View>
 
-          {/* Bouton Événements */}
+          {/* Bouton Ã‰vÃ©nements */}
           <View className="items-center flex-1">
             <TouchableOpacity
               onPress={() => navigation.navigate("Sports")}
               className="w-10 h-10 items-center justify-center mb-1"
+              activeOpacity={1}
             >
-              <Text className="text-base">🏃</Text>
+              <Text className="text-base">ðŸƒ</Text>
             </TouchableOpacity>
             <Text className="text-gray-700 text-xs font-medium">
-              Événement
+              Ã‰vÃ©nement
             </Text>
           </View>
 
@@ -188,8 +193,9 @@ export default function TrackingScreen({ route }: any) {
             <TouchableOpacity
               onPress={() => navigation.navigate("Sentiers")}
               className="w-10 h-10 items-center justify-center mb-1"
+              activeOpacity={1}
             >
-              <Text className="text-base">🥾</Text>
+              <Text className="text-base">ðŸ¥¾</Text>
             </TouchableOpacity>
             <Text className="text-gray-700 text-xs font-medium">
               Sentiers
@@ -201,8 +207,9 @@ export default function TrackingScreen({ route }: any) {
             <TouchableOpacity
               onPress={() => setSportFilterVisible(true)}
               className="w-10 h-10 items-center justify-center mb-1"
+              activeOpacity={1}
             >
-              <Text className="text-base">📝</Text>
+              <Text className="text-base">ðŸ“</Text>
             </TouchableOpacity>
             <Text className="text-gray-700 text-xs font-medium">
               Enregistrer
@@ -214,13 +221,14 @@ export default function TrackingScreen({ route }: any) {
 
     return (
       <View className="flex-row justify-center space-x-4">
-        {/* Démarrer/Pause/Reprendre */}
+        {/* DÃ©marrer/Pause/Reprendre */}
         {trackingLogic.status === "idle" && (
           <TouchableOpacity
             onPress={trackingLogic.handleStartTracking}
             className="bg-green-600 p-3 rounded-full"
+            activeOpacity={1}
           >
-            <Text className="text-white text-xl">▶️</Text>
+            <Text className="text-white text-xl">â–¶ï¸</Text>
           </TouchableOpacity>
         )}
         
@@ -228,8 +236,9 @@ export default function TrackingScreen({ route }: any) {
           <TouchableOpacity
             onPress={trackingLogic.handlePauseTracking}
             className="bg-orange-600 p-3 rounded-full"
+            activeOpacity={1}
           >
-            <Text className="text-white text-xl">⏸️</Text>
+            <Text className="text-white text-xl">â¸ï¸</Text>
           </TouchableOpacity>
         )}
         
@@ -237,76 +246,82 @@ export default function TrackingScreen({ route }: any) {
           <TouchableOpacity
             onPress={trackingLogic.handleResumeTracking}
             className="bg-blue-600 p-3 rounded-full"
+            activeOpacity={1}
           >
-            <Text className="text-white text-xl">▶️</Text>
+            <Text className="text-white text-xl">â–¶ï¸</Text>
           </TouchableOpacity>
         )}
         
-        {/* Split manuel - affiché seulement en cours */}
+        {/* Split manuel - affichÃ© seulement en cours */}
         {trackingLogic.status === "running" && (
           <TouchableOpacity
             onPress={trackingLogic.handleManualSplit}
             className="bg-blue-500 p-3 rounded-full"
+            activeOpacity={1}
           >
-            <Text className="text-white text-xl">⏱️</Text>
+            <Text className="text-white text-xl">â±ï¸</Text>
           </TouchableOpacity>
         )}
         
-        {/* Stop - affiché quand en cours ou en pause */}
+        {/* Stop - affichÃ© quand en cours ou en pause */}
         {(trackingLogic.status === "running" || trackingLogic.status === "paused") && (
           <TouchableOpacity
             onPress={trackingLogic.handleStopTracking}
             className="bg-red-600 p-3 rounded-full"
+            activeOpacity={1}
           >
-            <Text className="text-white text-xl">⏹️</Text>
+            <Text className="text-white text-xl">â¹ï¸</Text>
           </TouchableOpacity>
         )}
         
-        {/* Nouvelle session - après arrêt */}
+        {/* Nouvelle session - aprÃ¨s arrÃªt */}
         {trackingLogic.status === "stopped" && (
           <>
             <TouchableOpacity
               onPress={trackingLogic.handleNewSession}
               className="bg-green-600 p-3 rounded-full"
+              activeOpacity={1}
             >
-              <Text className="text-white text-xl">🔄</Text>
+              <Text className="text-white text-xl">ðŸ”„</Text>
             </TouchableOpacity>
 
             {trackingLogic.handleExportGPX && (
               <TouchableOpacity
                 onPress={() => {
-                  console.log('📤 Bouton Export GPX cliqué');
+                  console.log('ðŸ"¤ Bouton Export GPX cliquÃ©');
                   trackingLogic.handleExportGPX();
                 }}
                 className="bg-blue-600 p-3 rounded-full"
+                activeOpacity={1}
               >
-                <Text className="text-white text-xl">📤</Text>
+                <Text className="text-white text-xl">ðŸ“¤</Text>
               </TouchableOpacity>
             )}
 
             <TouchableOpacity
               onPress={handleBackToSelection}
               className="bg-gray-600 p-3 rounded-full"
+              activeOpacity={1}
             >
-              <Text className="text-white text-xl">⚽</Text>
+              <Text className="text-white text-xl">âš½</Text>
             </TouchableOpacity>
           </>
         )}
         
-        {/* Toujours présent : retour sélection */}
+        {/* Toujours prÃ©sent : retour sÃ©lection */}
         {trackingLogic.status === "idle" && (
           <TouchableOpacity
             onPress={handleBackToSelection}
             className="bg-gray-600 p-3 rounded-full"
           >
-            <Text className="text-white text-xl">⚽</Text>
+            <Text className="text-white text-xl">âš½</Text>
           </TouchableOpacity>
         )}
       </View>
     );
   };
 
-  // Si l'utilisateur n'est pas connecté, afficher uniquement le message de connexion
+  // Si l'utilisateur n'est pas connectÃ©, afficher uniquement le message de connexion
   if (!isAuthenticated) {
     return (
       <View className="flex-1">
@@ -316,16 +331,17 @@ export default function TrackingScreen({ route }: any) {
         >
           <View className="flex-1 bg-white justify-center items-center p-4">
             <View className="bg-blue-50 rounded-2xl p-8 items-center max-w-md">
-              <Text className="text-6xl mb-4">🔒</Text>
+              <Text className="text-6xl mb-4">ðŸ”’</Text>
               <Text className="text-xl font-bold text-gray-900 mb-2 text-center">
                 Connexion requise
               </Text>
               <Text className="text-gray-600 text-center mb-6">
-                Connectez-vous pour accéder à vos sessions de tracking, votre historique et vos photos sportives.
+                Connectez-vous pour accÃ©der Ã  vos sessions de tracking, votre historique et vos photos sportives.
               </Text>
               <TouchableOpacity
                 onPress={() => navigation.navigate("Profile" as never)}
                 className="bg-blue-500 px-8 py-4 rounded-full"
+                activeOpacity={1}
               >
                 <Text className="text-white font-semibold text-lg">Se connecter</Text>
               </TouchableOpacity>
@@ -344,14 +360,7 @@ export default function TrackingScreen({ route }: any) {
           !showTrackingUI ? (
             <FooterNavigation
               currentPage="Tracking"
-              onEnregistrer={() => {
-                // Toujours ouvrir la sélection de sport depuis le bouton Enregistrer
-                setSportFilterVisible(true);
-              }}
-              onSuivi={() => {
-                setStayOnSuivi(true);
-                setShowTrackingUI(false);
-              }}
+              forceShowTrackingButton={true}
             />
           ) : null
         }
@@ -364,8 +373,11 @@ export default function TrackingScreen({ route }: any) {
                   onPress={() => {
                     setStayOnSuivi(false);
                     setShowTrackingUI(true);
+                    // Mettre à jour les route params pour que RecordingIndicator détecte le changement
+                    navigation.setParams({ showSuiviMode: false } as never);
                   }}
                   className="bg-blue-100 border border-blue-300 rounded-xl p-4 mb-4"
+                  activeOpacity={1}
                 >
                   <Text className="text-blue-800 font-semibold text-center">
                     Reprendre le tracking en cours
@@ -383,7 +395,7 @@ export default function TrackingScreen({ route }: any) {
           </ScrollView>
         ) : (
           <View className="flex-1">
-            {/* Carte GPS ultra-précise en arrière-plan */}
+            {/* Carte GPS ultra-prÃ©cise en arriÃ¨re-plan */}
             <EnhancedMapView
               coords={trackingLogic.coords}
               address={trackingLogic.address}
@@ -394,7 +406,7 @@ export default function TrackingScreen({ route }: any) {
               showControls={true}
             />
             
-            {/* Barre d'informations flottante complète */}
+            {/* Barre d'informations flottante complÃ¨te */}
             <FloatingTrackingControls
               selectedSport={selectedSport}
               trackingLogic={trackingLogic}
@@ -409,31 +421,31 @@ export default function TrackingScreen({ route }: any) {
                   <TouchableOpacity
                     onPress={() => navigation.navigate("Home")}
                     className="w-10 h-10 items-center justify-center mb-1"
+                    activeOpacity={1}
                   >
                     <Text className="text-base">🏠</Text>
                   </TouchableOpacity>
-                  <Text className="text-gray-700 text-xs font-medium">
-                    Accueil
-                  </Text>
+                  <Text className="text-gray-700 text-xs font-medium">Accueil</Text>
                 </View>
 
-                {/* Bouton Suivi - revenir au mode Suivi (liste) sans stopper la session */}
+                {/* Bouton Suivi */}
                 <View className="items-center flex-1">
                   <TouchableOpacity
                     onPress={() => {
                       setShowTrackingUI(false);
                       setStayOnSuivi(true);
+                      // Mettre à jour les route params pour que RecordingIndicator détecte le changement
+                      navigation.setParams({ showSuiviMode: true } as never);
                     }}
                     className="w-10 h-10 items-center justify-center mb-1"
+                    activeOpacity={1}
                   >
                     <Text className="text-base">📊</Text>
                   </TouchableOpacity>
-                  <Text className="text-gray-700 text-xs font-medium">
-                    Suivi
-                  </Text>
+                  <Text className="text-gray-700 text-xs font-medium">Suivi</Text>
                 </View>
 
-                {/* Bouton Photos - POI et Photos */}
+                {/* Bouton Photos */}
                 <View className="items-center flex-1">
                   <TouchableOpacity
                     onPress={() => setShowTrackingFooter(!showTrackingFooter)}
@@ -457,6 +469,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleManualSplit}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">🚩</Text>
                     </TouchableOpacity>
@@ -472,6 +485,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleExportGPX}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">📤</Text>
                     </TouchableOpacity>
@@ -487,6 +501,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleStartTracking}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">▶️</Text>
                     </TouchableOpacity>
@@ -496,6 +511,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handlePauseTracking}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">⏸️</Text>
                     </TouchableOpacity>
@@ -505,6 +521,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleResumeTracking}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">▶️</Text>
                     </TouchableOpacity>
@@ -514,8 +531,9 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleNewSession}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
-                      <Text className="text-base">🔄</Text>
+                      <Text className="text-base">🆕</Text>
                     </TouchableOpacity>
                   )}
 
@@ -533,8 +551,9 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={trackingLogic.handleStopTracking}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
-                      <Text className="text-lg text-red-500">■</Text>
+                      <Text className="text-base text-red-600">⏹️</Text>
                     </TouchableOpacity>
                   )}
 
@@ -542,6 +561,7 @@ export default function TrackingScreen({ route }: any) {
                     <TouchableOpacity
                       onPress={() => setShowSportModal(true)}
                       className="w-10 h-10 items-center justify-center mb-1"
+                      activeOpacity={1}
                     >
                       <Text className="text-base">🔄</Text>
                     </TouchableOpacity>
@@ -553,6 +573,7 @@ export default function TrackingScreen({ route }: any) {
                 </View>
               </View>
             </View>
+
 
             {/* Footer de tracking pour POI et photos */}
             <TrackingFooter
@@ -578,8 +599,9 @@ export default function TrackingScreen({ route }: any) {
                 <TouchableOpacity
                   onPress={() => setShowSportModal(false)}
                   className="p-2"
+                  activeOpacity={1}
                 >
-                  <Text className="text-lg">✕</Text>
+                  <Text className="text-lg">âœ•</Text>
                 </TouchableOpacity>
               </View>
               <Filter
@@ -598,7 +620,7 @@ export default function TrackingScreen({ route }: any) {
           </View>
         </Modal>
 
-        {/* Modal pour sélection de sport depuis le bouton Enregistrer */}
+        {/* Modal pour sÃ©lection de sport depuis le bouton Enregistrer */}
         <Modal
           visible={sportFilterVisible}
           animationType="slide"
@@ -624,7 +646,7 @@ export default function TrackingScreen({ route }: any) {
           </View>
         </Modal>
 
-        {/* Modal pour créer un post social depuis les photos */}
+        {/* Modal pour crÃ©er un post social depuis les photos */}
         <CreatePostModal
           visible={createPostModalVisible}
           onClose={hideCreatePostModal}
@@ -636,3 +658,5 @@ export default function TrackingScreen({ route }: any) {
     </View>
   );
 }
+
+
