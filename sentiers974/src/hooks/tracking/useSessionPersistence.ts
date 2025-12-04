@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDataStore } from '../../store/useDataStore';
+import { DeviceEventEmitter } from 'react-native';
 
 // Utiliser la variable d'environnement du .env
 const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
@@ -176,6 +177,10 @@ export const useSessionPersistence = () => {
     if (!localStatsUpdated) {
       await updateLocalStats();
     }
+
+    // Émettre un event pour notifier que la session a été sauvegardée
+    DeviceEventEmitter.emit('sessionSaved', { sessionId, date: today });
+    console.log('📢 Event sessionSaved émis');
   };
 
   // Supprimer session

@@ -148,7 +148,7 @@ export default function HomeScreen() {
         setShowOnboarding(!completed);
       } catch (error) {
         console.error('Erreur vérification onboarding:', error);
-        setShowOnboarding(false); // En cas d'erreur, ne pas afficher
+        setShowOnboarding(false);
       }
     };
     checkOnboarding();
@@ -156,9 +156,9 @@ export default function HomeScreen() {
 
   // Rendre la référence globalement accessible pour le scroll des commentaires
   React.useEffect(() => {
-    (global as any).mainScrollRef = scrollViewRef;
+    (globalThis as any).mainScrollRef = scrollViewRef;
     return () => {
-      (global as any).mainScrollRef = null;
+      (globalThis as any).mainScrollRef = null;
     };
   }, []);
 
@@ -203,7 +203,16 @@ export default function HomeScreen() {
 
   // Si onboarding nécessaire, l'afficher
   if (showOnboarding) {
-    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+    return (
+      <OnboardingScreen
+        onComplete={() => setShowOnboarding(false)}
+        onNavigateToSignup={() => {
+          setShowOnboarding(false);
+          // @ts-ignore - Navigation vers Signup depuis onboarding
+          navigation.navigate('Signup');
+        }}
+      />
+    );
   }
 
   // Handle sport selection and navigation
