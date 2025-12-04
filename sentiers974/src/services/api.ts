@@ -23,41 +23,70 @@ class ApiService {
     this.baseURL = baseURL;
   }
 
-  // Méthode générique pour les requêtes
+  // Méthode générique pour les requêtes avec retry automatique
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retries: number = 3
   ): Promise<ApiResponse<T>> {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      
-      const config: RequestInit = {
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-          ...options.headers,
-        },
-      };
+    let lastError: Error | null = null;
 
-      const response = await fetch(`${this.baseURL}${endpoint}`, config);
-      const data = await response.json();
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const token = await AsyncStorage.getItem('userToken');
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Erreur API');
+        const config: RequestInit = {
+          ...options,
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { Authorization: `Bearer ${token}` }),
+            ...options.headers,
+          },
+        };
+
+        const response = await fetch(`${this.baseURL}${endpoint}`, config);
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Erreurs 4xx ne doivent pas être retryées
+          if (response.status >= 400 && response.status < 500) {
+            return {
+              success: false,
+              message: data.message || `Erreur ${response.status}`,
+            };
+          }
+          throw new Error(data.message || 'Erreur serveur');
+        }
+
+        return {
+          success: true,
+          data: data,
+        };
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Erreur inconnue');
+
+        // Si c'est le dernier essai, on retourne l'erreur
+        if (attempt === retries) {
+          break;
+        }
+
+        // Attendre avant de réessayer (backoff exponentiel)
+        const delayMs = Math.min(1000 * Math.pow(2, attempt), 5000);
+        console.log(`⚠️ Tentative ${attempt + 1}/${retries + 1} échouée, retry dans ${delayMs}ms...`);
+        await new Promise<void>(resolve => setTimeout(() => resolve(), delayMs));
       }
-
-      return {
-        success: true,
-        data: data,
-      };
-    } catch (error) {
-      console.error('Erreur API:', error);
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : 'Erreur inconnue',
-      };
     }
+
+    // Message d'erreur amélioré
+    const userFriendlyMessage = lastError?.message.includes('fetch')
+      ? 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.'
+      : lastError?.message || 'Une erreur est survenue';
+
+    console.error('❌ Erreur API après tous les retries:', lastError);
+    return {
+      success: false,
+      message: userFriendlyMessage,
+    };
   }
 
   // ===== ACTIVITÉS =====
@@ -267,6 +296,31 @@ class ApiService {
     return await AsyncStorage.getItem('userId');
   }
 
+  // Supprimer le compte utilisateur et toutes ses données (RGPD)
+  async deleteAccount() {
+    try {
+      // La route backend nécessite un token valide dans le header
+      const response = await this.request('/auth/account', {
+        method: 'DELETE'
+      });
+
+      if (response.success) {
+        // Nettoyer le stockage local après suppression réussie
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userId');
+        await AsyncStorage.removeItem('authToken');
+      }
+
+      return response;
+    } catch (error) {
+      console.error('❌ Erreur suppression compte:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Erreur suppression compte'
+      };
+    }
+  }
+
   // ===== SESSIONS DE TRACKING =====
 
   // Récupérer toutes les sessions de l'utilisateur
@@ -276,8 +330,13 @@ class ApiService {
     dateFrom?: string;
     dateTo?: string;
   }) {
+    const userId = await this.getCurrentUserId();
+    if (!userId) {
+      return { success: false, message: 'Utilisateur non connecté' };
+    }
+
     const queryParams = new URLSearchParams();
-    queryParams.append('userId', 'default-user'); // TODO: remplacer par vrai userId
+    queryParams.append('userId', userId);
 
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.sport) queryParams.append('sport', params.sport);
@@ -289,7 +348,11 @@ class ApiService {
 
   // Récupérer les statistiques quotidiennes depuis MongoDB
   async getDailyStats(date: string) {
-    return this.request(`/sessions/stats/daily?userId=default-user&date=${date}`);
+    const userId = await this.getCurrentUserId();
+    if (!userId) {
+      return { success: false, message: 'Utilisateur non connecté' };
+    }
+    return this.request(`/sessions/stats/daily?userId=${userId}&date=${date}`);
   }
 
   // Récupérer une session spécifique

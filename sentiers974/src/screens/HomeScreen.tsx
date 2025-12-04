@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { ImageBackground, ScrollView, Text, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native";
 import Layout from "../components/ui/Layout";
 import FooterNavigation from "../components/ui/FooterNavigation";
@@ -13,6 +13,7 @@ import { SocialPost } from "../types/social";
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
 import { useSocialStore } from "../store/useSocialStore";
+import OnboardingScreen, { hasCompletedOnboarding } from "./OnboardingScreen";
 
 // Données mock pour tester
 const mockPosts: SocialPost[] = [
@@ -105,6 +106,21 @@ const mockPosts: SocialPost[] = [
 export default function HomeScreen() {
   const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Vérifier si l'utilisateur a déjà vu l'onboarding
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const completed = await hasCompletedOnboarding();
+      setShowOnboarding(!completed);
+    };
+    checkOnboarding();
+  }, []);
+
+  // Si onboarding nécessaire, l'afficher
+  if (showOnboarding) {
+    return <OnboardingScreen onComplete={() => setShowOnboarding(false)} />;
+  }
 
   // Rendre la référence globalement accessible pour le scroll des commentaires
   React.useEffect(() => {
@@ -113,7 +129,7 @@ export default function HomeScreen() {
       (global as any).mainScrollRef = null;
     };
   }, []);
-  
+
   // Accès aux stores pour réinitialisation
   const { reset: resetLocation } = useLocationStore();
   const { reset: resetSession } = useSessionStore();
