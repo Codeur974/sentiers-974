@@ -69,19 +69,9 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
 
     lastGpsUpdateTime.current = Date.now();
 
-    // Accuracy : tolérance renforcée en phase d'accroche
-    const baseAccuracyThreshold = sportConfig?.accuracyThreshold ?? 35;
+    // Accuracy : on ne rejette plus les points GPS même si accuracy faible
+    // Les seuils de téléportation adaptatifs (4 niveaux) se chargent du filtrage
     const isInitialPhase = trackingPath.length < 3 || distance < 0.05; // ~50m
-    const accuracyThreshold = isCourse
-      ? Math.max(baseAccuracyThreshold, 80) // Course : très permissif pour ne pas bloquer la vitesse
-      : (isInitialPhase
-          ? Math.max(baseAccuracyThreshold, 60)
-          : Math.max(baseAccuracyThreshold, 50));
-    const poorAccuracy = coords.accuracy && coords.accuracy > accuracyThreshold;
-    if (poorAccuracy && !isCourse) {
-      lastCoords.current = { ...coords };
-      return;
-    }
 
     // Distance et téléportations
     const lastPoint = { latitude: lastCoords.current.latitude, longitude: lastCoords.current.longitude };
@@ -89,23 +79,36 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const newDist = calculateDistance(lastPoint, newPoint); // km
     const distanceMeters = newDist * 1000;
 
-    // Seuils adaptés par sport pour éviter les sauts GPS
+    // Seuils adaptés par sport avec 4 niveaux d'accuracy GPS dynamiques
     const sportName = sportConfig?.nom || 'Marche';
-    const sportThresholds: Record<string, { good: number; poor: number }> = {
-      'Course': { good: 25, poor: 50 },      // Max 25m/s (90 km/h) si bon GPS
-      'Trail': { good: 20, poor: 40 },       // Max 20m/s (72 km/h)
-      'Marche': { good: 12, poor: 30 },      // Max 12m/s (43 km/h)
-      'Randonnée': { good: 12, poor: 30 },   // Max 12m/s (43 km/h)
-      'VTT': { good: 30, poor: 60 },         // Max 30m/s (108 km/h)
-      'Vélo': { good: 30, poor: 60 },        // Max 30m/s (108 km/h)
-      'Escalade': { good: 8, poor: 20 },     // Max 8m/s (29 km/h)
-      'Natation': { good: 10, poor: 25 },    // Max 10m/s (36 km/h)
-      'SUP': { good: 15, poor: 35 },         // Max 15m/s (54 km/h)
-      'Surf': { good: 40, poor: 80 },        // Max 40m/s (144 km/h)
-      'Kayak': { good: 18, poor: 40 },       // Max 18m/s (65 km/h)
+    const sportThresholds: Record<string, { excellent: number; good: number; medium: number; poor: number }> = {
+      'Course': { excellent: 20, good: 25, medium: 35, poor: 50 },      // Course
+      'Trail': { excellent: 15, good: 20, medium: 30, poor: 40 },       // Trail
+      'Marche': { excellent: 10, good: 12, medium: 20, poor: 30 },      // Marche
+      'Randonnée': { excellent: 10, good: 12, medium: 20, poor: 30 },   // Randonnée
+      'VTT': { excellent: 25, good: 30, medium: 45, poor: 60 },         // VTT
+      'Vélo': { excellent: 25, good: 30, medium: 45, poor: 60 },        // Vélo
+      'Escalade': { excellent: 6, good: 8, medium: 12, poor: 20 },      // Escalade
+      'Natation': { excellent: 8, good: 10, medium: 15, poor: 25 },     // Natation
+      'SUP': { excellent: 12, good: 15, medium: 25, poor: 35 },         // SUP
+      'Surf': { excellent: 30, good: 40, medium: 60, poor: 80 },        // Surf
+      'Kayak': { excellent: 15, good: 18, medium: 28, poor: 40 },       // Kayak
     };
-    const thresholds = sportThresholds[sportName] || { good: 12, poor: 30 };
-    const teleportThreshold = coords.accuracy && coords.accuracy > 50 ? thresholds.poor : thresholds.good;
+    const thresholds = sportThresholds[sportName] || { excellent: 10, good: 12, medium: 20, poor: 30 };
+
+    // Détection dynamique de la qualité GPS (4 niveaux)
+    const accuracy = coords.accuracy || 999;
+    let teleportThreshold: number;
+    if (accuracy < 15) {
+      teleportThreshold = thresholds.excellent; // Excellent: plein air dégagé
+    } else if (accuracy < 35) {
+      teleportThreshold = thresholds.good;      // Bon: normal
+    } else if (accuracy < 70) {
+      teleportThreshold = thresholds.medium;    // Moyen: sous arbres, ville
+    } else {
+      teleportThreshold = thresholds.poor;      // Mauvais: forêt dense, montagne
+    }
+
     const maxDistPerSecond = teleportThreshold / 1000;
     if (newDist > maxDistPerSecond * Math.max(timeDiff, 1)) {
       console.log(`🚫 Saut GPS rejeté: ${(newDist * 1000).toFixed(1)}m en ${timeDiff.toFixed(1)}s = ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
@@ -168,23 +171,28 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
       wasStoppedRecently.current = false;
     }
 
-    // Calcul vitesse
+    // Calcul vitesse avec plafond basé sur le saut de distance
     const maxReasonableSpeed = (sportConfig?.maxSpeed || 35) * 2;
     let rawSpeedKmh = 0;
 
+    // Plafond de vitesse basé sur le seuil de téléportation (évite spikes quand accuracy change)
+    const speedCeiling = (teleportThreshold / 1000) * 3.6; // m/s -> km/h
     const fallbackSpeed = Math.max((newDist / Math.max(timeDiff, isCourse ? 0.2 : 0.5)) * 3600, 0);
+
+    // Plafonner le fallback speed au seuil de téléportation pour éviter les explosions
+    const cappedFallbackSpeed = Math.min(fallbackSpeed, speedCeiling);
 
     if (isCourse) {
       // Course : prendre le meilleur des deux (natif ou distance/temps) pour éviter un plafonnement bas
       const candidates = [];
       if (gpsSpeedKmh !== null) candidates.push(gpsSpeedKmh);
-      candidates.push(fallbackSpeed);
+      candidates.push(cappedFallbackSpeed);
       rawSpeedKmh = Math.max(...candidates);
     } else {
       if (gpsSpeedKmh !== null && coords.accuracy && coords.accuracy < 50) {
         rawSpeedKmh = gpsSpeedKmh;
       } else {
-        rawSpeedKmh = fallbackSpeed;
+        rawSpeedKmh = cappedFallbackSpeed;
       }
     }
 
