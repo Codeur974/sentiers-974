@@ -22,6 +22,14 @@ const sendResetEmail = async (toEmail, token) => {
     throw new Error('SMTP non configuré (manque host/port/user/pass)');
   }
 
+  console.log('[SMTP] Envoi reset password', {
+    host: SMTP_HOST,
+    port: SMTP_PORT,
+    secure: (SMTP_SECURE || '').toString().trim().toLowerCase() === 'true',
+    from: FROM_EMAIL || SMTP_USER,
+    to: toEmail
+  });
+
   const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: parseInt(SMTP_PORT, 10),
@@ -35,7 +43,7 @@ const sendResetEmail = async (toEmail, token) => {
   const baseUrl = RESET_URL_BASE || 'https://sentiers974.onrender.com';
   const resetLink = `${baseUrl.replace(/\/$/, '')}/reset?token=${token}`;
 
-  await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: FROM_EMAIL || SMTP_USER,
     to: toEmail,
     subject: 'Réinitialisation de votre mot de passe - Sentiers 974',
@@ -48,6 +56,11 @@ const sendResetEmail = async (toEmail, token) => {
       <p>— Équipe Sentiers 974</p>
       <p style="font-size:12px;color:#666">Token: ${token}</p>
     `
+  });
+  console.log('[SMTP] Email reset envoyé', {
+    to: toEmail,
+    messageId: info?.messageId,
+    response: info?.response
   });
 };
 
