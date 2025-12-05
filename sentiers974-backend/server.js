@@ -63,6 +63,11 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Servir les pages statiques (mentions légales)
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Page de reset password (lien mail)
+app.get('/reset-password', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+});
+
 // Appliquer rate limiting général sur toutes les routes API
 app.use('/api/', apiLimiter);
 
