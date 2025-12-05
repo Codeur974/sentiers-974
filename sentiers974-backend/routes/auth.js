@@ -40,8 +40,11 @@ const sendResetEmail = async (toEmail, token) => {
     }
   });
 
-  // Deep link pour ouvrir l'app mobile directement
-  const resetLink = `sentiers974://reset-password?token=${token}`;
+  // Lien web pour la page de reset + deep link mobile
+  const webResetBase = (RESET_URL_BASE || 'https://sentiers974.onrender.com/reset-password').trim();
+  const separator = webResetBase.includes('?') ? '&' : '?';
+  const resetLink = `${webResetBase}${separator}token=${encodeURIComponent(token)}`; // bouton -> page web
+  const appDeepLink = `sentiers974://reset-password?token=${token}`; // deep link app
 
   const info = await transporter.sendMail({
     from: FROM_EMAIL || SMTP_USER,
@@ -62,7 +65,8 @@ const sendResetEmail = async (toEmail, token) => {
             </a>
           </div>
           <p style="font-size: 14px; color: #666; margin-top: 30px;">
-            <strong>Note :</strong> Ce lien ouvrira automatiquement l'application Sentiers 974 sur votre téléphone.
+            <strong>Note :</strong> Le bouton ouvre la page web de réinitialisation. Si vous êtes sur mobile et que l'application est installée, vous pouvez aussi ouvrir directement l'app via ce lien :<br>
+            <span style="color: #2196F3; word-break: break-all;">${appDeepLink}</span>
           </p>
           <p style="font-size: 14px; color: #666;">
             Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :<br>
