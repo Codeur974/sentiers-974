@@ -15,12 +15,29 @@ import ProfileScreen from "./screens/ProfileScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
 import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+import ResetPasswordConfirmScreen from "./screens/ResetPasswordConfirmScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useNetworkSync } from "./hooks/tracking";
 
 const Stack = createNativeStackNavigator();
+
+// Configuration du deep linking
+const linking = {
+  prefixes: ['sentiers974://'],
+  config: {
+    screens: {
+      Home: '',
+      ResetPasswordConfirm: {
+        path: 'reset-password',
+        parse: {
+          token: (token: string) => token,
+        },
+      },
+    },
+  },
+};
 
 export default function App() {
   // Activer la synchronisation automatique des sessions
@@ -31,26 +48,26 @@ export default function App() {
     const initializeAutomation = async () => {
       try {
         console.log('🚀 Initialisation du système d\'automatisation');
-        
+
         // 1. Initialiser la base de données
         await eventsDatabaseService.initializeDatabase();
-        
+
         // 2. Démarrer le planificateur automatique
         await autoUpdateScheduler.initialize();
-        
+
         console.log('✅ Système d\'automatisation initialisé');
       } catch (error) {
         console.error('❌ Erreur initialisation automatisation:', error);
       }
     };
-    
+
     initializeAutomation();
   }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <Stack.Navigator initialRouteName="Home">
           <Stack.Screen
             name="Home"
@@ -148,6 +165,14 @@ export default function App() {
             component={ResetPasswordScreen}
             options={{
               title: "Mot de passe oublié",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="ResetPasswordConfirm"
+            component={ResetPasswordConfirmScreen}
+            options={{
+              title: "Réinitialiser le mot de passe",
               headerRight: () => <RecordingIndicator />
             }}
           />
