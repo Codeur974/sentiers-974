@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react';
 import NetInfo from '@react-native-community/netinfo';
+import Constants from 'expo-constants';
 import { useDataStore } from '../../store/useDataStore';
 import { logger } from '../../utils/logger';
 
-const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
+const MONGODB_API_URL = `${API_BASE_URL}/api/sessions`;
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 5000; // 5 secondes entre chaque retry
 

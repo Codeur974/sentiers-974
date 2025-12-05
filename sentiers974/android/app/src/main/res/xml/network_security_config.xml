@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Permettre toutes les connexions sécurisées -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Domaine Render.com -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">sentiers-974.onrender.com</domain>
+    </domain-config>
+</network-security-config>

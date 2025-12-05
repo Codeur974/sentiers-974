@@ -14,6 +14,7 @@ import CommentsScreen from "./screens/CommentsScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import LoginScreen from "./screens/LoginScreen";
 import SignupScreen from "./screens/SignupScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
 import { autoUpdateScheduler } from "./services/autoUpdateScheduler";
 import { eventsDatabaseService } from "./services/eventsDatabase";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -139,6 +140,14 @@ export default function App() {
             component={SignupScreen}
             options={{
               title: "Inscription",
+              headerRight: () => <RecordingIndicator />
+            }}
+          />
+          <Stack.Screen
+            name="ResetPassword"
+            component={ResetPasswordScreen}
+            options={{
+              title: "Mot de passe oublié",
               headerRight: () => <RecordingIndicator />
             }}
           />

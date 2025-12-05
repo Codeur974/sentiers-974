@@ -62,7 +62,8 @@
     "extra": {
       "eas": {
         "projectId": "b66aef35-652b-4abc-a181-482249cf30b4"
-      }
+      },
+      "apiUrl": "https://sentiers-974.onrender.com"
     }
   }
 }

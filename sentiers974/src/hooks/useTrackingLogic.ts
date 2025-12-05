@@ -5,6 +5,7 @@ import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useLocationStore } from "../store/useLocationStore";
 import { useSessionStore } from "../store/useSessionStore";
+import { usePOIs } from "../store/useDataStore";
 import { getSportType, getSportMetrics } from "../utils";
 import { LocationHelper } from "../utils/locationUtils";
 import { GPXExporter } from "../utils/gpxExport";
@@ -172,6 +173,7 @@ export const useTrackingLogic = (selectedSport: any) => {
   const elevation = useElevationTracking(coords, status);
   const splits = useSplits();
   const persistence = useSessionPersistence();
+  const { confirmDraftPOIs, cancelDraftPOIs } = usePOIs();
 
   useEffect(() => {
     if (isHydrating || hasHydratedState.current) return;
@@ -465,6 +467,11 @@ export const useTrackingLogic = (selectedSport: any) => {
                   style: "cancel",
                   onPress: async () => {
                     console.log('❌ Utilisateur a cliqué NON - Suppression session');
+                    // Supprimer les POI temporaires de la session
+                    if (persistence.sessionId) {
+                      await cancelDraftPOIs(persistence.sessionId);
+                      console.log('🗑️ POI temporaires supprimés');
+                    }
                     await persistence.clearSession();
                     await clearSnapshot();
                     resetTracking();
@@ -474,7 +481,24 @@ export const useTrackingLogic = (selectedSport: any) => {
                 {
                   text: "Oui",
                   onPress: async () => {
-                    console.log('✅ Utilisateur a cliqué OUI - Sauvegarde session');
+                    console.log('========================================');
+                    console.log('✅ useTrackingLogic: Utilisateur a cliqué OUI');
+                    console.log('📊 useTrackingLogic: Session à sauvegarder:', {
+                      sessionId: persistence.sessionId,
+                      sport: activeSport?.nom,
+                      distance: distanceCalc.distance,
+                      duration: finalDuration
+                    });
+                    console.log('========================================');
+
+                    // Confirmer les POI temporaires (les rendre permanents)
+                    if (persistence.sessionId) {
+                      console.log('🔄 useTrackingLogic: Confirmation POI draft...');
+                      await confirmDraftPOIs(persistence.sessionId);
+                      console.log('✅ useTrackingLogic: POI confirmés');
+                    }
+
+                    console.log('🔄 useTrackingLogic: Appel persistence.saveSession...');
                     await persistence.saveSession({
                       sport: activeSport,
                       distance: distanceCalc.distance,
@@ -487,10 +511,15 @@ export const useTrackingLogic = (selectedSport: any) => {
                       elevationGain: elevation.elevationGain,
                       elevationLoss: elevation.elevationLoss
                     });
+                    console.log('✅ useTrackingLogic: persistence.saveSession terminé');
+
                     await clearSnapshot();
-                    console.log('💾 Session sauvegardée');
+                    console.log('✅ useTrackingLogic: Snapshot cleared');
+
                     resetTracking();
                     setHydratedSport(null);
+                    console.log('✅ useTrackingLogic: Tracking reset - TERMINÉ');
+                    console.log('========================================');
                   }
                 }
               ]

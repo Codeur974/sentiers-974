@@ -132,22 +132,23 @@ export const useAddPhoto = (onRefresh: () => void) => {
         note: photoNote.trim() || undefined,
         photoUri: cloudinaryUri || undefined,
         sessionId: selectedSessionId,
-        createdAt: sessionTimestamp
+        createdAt: sessionTimestamp,
+        isDraft: false // Photo confirmée, pas en mode brouillon
       });
 
       if (poi) {
         logger.debug('Photo oubliée créée avec succès', {
           poiId: poi.id,
-          title: poi.title
+          title: poi.title,
+          sessionId: selectedSessionId
         }, 'AddPhoto');
 
         handleCloseModal();
         Alert.alert('Succès', `Photo "${poi.title}" ajoutée à la session !`);
 
-        // Forcer le rechargement
-        setTimeout(() => {
-          onRefresh();
-        }, 100);
+        // Forcer le rechargement immédiat
+        logger.debug('Appel onRefresh après création photo', undefined, 'AddPhoto');
+        onRefresh();
       } else {
         Alert.alert('Erreur', 'Impossible d\'ajouter la photo');
       }

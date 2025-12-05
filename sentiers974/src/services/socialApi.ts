@@ -1,7 +1,8 @@
 import { SocialPost, CreatePostData } from '../types/social';
+import Constants from 'expo-constants';
 
 // Production: Backend déployé sur Render avec HTTPS
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com';
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
 
 interface ApiResponse<T> {
   success: boolean;
