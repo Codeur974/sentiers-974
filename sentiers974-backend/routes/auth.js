@@ -25,7 +25,7 @@ const sendResetEmail = async (toEmail, token) => {
   const transporter = nodemailer.createTransport({
     host: SMTP_HOST,
     port: parseInt(SMTP_PORT, 10),
-    secure: SMTP_SECURE === 'true', // true pour 465, false pour STARTTLS
+    secure: (SMTP_SECURE || '').toString().trim().toLowerCase() === 'true', // true pour 465, false pour STARTTLS
     auth: {
       user: SMTP_USER,
       pass: SMTP_PASS
