@@ -24,6 +24,13 @@ const userSchema = new mongoose.Schema({
     unique: true,
     sparse: true // Permet null/undefined, utilisé pour migration depuis compte anonyme
   },
+  passwordResetToken: {
+    type: String,
+    index: true
+  },
+  passwordResetExpires: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now

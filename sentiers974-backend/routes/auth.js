@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Session = require('../models/Session');
 const { generateToken, verifyToken } = require('../middleware/auth');
+const crypto = require('crypto');
 
 /**
  * 📝 INSCRIPTION (Signup)
@@ -235,6 +236,116 @@ router.delete('/account', verifyToken, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la suppression du compte'
+    });
+  }
+});
+
+/**
+ * 🔑 DEMANDE DE RÉINITIALISATION MOT DE PASSE
+ * POST /api/auth/reset/request
+ *
+ * Body: { "email": "user@example.com" }
+ * Réponse: message générique + (token retourné en dev uniquement)
+ */
+router.post('/reset/request', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email requis'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    // Toujours répondre 200 pour ne pas révéler l’existence du compte
+    if (!user) {
+      return res.json({
+        success: true,
+        message: 'Si un compte existe pour cet email, un lien de réinitialisation a été généré'
+      });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 60 * 60 * 1000; // 1h
+
+    user.passwordResetToken = token;
+    user.passwordResetExpires = new Date(expires);
+    await user.save();
+
+    // TODO: envoyer l'email avec le token. Pour l'instant, on le renvoie en dev.
+    const response = {
+      success: true,
+      message: 'Si un compte existe pour cet email, un lien de réinitialisation a été généré'
+    };
+
+    if (process.env.NODE_ENV !== 'production') {
+      response.resetToken = token;
+      console.log(`🔑 Token reset généré pour ${email}: ${token}`);
+    }
+
+    res.json(response);
+  } catch (error) {
+    console.error('🚨 Erreur demande reset password:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la demande de réinitialisation'
+    });
+  }
+});
+
+/**
+ * ✅ CONFIRMATION RÉINITIALISATION MOT DE PASSE
+ * POST /api/auth/reset/confirm
+ *
+ * Body: { "token": "<token>", "password": "nouveauMotDePasse" }
+ */
+router.post('/reset/confirm', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token et mot de passe requis'
+      });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 8 caractères'
+      });
+    }
+
+    const user = await User.findOne({
+      passwordResetToken: token,
+      passwordResetExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token invalide ou expiré'
+      });
+    }
+
+    user.password = password; // sera hashé par le hook pre('save')
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Mot de passe réinitialisé avec succès'
+    });
+  } catch (error) {
+    console.error('🚨 Erreur confirmation reset password:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la réinitialisation du mot de passe'
     });
   }
 });

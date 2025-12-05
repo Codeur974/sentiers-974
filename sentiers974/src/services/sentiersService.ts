@@ -1,8 +1,12 @@
 // Service pour récupérer les données des sentiers depuis notre API MongoDB
 // Structure COMPLÈTE basée sur la liste exacte de randopitons.re
 
+import Constants from 'expo-constants';
+
 // Production: Backend déployé sur Render avec HTTPS
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com/api';
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl
+  ? `${Constants.expoConfig.extra.apiUrl}/api`
+  : 'https://sentiers-974.onrender.com/api';
 
 export interface SentierReel {
   id: string;

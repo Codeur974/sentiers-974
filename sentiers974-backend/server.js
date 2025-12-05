@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const Sentier = require('./models/Sentier');
@@ -58,6 +59,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' })); // Augmenter limite pour upload photos
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Servir les pages statiques (mentions légales)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Appliquer rate limiting général sur toutes les routes API
 app.use('/api/', apiLimiter);

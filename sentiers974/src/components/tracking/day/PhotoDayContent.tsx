@@ -54,6 +54,21 @@ export const PhotoDayContent: React.FC<PhotoDayContentProps> = ({
   onPhotoPress,
   onPhotoDelete
 }) => {
+  console.log('📋 PhotoDayContent rendu pour date:', group.date, {
+    sessionGroups: group.sessionGroups?.length || 0,
+    orphanPhotos: group.orphanPhotos?.length || 0
+  });
+
+  if (group.sessionGroups && group.sessionGroups.length > 0) {
+    group.sessionGroups.forEach((sg, index) => {
+      console.log(`  📦 SessionGroup ${index + 1}:`, {
+        sessionId: sg.sessionId,
+        hasPerformance: !!sg.performance,
+        photos: sg.photos.length
+      });
+    });
+  }
+
   return (
     <View className="mt-2 bg-white rounded-lg border border-blue-200" pointerEvents="auto">
       <ScrollView

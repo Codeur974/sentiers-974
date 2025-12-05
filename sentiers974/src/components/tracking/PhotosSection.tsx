@@ -1,11 +1,11 @@
-import React, {
+import {
   useState,
   useEffect,
   useImperativeHandle,
   forwardRef,
   useRef,
 } from "react";
-import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator, DeviceEventEmitter } from "react-native";
+import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator, DeviceEventEmitter, ScrollView } from "react-native";
 import { usePOIs } from '../../store/useDataStore';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiService from "../../services/api";
@@ -86,7 +86,7 @@ interface SessionGroup {
 
 const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
   ({ isVisible, onInteraction }, ref) => {
-    const { pois, reload: reloadPois } = usePOIs();
+    const { pois, reload: reloadPois, deletePOI } = usePOIs();
     const dayStatsCache = useRef<Map<string, DayPerformance | undefined>>(
       new Map()
     );
@@ -94,6 +94,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       Map<string, Promise<DayPerformance | undefined>>
     >(new Map());
     const [photoGroups, setPhotoGroups] = useState<PhotoGroup[]>([]);
+    const photoGroupsRef = useRef<PhotoGroup[]>([]);
     const [selectedPhoto, setSelectedPhoto] = useState<{
       uri: string;
       title: string;
@@ -155,12 +156,16 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
 
     // Écouter l'event sessionSaved pour recharger automatiquement
     useEffect(() => {
+      console.log('🎧 PhotosSection: Installation listener sessionSaved');
       const subscription = DeviceEventEmitter.addListener('sessionSaved', (data) => {
-        console.log('📢 PhotosSection: Event sessionSaved reçu', data);
+        console.log('📢 PhotosSection: Event sessionSaved reçu !', data);
+        console.log('🔄 PhotosSection: Appel handleRefresh...');
         handleRefresh();
+        console.log('✅ PhotosSection: handleRefresh appelé');
       });
 
       return () => {
+        console.log('🎧 PhotosSection: Suppression listener sessionSaved');
         subscription.remove();
       };
     }, []);
@@ -324,7 +329,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   avgSpeed: session.avgSpeed || 0,
                   maxSpeed: session.maxSpeed || 0,
                   steps: session.steps || 0,
-                  sport: session.sport,
+                  sport: session.sport?.nom || session.sport || 'Sport', // Extraire le nom du sport si c'est un objet
                   sessionId: session.id,
                   timestamp: new Date(session.createdAt).getTime(),
                 })) || [],
@@ -354,21 +359,28 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     ) => {
       const orphanPhotos: PhotoItem[] = [];
 
+      console.log('🔗 Association photos → sessions:', {
+        photosTotal: photos.length,
+        sessionsDisponibles: Object.keys(sessionGroups).length
+      });
+
       photos.forEach((photo) => {
+        console.log('  📸 Photo:', photo.title, '→ sessionId:', photo.sessionId);
+
         if (photo.sessionId && sessionGroups[photo.sessionId]) {
+          // Photo associée à une session existante avec performance
           sessionGroups[photo.sessionId].photos.push(photo);
-        } else if (photo.sessionId) {
-          if (!sessionGroups[photo.sessionId]) {
-            sessionGroups[photo.sessionId] = {
-              sessionId: photo.sessionId,
-              photos: [],
-              performance: undefined,
-            };
-          }
-          sessionGroups[photo.sessionId].photos.push(photo);
+          console.log('    ✅ Associée à session:', photo.sessionId);
         } else {
+          // Photo sans sessionId OU avec sessionId inexistant → orpheline
           orphanPhotos.push(photo);
+          console.log('    ❌ Orpheline (session non trouvée)');
         }
+      });
+
+      console.log('📊 Résultat association:');
+      Object.values(sessionGroups).forEach(sg => {
+        console.log(`  Session ${sg.sessionId}: ${sg.photos.length} photo(s)`);
       });
 
       return orphanPhotos;
@@ -377,18 +389,25 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     // PHASE 1: Chargement rapide depuis AsyncStorage
     useEffect(() => {
       const loadLocalData = async () => {
-        // Créer les photos à partir des POI
-        const allPhotos: PhotoItem[] = pois.map((poi) => ({
-          id: poi.id,
-          uri:
-            poi.photoUri ||
-            "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
-          title: poi.title,
-          note: poi.note,
-          sessionId: poi.sessionId,
-          createdAt: poi.createdAt,
-          source: poi.source === "mongodb" ? "backend" : "poi",
-        }));
+        console.log('🔄 PhotosSection PHASE 1: Début chargement données locales');
+        console.log('📊 PhotosSection PHASE 1: POIs totaux:', pois.length);
+
+        // Créer les photos à partir des POI (filtrer les draft)
+        const allPhotos: PhotoItem[] = pois
+          .filter((poi) => !poi.isDraft) // Exclure les POI temporaires (session active)
+          .map((poi) => ({
+            id: poi.id,
+            uri:
+              poi.photoUri ||
+              "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
+            title: poi.title,
+            note: poi.note,
+            sessionId: poi.sessionId,
+            createdAt: poi.createdAt,
+            source: poi.source === "mongodb" ? "backend" : "poi",
+          }));
+
+        console.log('📊 PhotosSection PHASE 1: POIs après filtre draft:', allPhotos.length);
 
         // Grouper par date
         const groupedByDate = allPhotos.reduce((groups, photo) => {
@@ -412,16 +431,23 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         }, {} as Record<string, PhotoGroup>);
 
         const groupsArray = Object.values(groupedByDate);
+        console.log('📊 PhotosSection PHASE 1: Groupes par date:', groupsArray.length);
 
         // Charger uniquement depuis AsyncStorage (rapide)
         const localGroups = await Promise.all(
           groupsArray.map(async (group) => {
+            console.log('📅 PhotosSection PHASE 1: Chargement stats pour date', group.date);
             const performance = await loadDayPerformanceLocal(group.date);
 
             const sessionGroups: Record<string, SessionGroup> = {};
 
             if (performance?.sessionsList) {
+              console.log('📊 PhotosSection PHASE 1: Stats trouvées -', {
+                date: group.date,
+                sessions: performance.sessionsList.length
+              });
               performance.sessionsList.forEach((sessionPerformance) => {
+                console.log('  ➡️ Session:', sessionPerformance.sessionId, sessionPerformance.sport);
                 if (!sessionGroups[sessionPerformance.sessionId]) {
                   sessionGroups[sessionPerformance.sessionId] = {
                     sessionId: sessionPerformance.sessionId,
@@ -430,6 +456,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   };
                 }
               });
+            } else {
+              console.log('⚠️ PhotosSection PHASE 1: Pas de stats pour date', group.date);
             }
 
             const orphanPhotos = associatePhotosToSessions(group.photos, sessionGroups);
@@ -448,7 +476,38 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         );
 
+        console.log('✅ PhotosSection PHASE 1: Groupes créés -', {
+          total: sortedGroups.length,
+          avecSessions: sortedGroups.filter(g => g.sessionGroups && g.sessionGroups.length > 0).length
+        });
+
+        // NETTOYAGE : Supprimer les photos orphelines (sessions supprimées)
+        const validSessionIds = new Set<string>();
+        sortedGroups.forEach(group => {
+          group.sessionGroups?.forEach(sg => {
+            if (sg.sessionId) {
+              validSessionIds.add(sg.sessionId);
+            }
+          });
+        });
+
+        const orphanPOIs = pois.filter(poi =>
+          poi.sessionId &&
+          !poi.isDraft &&
+          !validSessionIds.has(poi.sessionId)
+        );
+
+        if (orphanPOIs.length > 0) {
+          console.log(`🧹 Nettoyage: ${orphanPOIs.length} photos orphelines à supprimer`);
+          for (const poi of orphanPOIs) {
+            console.log(`  🗑️ Suppression photo orpheline: ${poi.title} (session: ${poi.sessionId})`);
+            await deletePOI(poi.id);
+          }
+          console.log('✅ Nettoyage terminé');
+        }
+
         setPhotoGroups(sortedGroups);
+        photoGroupsRef.current = sortedGroups; // Mettre à jour la ref pour Phase 2
         setExpandedSections(new Set());
       };
 
@@ -499,18 +558,20 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               !date.includes("NaN")
           );
 
-          // Créer les photos depuis POI
-          const allPhotos: PhotoItem[] = pois.map((poi) => ({
-            id: poi.id,
-            uri:
-              poi.photoUri ||
-              "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
-            title: poi.title,
-            note: poi.note,
-            sessionId: poi.sessionId,
-            createdAt: poi.createdAt,
-            source: poi.source === "mongodb" ? "backend" : "poi",
-          }));
+          // Créer les photos depuis POI (filtrer les draft)
+          const allPhotos: PhotoItem[] = pois
+            .filter((poi) => !poi.isDraft) // Exclure les POI temporaires (session active)
+            .map((poi) => ({
+              id: poi.id,
+              uri:
+                poi.photoUri ||
+                "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
+              title: poi.title,
+              note: poi.note,
+              sessionId: poi.sessionId,
+              createdAt: poi.createdAt,
+              source: poi.source === "mongodb" ? "backend" : "poi",
+            }));
 
           const groupedByDate = allPhotos.reduce((groups, photo) => {
             const date = getLocalDateString(photo.createdAt);
@@ -581,32 +642,40 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           );
 
           // Fusionner avec les données locales (Phase 1) pour éviter de perdre les données quand MongoDB échoue
-          console.log(`🔄 Début fusion - Remote: ${remoteGroups.length} groupes, Local: ${photoGroups.length} groupes`);
+          // Utiliser photoGroupsRef.current pour obtenir les données les plus récentes
+          const currentLocalGroups = photoGroupsRef.current;
+          console.log(`🔄 Début fusion - Remote: ${remoteGroups.length} groupes, Local: ${currentLocalGroups.length} groupes`);
 
-          const mergedGroups = remoteGroups.map((remoteGroup) => {
-            const localGroup = photoGroups.find((g) => g.date === remoteGroup.date);
+          const mergedGroups: PhotoGroup[] = remoteGroups.map((remoteGroup) => {
+            const localGroup = currentLocalGroups.find((g) => g.date === remoteGroup.date);
 
             const remoteSessions = remoteGroup.sessionGroups?.length || 0;
             const localSessions = localGroup?.sessionGroups?.length || 0;
 
             console.log(`🔄 Date ${remoteGroup.date}: Remote ${remoteSessions} sessions, Local ${localSessions} sessions`);
 
-            // Si local a plus de sessions que MongoDB, garder local (car MongoDB peut avoir échoué ou être incomplet)
-            if (localSessions > remoteSessions) {
-              console.log(`✅ Merge: Garder ${localSessions} sessions locales pour ${remoteGroup.date} (local > remote)`);
-              return localGroup;
+            // TOUJOURS prioriser LOCAL (AsyncStorage) si local a des données
+            // N'utiliser MongoDB QUE si MongoDB a STRICTEMENT PLUS de sessions
+            if (localGroup && localSessions > 0) {
+              if (remoteSessions > localSessions) {
+                console.log(`✅ Merge: Utiliser ${remoteSessions} sessions MongoDB pour ${remoteGroup.date} (remote > local)`);
+                return remoteGroup;
+              } else {
+                console.log(`✅ Merge: Garder ${localSessions} sessions locales pour ${remoteGroup.date} (local prioritaire)`);
+                return localGroup;
+              }
             }
 
-            // Sinon utiliser les données MongoDB (même nombre ou MongoDB a plus)
+            // Si pas de données locales, utiliser MongoDB
             if (remoteSessions > 0) {
-              console.log(`✅ Merge: Utiliser ${remoteSessions} sessions MongoDB pour ${remoteGroup.date}`);
+              console.log(`✅ Merge: Utiliser ${remoteSessions} sessions MongoDB pour ${remoteGroup.date} (pas de local)`);
             }
             return remoteGroup;
           });
 
           // Ajouter les groupes locaux qui n'existent pas dans MongoDB
-          photoGroups.forEach((localGroup) => {
-            const existsInRemote = mergedGroups.some((g) => g.date === localGroup.date);
+          currentLocalGroups.forEach((localGroup) => {
+            const existsInRemote = mergedGroups.some((g) => g && g.date === localGroup.date);
             const localSessions = localGroup.sessionGroups?.length || 0;
 
             if (!existsInRemote && localSessions > 0) {
@@ -616,17 +685,20 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           });
 
           // Trier par date
-          const sortedGroups = mergedGroups.sort(
+          const sortedGroups = mergedGroups.filter(g => g !== undefined).sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           );
 
           console.log(`✅ Merge terminé: ${sortedGroups.length} groupes de dates`);
           sortedGroups.forEach(group => {
-            const sessions = group.sessionGroups?.length || 0;
-            console.log(`  - ${group.date}: ${sessions} sessions`);
+            if (group) {
+              const sessions = group.sessionGroups?.length || 0;
+              console.log(`  - ${group.date}: ${sessions} sessions`);
+            }
           });
 
           setPhotoGroups(sortedGroups);
+          photoGroupsRef.current = sortedGroups; // Mettre à jour la ref
         } catch (error) {
           console.error("❌ Erreur chargement MongoDB:", error);
         } finally {
@@ -634,9 +706,9 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         }
       };
 
-      // Délai de 100ms pour laisser l'affichage local se faire
+      // Délai de 100ms pour laisser Phase 1 terminer
       const timer = setTimeout(() => {
-        if (photoGroups.length > 0) {
+        if (photoGroupsRef.current.length > 0) {
           loadRemoteData();
         }
       }, 100);
@@ -811,8 +883,10 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           onDeleteClick={handleDeleteClick}
         />
 
-        <View
-          className="max-h-80"
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true}
           pointerEvents={expandedSections.size > 0 ? "auto" : "box-none"}
         >
           {photoGroups.map((group) => {
@@ -840,7 +914,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               </View>
             );
           })}
-        </View>
+        </ScrollView>
 
         {/* Modal photo plein écran */}
         <PhotoModal

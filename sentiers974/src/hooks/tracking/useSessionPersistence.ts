@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDataStore } from '../../store/useDataStore';
 import { DeviceEventEmitter } from 'react-native';
 
 // Utiliser la variable d'environnement du .env
-const MONGODB_API_URL = `${process.env.EXPO_PUBLIC_API_URL}/api/sessions`;
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
+const MONGODB_API_URL = `${API_BASE_URL}/api/sessions`;
 
 /**
  * Hook pour gérer la persistance des sessions
@@ -35,8 +37,48 @@ export const useSessionPersistence = () => {
           console.log('🆔 DeviceId créé:', storedDeviceId);
         }
         setDeviceId(storedDeviceId);
+
+        // MIGRATION : Corriger les anciennes sessions avec sport objet
+        await migrateOldSessions();
       } catch (error: any) {
         console.error('❌ Erreur chargement sessionId:', error);
+      }
+    };
+
+    const migrateOldSessions = async () => {
+      try {
+        console.log('🔄 Migration: Correction anciennes sessions...');
+        const allKeys = await AsyncStorage.getAllKeys();
+        const statsKeys = allKeys.filter(key => key.startsWith('daily_stats_'));
+
+        for (const key of statsKeys) {
+          const statsJson = await AsyncStorage.getItem(key);
+          if (!statsJson) continue;
+
+          const stats = JSON.parse(statsJson);
+          let needsUpdate = false;
+
+          if (stats.sessionsList && Array.isArray(stats.sessionsList)) {
+            stats.sessionsList = stats.sessionsList.map((session: any) => {
+              if (session.sport && typeof session.sport === 'object') {
+                needsUpdate = true;
+                return {
+                  ...session,
+                  sport: session.sport.nom || 'Sport'
+                };
+              }
+              return session;
+            });
+          }
+
+          if (needsUpdate) {
+            await AsyncStorage.setItem(key, JSON.stringify(stats));
+            console.log('✅ Migration: Stats corrigées pour', key);
+          }
+        }
+        console.log('✅ Migration terminée');
+      } catch (error) {
+        console.error('❌ Erreur migration:', error);
       }
     };
 
@@ -113,12 +155,22 @@ export const useSessionPersistence = () => {
 
   // Sauvegarder session complète
   const saveSession = async (sessionData: any) => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      console.log('⚠️ saveSession: Pas de sessionId, abandon');
+      return;
+    }
+
+    console.log('📝 saveSession: Début sauvegarde session', { sessionId, sessionData });
 
     const today = new Date().toISOString().split('T')[0];
     const statsKey = `daily_stats_${today}`;
+    console.log('📅 saveSession: Date du jour:', today, 'Clé AsyncStorage:', statsKey);
+
     const updateLocalStats = async (logFallback = false) => {
+      console.log('💾 updateLocalStats: Début mise à jour stats locales');
       const existingStatsJson = await AsyncStorage.getItem(statsKey);
+      console.log('📊 updateLocalStats: Stats existantes:', existingStatsJson ? 'trouvées' : 'aucune');
+
       let dayPerformance = existingStatsJson ? JSON.parse(existingStatsJson) : {
         totalDistance: 0,
         totalTime: 0,
@@ -127,6 +179,11 @@ export const useSessionPersistence = () => {
         sessionsList: []
       };
 
+      console.log('📊 updateLocalStats: Avant ajout -', {
+        sessions: dayPerformance.sessions,
+        sessionsList: dayPerformance.sessionsList.length
+      });
+
       dayPerformance.totalDistance += sessionData.distance;
       dayPerformance.totalTime += sessionData.duration;
       dayPerformance.totalCalories += sessionData.calories;
@@ -134,18 +191,28 @@ export const useSessionPersistence = () => {
       dayPerformance.sessionsList.push({
         sessionId,
         ...sessionData,
+        sport: sessionData.sport?.nom || sessionData.sport, // Extraire le nom du sport si c'est un objet
         timestamp: Date.now()
       });
 
+      console.log('📊 updateLocalStats: Après ajout -', {
+        sessions: dayPerformance.sessions,
+        sessionsList: dayPerformance.sessionsList.length,
+        nouvelleSession: sessionId
+      });
+
       await AsyncStorage.setItem(statsKey, JSON.stringify(dayPerformance));
+      console.log('✅ updateLocalStats: Stats sauvegardées dans AsyncStorage');
+
       if (logFallback) {
-        console.log('💾 Sauvegarde AsyncStorage');
+        console.log('💾 Sauvegarde AsyncStorage (fallback MongoDB)');
       }
     };
     let localStatsUpdated = false;
 
     try {
       // Sauvegarder sur MongoDB
+      console.log('🌐 saveSession: Tentative sauvegarde MongoDB...', MONGODB_API_URL);
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -156,13 +223,21 @@ export const useSessionPersistence = () => {
         })
       });
 
+      console.log('🌐 saveSession: Réponse MongoDB -', {
+        status: response.status,
+        ok: response.ok
+      });
+
       if (response.ok) {
-        console.log('💾 Session MongoDB sauvegardée');
+        const responseData = await response.json();
+        console.log('✅ saveSession: Session MongoDB sauvegardée', responseData);
       } else {
+        const errorText = await response.text();
+        console.error('❌ saveSession: MongoDB erreur HTTP', response.status, errorText);
         throw new Error('MongoDB save failed');
       }
     } catch (mongoError) {
-      console.error('⚠️ MongoDB erreur, fallback AsyncStorage + ajout sync queue');
+      console.error('⚠️ saveSession: MongoDB erreur, fallback AsyncStorage + ajout sync queue', mongoError);
       await updateLocalStats(true);
       localStatsUpdated = true;
 
@@ -172,15 +247,18 @@ export const useSessionPersistence = () => {
         sessionId,
         userId: user?.id || deviceId || 'anonymous'
       });
+      console.log('📥 saveSession: Session ajoutée à la sync queue');
     }
 
     if (!localStatsUpdated) {
+      console.log('💾 saveSession: Mise à jour stats locales (MongoDB OK)');
       await updateLocalStats();
     }
 
     // Émettre un event pour notifier que la session a été sauvegardée
+    console.log('📢 saveSession: Émission event sessionSaved', { sessionId, date: today });
     DeviceEventEmitter.emit('sessionSaved', { sessionId, date: today });
-    console.log('📢 Event sessionSaved émis');
+    console.log('✅ saveSession: Sauvegarde terminée');
   };
 
   // Supprimer session

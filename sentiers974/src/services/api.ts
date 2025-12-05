@@ -1,11 +1,20 @@
 // Service API pour communiquer avec le backend MongoDB
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 
 // Configuration de l'API
 // Production: Backend déployé sur Render avec HTTPS
 // Dev: Backend local (décommenter pour développement)
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://sentiers-974.onrender.com/api';
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl
+  ? `${Constants.expoConfig.extra.apiUrl}/api`
+  : 'https://sentiers-974.onrender.com/api';
 // const API_BASE_URL = 'http://192.168.1.17:3001/api'; // Dev local
+
+// Log pour debug (visible uniquement en dev)
+if (__DEV__) {
+  console.log('🌐 API_BASE_URL configurée:', API_BASE_URL);
+  console.log('📱 Constants.expoConfig?.extra?.apiUrl:', Constants.expoConfig?.extra?.apiUrl);
+}
 
 // Export pour utilisation dans AuthContext
 export const API_URL = API_BASE_URL;

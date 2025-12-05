@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert
+  Alert,
+  Linking
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
@@ -190,6 +191,38 @@ export default function ProfileScreen() {
                 🔒 Vos données sont sécurisées et vous pouvez les supprimer à tout moment (RGPD)
               </Text>
             </View>
+
+            {/* Liens légaux */}
+            <View style={styles.legalLinksContainer}>
+              <TouchableOpacity
+                onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+              >
+                <Text style={styles.legalLink}>Politique de confidentialité</Text>
+              </TouchableOpacity>
+              <Text style={styles.separator}>•</Text>
+              <TouchableOpacity
+                onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+              >
+                <Text style={styles.legalLink}>Conditions d'utilisation</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {/* Liens légaux pour utilisateurs non connectés */}
+        {!isAuthenticated && (
+          <View style={styles.legalLinksContainer}>
+            <TouchableOpacity
+              onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+            >
+              <Text style={styles.legalLink}>Politique de confidentialité</Text>
+            </TouchableOpacity>
+            <Text style={styles.separator}>•</Text>
+            <TouchableOpacity
+              onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+            >
+              <Text style={styles.legalLink}>Conditions d'utilisation</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>

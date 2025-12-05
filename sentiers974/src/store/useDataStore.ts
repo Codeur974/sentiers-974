@@ -1,11 +1,13 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
 import { logger } from '../utils/logger';
 import { PhotoManager } from '../utils/photoUtils';
 
 const STORAGE_KEY = 'sentiers974_pois';
 let isLoadingPOIs = false;
+const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
 
 /**
  * Store Zustand pour les données de l'application
@@ -42,6 +44,7 @@ interface POI {
   createdAt: number;
   updatedAt?: number;
   source?: 'local' | 'mongodb';
+  isDraft?: boolean; // POI temporaire pendant la session active
 }
 
 interface PendingSession {
@@ -93,11 +96,14 @@ interface DataState {
     time: number;
     sessionId?: string;
     createdAt?: number;
+    isDraft?: boolean;
   }) => Promise<POI>;
   updatePOI: (id: string, updates: Partial<POI>) => void;
   deletePOI: (id: string) => Promise<void>;
   deletePOIsBatch: (ids: string[]) => Promise<void>;
   getPOIsForSession: (sessionId: string) => POI[];
+  confirmDraftPOIs: (sessionId: string) => Promise<void>; // Confirmer les POI draft (session sauvegardée)
+  cancelDraftPOIs: (sessionId: string) => Promise<void>; // Supprimer les POI draft (session annulée)
   setPOIsLoading: (loading: boolean) => void;
   setPOIsError: (error: string | null) => void;
 
@@ -224,7 +230,7 @@ export const useDataStore = create<DataState>()(
         try {
           const [mongoPois, localPois] = await Promise.all([
             (Promise.race([
-              fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/pointofinterests`),
+              fetch(`${API_BASE_URL}/api/pointofinterests`),
               new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
             ]) as Promise<Response>)
               .then(r => r.ok ? r.json() : [])
@@ -266,7 +272,8 @@ export const useDataStore = create<DataState>()(
           photoUri: data.photoUri,
           sessionId: data.sessionId,
           createdAt: data.createdAt ?? Date.now(),
-          source: 'local'
+          source: 'local',
+          isDraft: data.isDraft !== undefined ? data.isDraft : !!data.sessionId // Utiliser isDraft fourni, sinon draft si sessionId existe
         };
 
         set(state => ({
@@ -298,7 +305,7 @@ export const useDataStore = create<DataState>()(
               } as any);
             }
 
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${data.sessionId}/poi`, {
+            const response = await fetch(`${API_BASE_URL}/api/sessions/${data.sessionId}/poi`, {
               method: 'POST',
               body: formData,
               signal: controller.signal,
@@ -346,6 +353,73 @@ export const useDataStore = create<DataState>()(
         return state.pois.filter(poi => poi.sessionId === sessionId);
       },
 
+      // Confirmer les POI draft : marquer comme permanents (session sauvegardée)
+      confirmDraftPOIs: async (sessionId) => {
+        logger.info('Confirmation POI draft pour session', { sessionId }, 'DATA');
+
+        const state = get();
+        const draftPOIs = state.pois.filter(
+          poi => poi.sessionId === sessionId && poi.isDraft
+        );
+
+        if (draftPOIs.length === 0) {
+          logger.debug('Aucun POI draft à confirmer', { sessionId }, 'DATA');
+          return;
+        }
+
+        // Marquer tous les POI draft comme permanents
+        set(state => ({
+          pois: state.pois.map(poi =>
+            poi.sessionId === sessionId && poi.isDraft
+              ? { ...poi, isDraft: false }
+              : poi
+          ),
+          lastPoisUpdate: Date.now()
+        }));
+
+        // Sauvegarder dans AsyncStorage
+        const updatedPois = get().pois.filter(p => p.source !== 'mongodb');
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
+
+        logger.info('POI draft confirmés', { sessionId, count: draftPOIs.length }, 'DATA');
+      },
+
+      // Supprimer les POI draft (session annulée)
+      cancelDraftPOIs: async (sessionId) => {
+        logger.info('Annulation POI draft pour session', { sessionId }, 'DATA');
+
+        const state = get();
+        const draftPOIs = state.pois.filter(
+          poi => poi.sessionId === sessionId && poi.isDraft
+        );
+
+        if (draftPOIs.length === 0) {
+          logger.debug('Aucun POI draft à annuler', { sessionId }, 'DATA');
+          return;
+        }
+
+        // Supprimer les photos associées
+        for (const poi of draftPOIs) {
+          if (poi.photoUri && !poi.photoUri.includes('placeholder')) {
+            await PhotoManager.deletePhoto(poi.photoUri);
+          }
+        }
+
+        // Supprimer les POI draft du store
+        set(state => ({
+          pois: state.pois.filter(
+            poi => !(poi.sessionId === sessionId && poi.isDraft)
+          ),
+          lastPoisUpdate: Date.now()
+        }));
+
+        // Sauvegarder dans AsyncStorage
+        const updatedPois = get().pois.filter(p => p.source !== 'mongodb');
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
+
+        logger.info('POI draft annulés', { sessionId, count: draftPOIs.length }, 'DATA');
+      },
+
       deletePOI: async (id) => {
         const state = get();
         const poiToDelete = state.pois.find(p => p.id === id);
@@ -363,7 +437,7 @@ export const useDataStore = create<DataState>()(
               const controller = new AbortController();
               const timeout = setTimeout(() => controller.abort(), 2000);
 
-              const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/pointofinterests/${id}`, {
+              const response = await fetch(`${API_BASE_URL}/api/pointofinterests/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 signal: controller.signal,
@@ -544,6 +618,8 @@ export const usePOIs = () => {
     deletePOI,
     deletePOIsBatch,
     getPOIsForSession,
+    confirmDraftPOIs,
+    cancelDraftPOIs,
     setPOIsLoading,
     setPOIsError
   } = useDataStore();
@@ -561,6 +637,8 @@ export const usePOIs = () => {
     deletePOI,
     deletePOIsBatch,
     getPOIsForSession,
+    confirmDraftPOIs,
+    cancelDraftPOIs,
     setLoading: setPOIsLoading,
     setError: setPOIsError
   };

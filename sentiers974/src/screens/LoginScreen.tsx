@@ -9,23 +9,26 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Linking
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 
 /**
- * 🔑 ÉCRAN DE CONNEXION
+ * ÉCRAN DE CONNEXION
  *
  * Permet à l'utilisateur de se connecter avec email + password
  * - Validation basique des champs
  * - Gestion des erreurs
- * - Lien vers inscription
+ * - Lien vers inscription / reset password
  */
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login } = useAuth();
   const navigation = useNavigation();
@@ -70,6 +73,10 @@ export default function LoginScreen() {
     navigation.navigate('Signup' as never);
   };
 
+  const goToResetPassword = () => {
+    navigation.navigate('ResetPassword' as never);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -103,16 +110,30 @@ export default function LoginScreen() {
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Mot de passe</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
+                  activeOpacity={1}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Bouton connexion */}
@@ -120,6 +141,7 @@ export default function LoginScreen() {
               style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
               onPress={handleLogin}
               disabled={isLoading}
+              activeOpacity={1}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
@@ -128,13 +150,32 @@ export default function LoginScreen() {
               )}
             </TouchableOpacity>
 
-            {/* Lien vers inscription */}
+            {/* Lien reset password */}
+            <TouchableOpacity
+              style={styles.forgotPassword}
+              onPress={goToResetPassword}
+              disabled={isLoading}
+              activeOpacity={1}
+            >
+              <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
+            </TouchableOpacity>
+
             <View style={styles.signupContainer}>
               <Text style={styles.signupText}>Pas encore de compte ? </Text>
-              <TouchableOpacity onPress={goToSignup} disabled={isLoading}>
+              <TouchableOpacity onPress={goToSignup} disabled={isLoading} activeOpacity={1}>
                 <Text style={styles.signupLink}>S'inscrire</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Lien politique de confidentialité */}
+            <TouchableOpacity
+              style={styles.privacyContainer}
+              onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+              disabled={isLoading}
+              activeOpacity={1}
+            >
+              <Text style={styles.privacyText}>Politique de confidentialité</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -198,6 +239,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0'
   },
+  passwordContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  passwordInput: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingRight: 50,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0'
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    padding: 4
+  },
   loginButton: {
     backgroundColor: '#2196F3',
     borderRadius: 12,
@@ -218,6 +280,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 24
   },
+  forgotPassword: {
+    alignItems: 'center',
+    marginTop: 16
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
+    textDecorationLine: 'underline'
+  },
   signupText: {
     fontSize: 14,
     color: '#666'
@@ -226,5 +298,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2196F3',
     fontWeight: '600'
+  },
+  privacyContainer: {
+    alignItems: 'center',
+    marginTop: 16,
+    paddingVertical: 8
+  },
+  privacyText: {
+    fontSize: 13,
+    color: '#2196F3',
+    textDecorationLine: 'underline'
   }
 });

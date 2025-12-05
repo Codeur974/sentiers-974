@@ -9,8 +9,10 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  ScrollView
+  ScrollView,
+  Linking
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 
@@ -31,6 +33,9 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const { signup } = useAuth();
   const navigation = useNavigation();
@@ -54,6 +59,11 @@ export default function SignupScreen() {
 
     if (password !== confirmPassword) {
       Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    if (!acceptedTerms) {
+      Alert.alert('Erreur', 'Veuillez accepter la politique de confidentialité et les conditions d\'utilisation');
       return;
     }
 
@@ -131,30 +141,58 @@ export default function SignupScreen() {
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Mot de passe * (min. 8 caractères)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowPassword(!showPassword)}
+                  disabled={isLoading}
+                  activeOpacity={1}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Confirmer le mot de passe *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="••••••••"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeIcon}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isLoading}
+                  activeOpacity={1}
+                >
+                  <Ionicons
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={24}
+                    color="#666"
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             {/* Info migration */}
@@ -164,11 +202,42 @@ export default function SignupScreen() {
               </Text>
             </View>
 
+            {/* Checkbox consentement RGPD */}
+            <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setAcceptedTerms(!acceptedTerms)}
+              disabled={isLoading}
+              activeOpacity={1}
+            >
+              <View style={styles.checkbox}>
+                {acceptedTerms && (
+                  <Ionicons name="checkmark" size={18} color="#4CAF50" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>
+                J'accepte la{' '}
+                <Text
+                  style={styles.link}
+                  onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+                >
+                  politique de confidentialité
+                </Text>
+                {' '}et les{' '}
+                <Text
+                  style={styles.link}
+                  onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+                >
+                  conditions d'utilisation
+                </Text>
+              </Text>
+            </TouchableOpacity>
+
             {/* Bouton inscription */}
             <TouchableOpacity
               style={[styles.signupButton, isLoading && styles.signupButtonDisabled]}
               onPress={handleSignup}
               disabled={isLoading}
+              activeOpacity={1}
             >
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
@@ -248,6 +317,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0'
   },
+  passwordContainer: {
+    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  passwordInput: {
+    flex: 1,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingRight: 50,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#e0e0e0'
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 12,
+    padding: 4
+  },
   infoBox: {
     backgroundColor: '#E3F2FD',
     borderRadius: 12,
@@ -287,5 +377,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#2196F3',
     fontWeight: '600'
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingHorizontal: 4
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    borderRadius: 6,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 20
+  },
+  link: {
+    color: '#2196F3',
+    textDecorationLine: 'underline'
   }
 });

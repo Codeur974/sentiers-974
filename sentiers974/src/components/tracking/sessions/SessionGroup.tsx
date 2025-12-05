@@ -47,21 +47,30 @@ export const SessionGroupComponent: React.FC<SessionGroupProps> = ({
   onPhotoPress,
   onPhotoDelete
 }) => {
+  console.log('🎨 SessionGroup rendu:', {
+    sessionId: sessionGroup.sessionId,
+    hasPerformance: !!sessionGroup.performance,
+    photos: sessionGroup.photos.length
+  });
+
+  if (!sessionGroup.performance) {
+    console.log('⚠️ SessionGroup: Pas de performance pour', sessionGroup.sessionId);
+    return null;
+  }
+
   return (
     <View className="mb-4">
       {/* Performance de la session */}
-      {sessionGroup.performance && (
-        <View className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-          <SessionHeader
-            sessionId={sessionGroup.sessionId}
-            sport={sessionGroup.performance.sport}
-            onAddPhoto={onAddPhoto}
-            onDeleteSession={(sessionId) => onDeleteSession(sessionId, sessionGroup)}
-          />
+      <View className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+        <SessionHeader
+          sessionId={sessionGroup.sessionId}
+          sport={sessionGroup.performance.sport}
+          onAddPhoto={onAddPhoto}
+          onDeleteSession={(sessionId) => onDeleteSession(sessionId, sessionGroup)}
+        />
 
-          <SessionStats performance={sessionGroup.performance} />
-        </View>
-      )}
+        <SessionStats performance={sessionGroup.performance} />
+      </View>
 
       {/* Photos de cette session */}
       {sessionGroup.photos.map((photo) => (
