@@ -1,41 +1,49 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const helmet = require('helmet');
-const compression = require('compression');
-const rateLimit = require('express-rate-limit');
-const path = require('path');
-const cloudinary = require('cloudinary').v2;
-const multer = require('multer');
-const Sentier = require('./models/Sentier');
-const Session = require('./models/Session');
-const Post = require('./models/Post');
-const Comment = require('./models/Comment');
-require('dotenv').config();
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const rateLimit = require("express-rate-limit");
+const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const multer = require("multer");
+const Sentier = require("./models/Sentier");
+const Session = require("./models/Session");
+const Post = require("./models/Post");
+const Comment = require("./models/Comment");
+require("dotenv").config();
 
 // Configuration Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Configuration Multer pour upload mémoire (pas de fichier sur disque)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB max
-  }
+    fileSize: 10 * 1024 * 1024, // 10MB max
+  },
 });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Derrière un proxy (Render) pour que express-rate-limit lise X-Forwarded-For
+app.set("trust proxy", 1);
+
+// 🛡️ Rate Limiting - Protection anti-spam
+
 // 🔒 Rate Limiting - Protection anti-spam
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 5, // 5 tentatives max par IP
-  message: { success: false, error: 'Trop de tentatives, réessayez dans 15 minutes' },
+  message: {
+    success: false,
+    error: "Trop de tentatives, réessayez dans 15 minutes",
+  },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -43,7 +51,7 @@ const authLimiter = rateLimit({
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 100, // 100 requêtes max par minute par IP
-  message: { success: false, error: 'Trop de requêtes, ralentissez' },
+  message: { success: false, error: "Trop de requêtes, ralentissez" },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -51,36 +59,40 @@ const apiLimiter = rateLimit({
 // Middleware
 app.use(helmet());
 app.use(compression());
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.ALLOWED_ORIGINS?.split(',') || []
-    : true,
-  credentials: true
-}));
-app.use(express.json({ limit: '50mb' })); // Augmenter limite pour upload photos
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(
+  cors({
+    origin:
+      process.env.NODE_ENV === "production"
+        ? process.env.ALLOWED_ORIGINS?.split(",") || []
+        : true,
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: "50mb" })); // Augmenter limite pour upload photos
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // Servir les pages statiques (mentions légales)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 
 // Page de reset password (lien mail)
-app.get('/reset-password', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+app.get("/reset-password", (_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "reset-password.html"));
 });
 
 // Appliquer rate limiting général sur toutes les routes API
-app.use('/api/', apiLimiter);
+app.use("/api/", apiLimiter);
 
 // Connexion MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log('✅ MongoDB connecté'))
-.catch(err => console.error('❌ Erreur MongoDB:', err));
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connecté"))
+  .catch((err) => console.error("❌ Erreur MongoDB:", err));
 
 // Routes API
 
 // 🔐 Routes d'authentification (avec rate limiting strict)
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authLimiter, authRoutes);
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authLimiter, authRoutes);
 
 /**
  * GET /api/sentiers
@@ -96,7 +108,7 @@ app.use('/api/auth', authLimiter, authRoutes);
  * - limit: Nombre max de résultats (défaut: 50)
  * - page: Page pour pagination (défaut: 1)
  */
-app.get('/api/sentiers', async (req, res) => {
+app.get("/api/sentiers", async (req, res) => {
   try {
     const {
       region,
@@ -110,36 +122,46 @@ app.get('/api/sentiers', async (req, res) => {
       duree_max,
       search,
       limit = 200,
-      page = 1
+      page = 1,
     } = req.query;
 
     // Construction de la requête
     let query = {};
-    
+
     if (region) query.region = region;
     if (zone_specifique) query.zone_specifique = zone_specifique;
     if (difficulte) query.difficulte = difficulte;
     if (type) query.type = type;
-    if (commune) query.commune_depart = new RegExp(commune, 'i');
-    
+    if (commune) query.commune_depart = new RegExp(commune, "i");
+
     if (distance_min || distance_max) {
       query.distance = {};
       if (distance_min) query.distance.$gte = parseFloat(distance_min);
       if (distance_max) query.distance.$lte = parseFloat(distance_max);
     }
-    
+
     if (duree_min || duree_max) {
       const dureeMinHours = duree_min ? parseFloat(duree_min) : 0;
       const dureeMaxHours = duree_max ? parseFloat(duree_max) : 24;
-      
+
       query.$expr = {
         $and: [
-          { $gte: [{ $add: ['$duree.heures', { $divide: ['$duree.minutes', 60] }] }, dureeMinHours] },
-          { $lte: [{ $add: ['$duree.heures', { $divide: ['$duree.minutes', 60] }] }, dureeMaxHours] }
-        ]
+          {
+            $gte: [
+              { $add: ["$duree.heures", { $divide: ["$duree.minutes", 60] }] },
+              dureeMinHours,
+            ],
+          },
+          {
+            $lte: [
+              { $add: ["$duree.heures", { $divide: ["$duree.minutes", 60] }] },
+              dureeMaxHours,
+            ],
+          },
+        ],
       };
     }
-    
+
     if (search) {
       query.$text = { $search: search };
     }
@@ -152,7 +174,9 @@ app.get('/api/sentiers', async (req, res) => {
     // .lean() retourne des objets JavaScript simples au lieu d'objets Mongoose lourds
     // .select() ne charge que les champs nécessaires depuis MongoDB
     const sentiers = await Sentier.find(query)
-      .select('randopitons_id nom difficulte distance duree denivele_positif denivele_negatif type region zone_specifique commune_depart description_courte description_complete points_interet point_depart equipements_obligatoires equipements_recommandes periode_ideale restrictions dangers services_proximite contacts_urgence derniere_mise_a_jour_site source certification_officielle balisage')
+      .select(
+        "randopitons_id nom difficulte distance duree denivele_positif denivele_negatif type region zone_specifique commune_depart description_courte description_complete points_interet point_depart equipements_obligatoires equipements_recommandes periode_ideale restrictions dangers services_proximite contacts_urgence derniere_mise_a_jour_site source certification_officielle balisage"
+      )
       .lean() // IMPORTANT: Réduit l'utilisation mémoire de ~70%
       .limit(limitNum)
       .skip(skip)
@@ -161,13 +185,16 @@ app.get('/api/sentiers', async (req, res) => {
     const total = await Sentier.countDocuments(query);
 
     // Transformation manuelle (au lieu de .toClientFormat()) pour les objets lean
-    const sentiersFormatted = sentiers.map(s => ({
+    const sentiersFormatted = sentiers.map((s) => ({
       id: s.randopitons_id,
       nom: s.nom,
       difficulte: s.difficulte,
       distance: s.distance,
-      duree_heures: s.duree.heures + (s.duree.minutes / 60),
-      duree_formatee: s.duree.minutes > 0 ? `${s.duree.heures}h${s.duree.minutes.toString().padStart(2, '0')}` : `${s.duree.heures}h`,
+      duree_heures: s.duree.heures + s.duree.minutes / 60,
+      duree_formatee:
+        s.duree.minutes > 0
+          ? `${s.duree.heures}h${s.duree.minutes.toString().padStart(2, "0")}`
+          : `${s.duree.heures}h`,
       denivele_positif: s.denivele_positif,
       denivele_negatif: s.denivele_negatif,
       type: s.type,
@@ -175,28 +202,36 @@ app.get('/api/sentiers', async (req, res) => {
       zone_specifique: s.zone_specifique,
       commune_depart: s.commune_depart,
       description: s.description_complete || s.description_courte,
-      points_interet: (s.points_interet || []).map(p => p.nom),
+      points_interet: (s.points_interet || []).map((p) => p.nom),
       point_depart: {
         nom: s.point_depart.nom,
-        coordonnees: [s.point_depart.coordonnees.longitude, s.point_depart.coordonnees.latitude],
+        coordonnees: [
+          s.point_depart.coordonnees.longitude,
+          s.point_depart.coordonnees.latitude,
+        ],
         altitude: s.point_depart.altitude,
         acces_voiture: s.point_depart.acces_voiture,
-        parking_disponible: s.point_depart.parking_disponible
+        parking_disponible: s.point_depart.parking_disponible,
       },
       equipements_requis: s.equipements_obligatoires || [],
       equipements_recommandes: s.equipements_recommandes || [],
-      periode_ideale: s.periode_ideale || { debut: 'avril', fin: 'novembre' },
+      periode_ideale: s.periode_ideale || { debut: "avril", fin: "novembre" },
       restrictions: s.restrictions || [],
       dangers: s.dangers || [],
-      services_proximite: s.services_proximite || { hebergements: [], restaurants: [], locations_materiel: [] },
+      services_proximite: s.services_proximite || {
+        hebergements: [],
+        restaurants: [],
+        locations_materiel: [],
+      },
       contact_urgence: {
-        secours_montagne: s.contacts_urgence?.secours_montagne || '02 62 93 37 37',
-        gendarmerie: s.contacts_urgence?.gendarmerie || '17'
+        secours_montagne:
+          s.contacts_urgence?.secours_montagne || "02 62 93 37 37",
+        gendarmerie: s.contacts_urgence?.gendarmerie || "17",
       },
       derniere_mise_a_jour: s.derniere_mise_a_jour_site,
       source: s.source,
       certification_officielle: s.certification_officielle,
-      balisage: s.balisage || { type: 'Sentier balisé', etat: 'Bon' }
+      balisage: s.balisage || { type: "Sentier balisé", etat: "Bon" },
     }));
 
     res.json({
@@ -206,15 +241,14 @@ app.get('/api/sentiers', async (req, res) => {
         page: parseInt(page),
         limit: limitNum,
         total,
-        pages: Math.ceil(total / limitNum)
-      }
+        pages: Math.ceil(total / limitNum),
+      },
     });
-
   } catch (error) {
-    console.error('Erreur /api/sentiers:', error);
+    console.error("Erreur /api/sentiers:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -223,14 +257,14 @@ app.get('/api/sentiers', async (req, res) => {
  * GET /api/sentiers/:id
  * Récupère un sentier spécifique par son ID
  */
-app.get('/api/sentiers/:id', async (req, res) => {
+app.get("/api/sentiers/:id", async (req, res) => {
   try {
     const sentier = await Sentier.findOne({ randopitons_id: req.params.id });
-    
+
     if (!sentier) {
       return res.status(404).json({
         success: false,
-        error: 'Sentier non trouvé'
+        error: "Sentier non trouvé",
       });
     }
 
@@ -246,15 +280,14 @@ app.get('/api/sentiers/:id', async (req, res) => {
         altitude_max: sentier.altitude_max,
         photos: sentier.photos,
         evaluations: sentier.evaluations,
-        trace_gpx: sentier.trace_gpx
-      }
+        trace_gpx: sentier.trace_gpx,
+      },
     });
-
   } catch (error) {
-    console.error('Erreur /api/sentiers/:id:', error);
+    console.error("Erreur /api/sentiers/:id:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -263,37 +296,36 @@ app.get('/api/sentiers/:id', async (req, res) => {
  * GET /api/regions
  * Récupère la liste des régions avec le nombre de sentiers
  */
-app.get('/api/regions', async (req, res) => {
+app.get("/api/regions", async (req, res) => {
   try {
     const regions = await Sentier.aggregate([
       {
         $group: {
-          _id: '$region',
+          _id: "$region",
           count: { $sum: 1 },
-          types: { $addToSet: '$type' },
-          difficulties: { $addToSet: '$difficulte' }
-        }
+          types: { $addToSet: "$type" },
+          difficulties: { $addToSet: "$difficulte" },
+        },
       },
       {
-        $sort: { _id: 1 }
-      }
+        $sort: { _id: 1 },
+      },
     ]);
 
     res.json({
       success: true,
-      data: regions.map(r => ({
+      data: regions.map((r) => ({
         nom: r._id,
         nombre_sentiers: r.count,
         types_disponibles: r.types,
-        difficultes_disponibles: r.difficulties
-      }))
+        difficultes_disponibles: r.difficulties,
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur /api/regions:', error);
+    console.error("Erreur /api/regions:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -302,55 +334,54 @@ app.get('/api/regions', async (req, res) => {
  * GET /api/regions/hierarchie
  * Récupère la hiérarchie complète régions > sous-régions comme sur Randopitons.re
  */
-app.get('/api/regions/hierarchie', async (req, res) => {
+app.get("/api/regions/hierarchie", async (req, res) => {
   try {
     const hierarchie = await Sentier.aggregate([
       {
         $group: {
           _id: {
-            region: '$region',
-            zone_specifique: '$zone_specifique'
+            region: "$region",
+            zone_specifique: "$zone_specifique",
           },
           count: { $sum: 1 },
-          types: { $addToSet: '$type' },
-          difficulties: { $addToSet: '$difficulte' }
-        }
+          types: { $addToSet: "$type" },
+          difficulties: { $addToSet: "$difficulte" },
+        },
       },
       {
         $group: {
-          _id: '$_id.region',
-          total_sentiers: { $sum: '$count' },
+          _id: "$_id.region",
+          total_sentiers: { $sum: "$count" },
           sous_regions: {
             $push: {
-              nom: '$_id.zone_specifique',
-              nombre_sentiers: '$count',
-              types_disponibles: '$types',
-              difficultes_disponibles: '$difficulties'
-            }
-          }
-        }
+              nom: "$_id.zone_specifique",
+              nombre_sentiers: "$count",
+              types_disponibles: "$types",
+              difficultes_disponibles: "$difficulties",
+            },
+          },
+        },
       },
       {
-        $sort: { _id: 1 }
-      }
+        $sort: { _id: 1 },
+      },
     ]);
 
     res.json({
       success: true,
-      data: hierarchie.map(region => ({
+      data: hierarchie.map((region) => ({
         region: region._id,
         nombre_total_sentiers: region.total_sentiers,
         sous_regions: region.sous_regions
-          .filter(sr => sr.nom) // Exclure les null/undefined
-          .sort((a, b) => b.nombre_sentiers - a.nombre_sentiers) // Tri par nombre de sentiers
-      }))
+          .filter((sr) => sr.nom) // Exclure les null/undefined
+          .sort((a, b) => b.nombre_sentiers - a.nombre_sentiers), // Tri par nombre de sentiers
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur /api/regions/hierarchie:', error);
+    console.error("Erreur /api/regions/hierarchie:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -359,54 +390,53 @@ app.get('/api/regions/hierarchie', async (req, res) => {
  * GET /api/regions/:region/sous-regions
  * Récupère les sous-régions d'une région spécifique
  */
-app.get('/api/regions/:region/sous-regions', async (req, res) => {
+app.get("/api/regions/:region/sous-regions", async (req, res) => {
   try {
     const { region } = req.params;
-    
+
     const sousRegions = await Sentier.aggregate([
       {
-        $match: { 
+        $match: {
           region: region,
-          zone_specifique: { $ne: null, $ne: '' }
-        }
+          zone_specifique: { $ne: null, $ne: "" },
+        },
       },
       {
         $group: {
-          _id: '$zone_specifique',
+          _id: "$zone_specifique",
           count: { $sum: 1 },
-          types: { $addToSet: '$type' },
-          difficulties: { $addToSet: '$difficulte' },
-          exemples: { 
+          types: { $addToSet: "$type" },
+          difficulties: { $addToSet: "$difficulte" },
+          exemples: {
             $push: {
-              nom: '$nom',
-              difficulte: '$difficulte',
-              distance: '$distance'
-            }
-          }
-        }
+              nom: "$nom",
+              difficulte: "$difficulte",
+              distance: "$distance",
+            },
+          },
+        },
       },
       {
-        $sort: { count: -1 }
-      }
+        $sort: { count: -1 },
+      },
     ]);
 
     res.json({
       success: true,
       region: region,
-      data: sousRegions.map(sr => ({
+      data: sousRegions.map((sr) => ({
         nom: sr._id,
         nombre_sentiers: sr.count,
         types_disponibles: sr.types,
         difficultes_disponibles: sr.difficulties,
-        exemples_sentiers: sr.exemples.slice(0, 3) // 3 exemples max
-      }))
+        exemples_sentiers: sr.exemples.slice(0, 3), // 3 exemples max
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur /api/regions/:region/sous-regions:', error);
+    console.error("Erreur /api/regions/:region/sous-regions:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -415,38 +445,37 @@ app.get('/api/regions/:region/sous-regions', async (req, res) => {
  * GET /api/communes
  * Récupère la liste des communes avec le nombre de sentiers
  */
-app.get('/api/communes', async (req, res) => {
+app.get("/api/communes", async (req, res) => {
   try {
     const communes = await Sentier.aggregate([
       {
-        $match: { commune_depart: { $ne: null } }
+        $match: { commune_depart: { $ne: null } },
       },
       {
         $group: {
-          _id: '$commune_depart',
+          _id: "$commune_depart",
           count: { $sum: 1 },
-          regions: { $addToSet: '$region' }
-        }
+          regions: { $addToSet: "$region" },
+        },
       },
       {
-        $sort: { _id: 1 }
-      }
+        $sort: { _id: 1 },
+      },
     ]);
 
     res.json({
       success: true,
-      data: communes.map(c => ({
+      data: communes.map((c) => ({
         nom: c._id,
         nombre_sentiers: c.count,
-        regions: c.regions
-      }))
+        regions: c.regions,
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur /api/communes:', error);
+    console.error("Erreur /api/communes:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -455,48 +484,48 @@ app.get('/api/communes', async (req, res) => {
  * GET /api/stats
  * Récupère les statistiques générales
  */
-app.get('/api/stats', async (req, res) => {
+app.get("/api/stats", async (req, res) => {
   try {
     const stats = await Sentier.aggregate([
       {
         $group: {
           _id: null,
           total_sentiers: { $sum: 1 },
-          distance_totale: { $sum: '$distance' },
-          distance_moyenne: { $avg: '$distance' },
-          denivele_moyen: { $avg: '$denivele_positif' },
-          regions: { $addToSet: '$region' },
-          types: { $addToSet: '$type' },
-          difficultes: { $addToSet: '$difficulte' }
-        }
-      }
+          distance_totale: { $sum: "$distance" },
+          distance_moyenne: { $avg: "$distance" },
+          denivele_moyen: { $avg: "$denivele_positif" },
+          regions: { $addToSet: "$region" },
+          types: { $addToSet: "$type" },
+          difficultes: { $addToSet: "$difficulte" },
+        },
+      },
     ]);
 
     const regionStats = await Sentier.aggregate([
       {
         $group: {
-          _id: '$region',
-          count: { $sum: 1 }
-        }
-      }
+          _id: "$region",
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const typeStats = await Sentier.aggregate([
       {
         $group: {
-          _id: '$type',
-          count: { $sum: 1 }
-        }
-      }
+          _id: "$type",
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     const difficulteStats = await Sentier.aggregate([
       {
         $group: {
-          _id: '$difficulte',
-          count: { $sum: 1 }
-        }
-      }
+          _id: "$difficulte",
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     res.json({
@@ -505,15 +534,14 @@ app.get('/api/stats', async (req, res) => {
         generale: stats[0],
         par_region: regionStats,
         par_type: typeStats,
-        par_difficulte: difficulteStats
-      }
+        par_difficulte: difficulteStats,
+      },
     });
-
   } catch (error) {
-    console.error('Erreur /api/stats:', error);
+    console.error("Erreur /api/stats:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -522,46 +550,45 @@ app.get('/api/stats', async (req, res) => {
  * GET /api/search
  * Recherche avancée de sentiers
  */
-app.get('/api/search', async (req, res) => {
+app.get("/api/search", async (req, res) => {
   try {
     const { q } = req.query;
-    
+
     if (!q || q.length < 2) {
       return res.json({
         success: true,
-        data: []
+        data: [],
       });
     }
 
     const sentiers = await Sentier.find({
       $or: [
-        { nom: new RegExp(q, 'i') },
-        { description_complete: new RegExp(q, 'i') },
-        { commune_depart: new RegExp(q, 'i') },
-        { region: new RegExp(q, 'i') },
-        { 'points_interet.nom': new RegExp(q, 'i') }
-      ]
+        { nom: new RegExp(q, "i") },
+        { description_complete: new RegExp(q, "i") },
+        { commune_depart: new RegExp(q, "i") },
+        { region: new RegExp(q, "i") },
+        { "points_interet.nom": new RegExp(q, "i") },
+      ],
     })
-    .limit(20)
-    .sort({ randopitons_id: 1 });
+      .limit(20)
+      .sort({ randopitons_id: 1 });
 
     res.json({
       success: true,
-      data: sentiers.map(s => ({
+      data: sentiers.map((s) => ({
         id: s.randopitons_id,
         nom: s.nom,
         region: s.region,
         commune: s.commune_depart,
         distance: s.distance,
-        difficulte: s.difficulte
-      }))
+        difficulte: s.difficulte,
+      })),
     });
-
   } catch (error) {
-    console.error('Erreur /api/search:', error);
+    console.error("Erreur /api/search:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -570,29 +597,37 @@ app.get('/api/search', async (req, res) => {
  * POST /api/sessions
  * Créer une nouvelle session de tracking
  */
-app.post('/api/sessions', async (req, res) => {
+app.post("/api/sessions", async (req, res) => {
   try {
     const sessionData = req.body;
-    
+
     // Validation basique
     if (!sessionData.sport?.nom) {
       return res.status(400).json({
         success: false,
-        error: 'sport.nom est requis'
+        error: "sport.nom est requis",
       });
     }
 
     // Utiliser l'ID fourni par l'app, ou générer un nouveau si manquant
     if (!sessionData.sessionId) {
-      const { ObjectId } = require('mongodb');
+      const { ObjectId } = require("mongodb");
       sessionData.sessionId = `session_${Date.now()}_${new ObjectId().toString()}`;
-      console.log('🆔 Nouveau sessionId généré côté serveur:', sessionData.sessionId);
+      console.log(
+        "🆔 Nouveau sessionId généré côté serveur:",
+        sessionData.sessionId
+      );
     } else {
-      console.log('🆔 SessionId fourni par l\'app conservé:', sessionData.sessionId);
+      console.log(
+        "🆔 SessionId fourni par l'app conservé:",
+        sessionData.sessionId
+      );
     }
 
     // Vérifier si la session existe déjà (update si existe, create sinon)
-    const existingSession = await Session.findOne({ sessionId: sessionData.sessionId });
+    const existingSession = await Session.findOne({
+      sessionId: sessionData.sessionId,
+    });
 
     let session;
     if (existingSession) {
@@ -600,24 +635,23 @@ app.post('/api/sessions', async (req, res) => {
       Object.assign(existingSession, sessionData);
       await existingSession.save();
       session = existingSession;
-      console.log('🔄 Session mise à jour:', session.sessionId);
+      console.log("🔄 Session mise à jour:", session.sessionId);
     } else {
       // Création d'une nouvelle session
       session = new Session(sessionData);
       await session.save();
-      console.log('✅ Session créée:', session.sessionId);
+      console.log("✅ Session créée:", session.sessionId);
     }
 
     res.status(existingSession ? 200 : 201).json({
       success: true,
-      data: session.toClientFormat()
+      data: session.toClientFormat(),
     });
-    
   } catch (error) {
-    console.error('❌ Erreur sauvegarde session:', error);
+    console.error("❌ Erreur sauvegarde session:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de la sauvegarde'
+      error: "Erreur serveur lors de la sauvegarde",
     });
   }
 });
@@ -631,43 +665,42 @@ app.post('/api/sessions', async (req, res) => {
  * - sport: Filtrer par sport
  * - dateFrom, dateTo: Filtrer par période
  */
-app.get('/api/sessions', async (req, res) => {
+app.get("/api/sessions", async (req, res) => {
   try {
     const {
-      userId = 'anonymous',
+      userId = "anonymous",
       limit = 50,
       sport,
       dateFrom,
-      dateTo
+      dateTo,
     } = req.query;
-    
+
     // Construction de la requête
     let query = { userId };
-    
-    if (sport) query['sport.nom'] = sport;
-    
+
+    if (sport) query["sport.nom"] = sport;
+
     if (dateFrom || dateTo) {
       query.createdAt = {};
       if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
       if (dateTo) query.createdAt.$lte = new Date(dateTo);
     }
-    
+
     // Récupérer les sessions
     const sessions = await Session.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
-    
+
     res.json({
       success: true,
-      data: sessions.map(s => s.toClientFormat()),
-      count: sessions.length
+      data: sessions.map((s) => s.toClientFormat()),
+      count: sessions.length,
     });
-    
   } catch (error) {
-    console.error('❌ Erreur récupération sessions:', error);
+    console.error("❌ Erreur récupération sessions:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -676,17 +709,17 @@ app.get('/api/sessions', async (req, res) => {
  * GET /api/sessions/:sessionId
  * Récupérer une session spécifique avec tous les détails
  */
-app.get('/api/sessions/:sessionId', async (req, res) => {
+app.get("/api/sessions/:sessionId", async (req, res) => {
   try {
     const session = await Session.findOne({ sessionId: req.params.sessionId });
-    
+
     if (!session) {
       return res.status(404).json({
         success: false,
-        error: 'Session non trouvée'
+        error: "Session non trouvée",
       });
     }
-    
+
     res.json({
       success: true,
       data: {
@@ -696,15 +729,14 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
         pois: session.pois,
         photos: session.photos,
         startCoordinates: session.startCoordinates,
-        endCoordinates: session.endCoordinates
-      }
+        endCoordinates: session.endCoordinates,
+      },
     });
-    
   } catch (error) {
-    console.error('❌ Erreur récupération session:', error);
+    console.error("❌ Erreur récupération session:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -713,27 +745,26 @@ app.get('/api/sessions/:sessionId', async (req, res) => {
  * DELETE /api/sessions/:sessionId
  * Supprimer une session
  */
-app.delete('/api/sessions/:sessionId', async (req, res) => {
+app.delete("/api/sessions/:sessionId", async (req, res) => {
   try {
     const result = await Session.deleteOne({ sessionId: req.params.sessionId });
-    
+
     if (result.deletedCount === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Session non trouvée'
+        error: "Session non trouvée",
       });
     }
-    
+
     res.json({
       success: true,
-      message: 'Session supprimée'
+      message: "Session supprimée",
     });
-    
   } catch (error) {
-    console.error('❌ Erreur suppression session:', error);
+    console.error("❌ Erreur suppression session:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -742,7 +773,7 @@ app.delete('/api/sessions/:sessionId', async (req, res) => {
  * POST /api/sessions/:sessionId/photos
  * Ajouter une photo à une session
  */
-app.post('/api/sessions/:sessionId/photos', async (req, res) => {
+app.post("/api/sessions/:sessionId/photos", async (req, res) => {
   try {
     const { sessionId } = req.params;
     const photoData = req.body;
@@ -751,7 +782,7 @@ app.post('/api/sessions/:sessionId/photos', async (req, res) => {
     if (!photoData.uri || !photoData.caption) {
       return res.status(400).json({
         success: false,
-        error: 'uri et caption requis'
+        error: "uri et caption requis",
       });
     }
 
@@ -764,7 +795,7 @@ app.post('/api/sessions/:sessionId/photos', async (req, res) => {
     if (result.matchedCount === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Session non trouvée'
+        error: "Session non trouvée",
       });
     }
 
@@ -772,14 +803,13 @@ app.post('/api/sessions/:sessionId/photos', async (req, res) => {
 
     res.json({
       success: true,
-      data: photoData
+      data: photoData,
     });
-
   } catch (error) {
-    console.error('❌ Erreur ajout photo session:', error);
+    console.error("❌ Erreur ajout photo session:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -788,7 +818,7 @@ app.post('/api/sessions/:sessionId/photos', async (req, res) => {
  * DELETE /api/sessions/:sessionId/photos/:photoId
  * Supprimer une photo d'une session
  */
-app.delete('/api/sessions/:sessionId/photos/:photoId', async (req, res) => {
+app.delete("/api/sessions/:sessionId/photos/:photoId", async (req, res) => {
   try {
     const { sessionId, photoId } = req.params;
 
@@ -801,7 +831,7 @@ app.delete('/api/sessions/:sessionId/photos/:photoId', async (req, res) => {
     if (result.matchedCount === 0) {
       return res.status(404).json({
         success: false,
-        error: 'Session non trouvée'
+        error: "Session non trouvée",
       });
     }
 
@@ -809,14 +839,13 @@ app.delete('/api/sessions/:sessionId/photos/:photoId', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Photo supprimée'
+      message: "Photo supprimée",
     });
-
   } catch (error) {
-    console.error('❌ Erreur suppression photo session:', error);
+    console.error("❌ Erreur suppression photo session:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -825,10 +854,10 @@ app.delete('/api/sessions/:sessionId/photos/:photoId', async (req, res) => {
  * GET /api/sessions/stats/daily
  * Récupérer les statistiques quotidiennes
  */
-app.get('/api/sessions/stats/daily', async (req, res) => {
+app.get("/api/sessions/stats/daily", async (req, res) => {
   try {
-    const { userId = 'anonymous', date } = req.query;
-    
+    const { userId = "anonymous", date } = req.query;
+
     let startDate, endDate;
     if (date) {
       startDate = new Date(date);
@@ -841,62 +870,64 @@ app.get('/api/sessions/stats/daily', async (req, res) => {
       endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
     }
-    
+
     const stats = await Session.aggregate([
       {
         $match: {
           userId: userId,
-          createdAt: { $gte: startDate, $lt: endDate }
-        }
+          createdAt: { $gte: startDate, $lt: endDate },
+        },
       },
       {
         $group: {
           _id: null,
           totalSessions: { $sum: 1 },
-          totalDistance: { $sum: '$distance' },
-          totalDuration: { $sum: '$duration' },
-          totalCalories: { $sum: '$calories' },
-          totalSteps: { $sum: '$steps' },
-          avgSpeed: { $avg: '$avgSpeed' },
-          maxSpeed: { $max: '$maxSpeed' },
-          sports: { $addToSet: '$sport.nom' },
+          totalDistance: { $sum: "$distance" },
+          totalDuration: { $sum: "$duration" },
+          totalCalories: { $sum: "$calories" },
+          totalSteps: { $sum: "$steps" },
+          avgSpeed: { $avg: "$avgSpeed" },
+          maxSpeed: { $max: "$maxSpeed" },
+          sports: { $addToSet: "$sport.nom" },
           sessions: {
             $push: {
-              id: '$sessionId',
-              sport: '$sport.nom',
-              distance: '$distance',
-              duration: '$duration',
-              avgSpeed: '$avgSpeed',
-              maxSpeed: '$maxSpeed',
-              steps: '$steps',
-              createdAt: '$createdAt'
-            }
-          }
-        }
-      }
+              id: "$sessionId",
+              sport: "$sport.nom",
+              distance: "$distance",
+              duration: "$duration",
+              avgSpeed: "$avgSpeed",
+              maxSpeed: "$maxSpeed",
+              steps: "$steps",
+              createdAt: "$createdAt",
+            },
+          },
+        },
+      },
     ]);
-    
+
     res.json({
       success: true,
-      date: startDate.toISOString().split('T')[0],
-      data: stats.length > 0 ? stats[0] : {
-        totalSessions: 0,
-        totalDistance: 0,
-        totalDuration: 0,
-        totalCalories: 0,
-        totalSteps: 0,
-        avgSpeed: 0,
-        maxSpeed: 0,
-        sports: [],
-        sessions: []
-      }
+      date: startDate.toISOString().split("T")[0],
+      data:
+        stats.length > 0
+          ? stats[0]
+          : {
+              totalSessions: 0,
+              totalDistance: 0,
+              totalDuration: 0,
+              totalCalories: 0,
+              totalSteps: 0,
+              avgSpeed: 0,
+              maxSpeed: 0,
+              sports: [],
+              sessions: [],
+            },
     });
-    
   } catch (error) {
-    console.error('❌ Erreur stats quotidiennes:', error);
+    console.error("❌ Erreur stats quotidiennes:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -916,14 +947,9 @@ app.get('/api/sessions/stats/daily', async (req, res) => {
  * - userId: Filtrer par utilisateur
  * - sport: Filtrer par sport
  */
-app.get('/api/posts', async (req, res) => {
+app.get("/api/posts", async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-      userId,
-      sport
-    } = req.query;
+    const { page = 1, limit = 20, userId, sport } = req.query;
 
     let query = {};
     if (userId) query.userId = userId;
@@ -937,8 +963,9 @@ app.get('/api/posts', async (req, res) => {
     // Récupérer les commentaires pour chaque post
     const postsWithComments = await Promise.all(
       posts.map(async (post) => {
-        const comments = await Comment.find({ postId: post._id })
-          .sort({ createdAt: 1 });
+        const comments = await Comment.find({ postId: post._id }).sort({
+          createdAt: 1,
+        });
 
         return {
           id: post._id,
@@ -952,14 +979,14 @@ app.get('/api/posts', async (req, res) => {
           sport: post.sport,
           location: post.location,
           createdAt: post.createdAt.getTime(),
-          comments: comments.map(comment => ({
+          comments: comments.map((comment) => ({
             id: comment._id,
             userId: comment.userId,
             userName: comment.userName,
             userAvatar: comment.userAvatar,
             text: comment.text,
-            createdAt: comment.createdAt.getTime()
-          }))
+            createdAt: comment.createdAt.getTime(),
+          })),
         };
       })
     );
@@ -967,14 +994,13 @@ app.get('/api/posts', async (req, res) => {
     res.json({
       success: true,
       data: postsWithComments,
-      count: postsWithComments.length
+      count: postsWithComments.length,
     });
-
   } catch (error) {
-    console.error('❌ Erreur récupération posts:', error);
+    console.error("❌ Erreur récupération posts:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -983,7 +1009,7 @@ app.get('/api/posts', async (req, res) => {
  * POST /api/posts
  * Créer un nouveau post
  */
-app.post('/api/posts', async (req, res) => {
+app.post("/api/posts", async (req, res) => {
   try {
     const postData = req.body;
 
@@ -991,14 +1017,14 @@ app.post('/api/posts', async (req, res) => {
     if (!postData.userId || !postData.userName || !postData.caption) {
       return res.status(400).json({
         success: false,
-        error: 'userId, userName et caption sont requis'
+        error: "userId, userName et caption sont requis",
       });
     }
 
     const newPost = new Post({
       ...postData,
       likes: postData.likes || [],
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     await newPost.save();
@@ -1017,15 +1043,14 @@ app.post('/api/posts', async (req, res) => {
         sport: newPost.sport,
         location: newPost.location,
         createdAt: newPost.createdAt.getTime(),
-        comments: []
-      }
+        comments: [],
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur création post:', error);
+    console.error("❌ Erreur création post:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1034,7 +1059,7 @@ app.post('/api/posts', async (req, res) => {
  * PUT /api/posts/:id
  * Modifier un post
  */
-app.put('/api/posts/:id', async (req, res) => {
+app.put("/api/posts/:id", async (req, res) => {
   try {
     const postId = req.params.id;
     const updateData = req.body;
@@ -1046,16 +1071,14 @@ app.put('/api/posts/:id', async (req, res) => {
 
     updateData.updatedAt = new Date();
 
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      updateData,
-      { new: true }
-    );
+    const updatedPost = await Post.findByIdAndUpdate(postId, updateData, {
+      new: true,
+    });
 
     if (!updatedPost) {
       return res.status(404).json({
         success: false,
-        error: 'Post non trouvé'
+        error: "Post non trouvé",
       });
     }
 
@@ -1073,15 +1096,14 @@ app.put('/api/posts/:id', async (req, res) => {
         sport: updatedPost.sport,
         location: updatedPost.location,
         createdAt: updatedPost.createdAt.getTime(),
-        updatedAt: updatedPost.updatedAt.getTime()
-      }
+        updatedAt: updatedPost.updatedAt.getTime(),
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur modification post:', error);
+    console.error("❌ Erreur modification post:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1090,7 +1112,7 @@ app.put('/api/posts/:id', async (req, res) => {
  * DELETE /api/posts/:id
  * Supprimer un post et tous ses commentaires
  */
-app.delete('/api/posts/:id', async (req, res) => {
+app.delete("/api/posts/:id", async (req, res) => {
   try {
     const postId = req.params.id;
 
@@ -1100,7 +1122,7 @@ app.delete('/api/posts/:id', async (req, res) => {
     if (!deletedPost) {
       return res.status(404).json({
         success: false,
-        error: 'Post non trouvé'
+        error: "Post non trouvé",
       });
     }
 
@@ -1109,14 +1131,13 @@ app.delete('/api/posts/:id', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Post et commentaires supprimés'
+      message: "Post et commentaires supprimés",
     });
-
   } catch (error) {
-    console.error('❌ Erreur suppression post:', error);
+    console.error("❌ Erreur suppression post:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1125,7 +1146,7 @@ app.delete('/api/posts/:id', async (req, res) => {
  * POST /api/posts/:id/like
  * Liker/Unliker un post
  */
-app.post('/api/posts/:id/like', async (req, res) => {
+app.post("/api/posts/:id/like", async (req, res) => {
   try {
     const postId = req.params.id;
     const { userId } = req.body;
@@ -1133,7 +1154,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
     if (!userId) {
       return res.status(400).json({
         success: false,
-        error: 'userId requis'
+        error: "userId requis",
       });
     }
 
@@ -1142,7 +1163,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post non trouvé'
+        error: "Post non trouvé",
       });
     }
 
@@ -1150,7 +1171,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
 
     if (isLiked) {
       // Unlike
-      post.likes = post.likes.filter(id => id !== userId);
+      post.likes = post.likes.filter((id) => id !== userId);
     } else {
       // Like
       post.likes.push(userId);
@@ -1162,15 +1183,14 @@ app.post('/api/posts/:id/like', async (req, res) => {
       success: true,
       data: {
         liked: !isLiked,
-        likesCount: post.likes.length
-      }
+        likesCount: post.likes.length,
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur like post:', error);
+    console.error("❌ Erreur like post:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1179,7 +1199,7 @@ app.post('/api/posts/:id/like', async (req, res) => {
  * POST /api/posts/:id/comments
  * Ajouter un commentaire à un post
  */
-app.post('/api/posts/:id/comments', async (req, res) => {
+app.post("/api/posts/:id/comments", async (req, res) => {
   try {
     const postId = req.params.id;
     const { userId, userName, userAvatar, text, photos } = req.body;
@@ -1188,7 +1208,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     if (!userId || !userName || !text) {
       return res.status(400).json({
         success: false,
-        error: 'userId, userName et text sont requis'
+        error: "userId, userName et text sont requis",
       });
     }
 
@@ -1197,7 +1217,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
     if (!post) {
       return res.status(404).json({
         success: false,
-        error: 'Post non trouvé'
+        error: "Post non trouvé",
       });
     }
 
@@ -1208,7 +1228,7 @@ app.post('/api/posts/:id/comments', async (req, res) => {
       userAvatar,
       text: text.trim(),
       photos: photos || [],
-      createdAt: new Date()
+      createdAt: new Date(),
     });
 
     await newComment.save();
@@ -1222,15 +1242,14 @@ app.post('/api/posts/:id/comments', async (req, res) => {
         userAvatar: newComment.userAvatar,
         text: newComment.text,
         photos: newComment.photos,
-        createdAt: newComment.createdAt.getTime()
-      }
+        createdAt: newComment.createdAt.getTime(),
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur ajout commentaire:', error);
+    console.error("❌ Erreur ajout commentaire:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1239,31 +1258,29 @@ app.post('/api/posts/:id/comments', async (req, res) => {
  * GET /api/posts/:id/comments
  * Récupérer les commentaires d'un post
  */
-app.get('/api/posts/:id/comments', async (req, res) => {
+app.get("/api/posts/:id/comments", async (req, res) => {
   try {
     const postId = req.params.id;
 
-    const comments = await Comment.find({ postId })
-      .sort({ createdAt: 1 });
+    const comments = await Comment.find({ postId }).sort({ createdAt: 1 });
 
     res.json({
       success: true,
-      data: comments.map(comment => ({
+      data: comments.map((comment) => ({
         id: comment._id,
         userId: comment.userId,
         userName: comment.userName,
         userAvatar: comment.userAvatar,
         text: comment.text,
-        createdAt: comment.createdAt.getTime()
+        createdAt: comment.createdAt.getTime(),
       })),
-      count: comments.length
+      count: comments.length,
     });
-
   } catch (error) {
-    console.error('❌ Erreur récupération commentaires:', error);
+    console.error("❌ Erreur récupération commentaires:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1277,7 +1294,7 @@ app.get('/api/posts/:id/comments', async (req, res) => {
  * Upload une image vers Cloudinary
  * Accepte base64 ou multipart/form-data
  */
-app.post('/api/upload', upload.single('photo'), async (req, res) => {
+app.post("/api/upload", upload.single("photo"), async (req, res) => {
   try {
     let imageData;
 
@@ -1287,24 +1304,25 @@ app.post('/api/upload', upload.single('photo'), async (req, res) => {
     }
     // Support fichier multipart
     else if (req.file) {
-      imageData = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    }
-    else {
+      imageData = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+        "base64"
+      )}`;
+    } else {
       return res.status(400).json({
         success: false,
-        error: 'Aucune image fournie'
+        error: "Aucune image fournie",
       });
     }
 
     // Upload vers Cloudinary
     const result = await cloudinary.uploader.upload(imageData, {
-      folder: 'sentiers974',
-      resource_type: 'auto',
+      folder: "sentiers974",
+      resource_type: "auto",
       transformation: [
-        { width: 1200, height: 1200, crop: 'limit' },
-        { quality: 'auto:good' },
-        { fetch_format: 'auto' }
-      ]
+        { width: 1200, height: 1200, crop: "limit" },
+        { quality: "auto:good" },
+        { fetch_format: "auto" },
+      ],
     });
 
     res.json({
@@ -1313,15 +1331,14 @@ app.post('/api/upload', upload.single('photo'), async (req, res) => {
         url: result.secure_url,
         publicId: result.public_id,
         width: result.width,
-        height: result.height
-      }
+        height: result.height,
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur upload Cloudinary:', error);
+    console.error("❌ Erreur upload Cloudinary:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de l\'upload de l\'image'
+      error: "Erreur lors de l'upload de l'image",
     });
   }
 });
@@ -1330,73 +1347,77 @@ app.post('/api/upload', upload.single('photo'), async (req, res) => {
  * POST /api/upload/multiple
  * Upload multiple images vers Cloudinary
  */
-app.post('/api/upload/multiple', upload.array('photos', 10), async (req, res) => {
-  try {
-    const uploadPromises = [];
+app.post(
+  "/api/upload/multiple",
+  upload.array("photos", 10),
+  async (req, res) => {
+    try {
+      const uploadPromises = [];
 
-    // Support base64 array
-    if (req.body.images && Array.isArray(req.body.images)) {
-      for (const base64Image of req.body.images) {
-        uploadPromises.push(
-          cloudinary.uploader.upload(base64Image, {
-            folder: 'sentiers974',
-            resource_type: 'auto',
-            transformation: [
-              { width: 1200, height: 1200, crop: 'limit' },
-              { quality: 'auto:good' },
-              { fetch_format: 'auto' }
-            ]
-          })
-        );
+      // Support base64 array
+      if (req.body.images && Array.isArray(req.body.images)) {
+        for (const base64Image of req.body.images) {
+          uploadPromises.push(
+            cloudinary.uploader.upload(base64Image, {
+              folder: "sentiers974",
+              resource_type: "auto",
+              transformation: [
+                { width: 1200, height: 1200, crop: "limit" },
+                { quality: "auto:good" },
+                { fetch_format: "auto" },
+              ],
+            })
+          );
+        }
       }
-    }
-    // Support fichiers multipart
-    else if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-        uploadPromises.push(
-          cloudinary.uploader.upload(base64Image, {
-            folder: 'sentiers974',
-            resource_type: 'auto',
-            transformation: [
-              { width: 1200, height: 1200, crop: 'limit' },
-              { quality: 'auto:good' },
-              { fetch_format: 'auto' }
-            ]
-          })
-        );
+      // Support fichiers multipart
+      else if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+          const base64Image = `data:${
+            file.mimetype
+          };base64,${file.buffer.toString("base64")}`;
+          uploadPromises.push(
+            cloudinary.uploader.upload(base64Image, {
+              folder: "sentiers974",
+              resource_type: "auto",
+              transformation: [
+                { width: 1200, height: 1200, crop: "limit" },
+                { quality: "auto:good" },
+                { fetch_format: "auto" },
+              ],
+            })
+          );
+        }
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: "Aucune image fournie",
+        });
       }
-    }
-    else {
-      return res.status(400).json({
+
+      const results = await Promise.all(uploadPromises);
+
+      res.json({
+        success: true,
+        data: results.map((result) => ({
+          url: result.secure_url,
+          publicId: result.public_id,
+          width: result.width,
+          height: result.height,
+        })),
+      });
+    } catch (error) {
+      console.error("❌ Erreur upload multiple Cloudinary:", error);
+      res.status(500).json({
         success: false,
-        error: 'Aucune image fournie'
+        error: "Erreur lors de l'upload des images",
       });
     }
-
-    const results = await Promise.all(uploadPromises);
-
-    res.json({
-      success: true,
-      data: results.map(result => ({
-        url: result.secure_url,
-        publicId: result.public_id,
-        width: result.width,
-        height: result.height
-      }))
-    });
-
-  } catch (error) {
-    console.error('❌ Erreur upload multiple Cloudinary:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Erreur lors de l\'upload des images'
-    });
   }
-});
+);
 
 // Route de santé
-app.get('/api/health', async (req, res) => {
+app.get("/api/health", async (req, res) => {
   try {
     const sentiersCount = await Sentier.countDocuments();
     const sessionsCount = await Session.countDocuments();
@@ -1405,19 +1426,19 @@ app.get('/api/health', async (req, res) => {
 
     res.json({
       success: true,
-      status: 'healthy',
-      mongodb: 'connected',
+      status: "healthy",
+      mongodb: "connected",
       sentiers_count: sentiersCount,
       sessions_count: sessionsCount,
       posts_count: postsCount,
       comments_count: commentsCount,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      status: 'error',
-      mongodb: 'disconnected'
+      status: "error",
+      mongodb: "disconnected",
     });
   }
 });
@@ -1426,7 +1447,7 @@ app.get('/api/health', async (req, res) => {
  * PUT /api/comments/:id
  * Modifier un commentaire
  */
-app.put('/api/comments/:id', async (req, res) => {
+app.put("/api/comments/:id", async (req, res) => {
   try {
     const commentId = req.params.id;
     const { text, photos } = req.body;
@@ -1435,7 +1456,7 @@ app.put('/api/comments/:id', async (req, res) => {
     if (!text) {
       return res.status(400).json({
         success: false,
-        error: 'Le texte est requis'
+        error: "Le texte est requis",
       });
     }
 
@@ -1445,7 +1466,7 @@ app.put('/api/comments/:id', async (req, res) => {
       {
         text: text.trim(),
         photos: photos || [],
-        updatedAt: new Date()
+        updatedAt: new Date(),
       },
       { new: true }
     );
@@ -1453,7 +1474,7 @@ app.put('/api/comments/:id', async (req, res) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        error: 'Commentaire non trouvé'
+        error: "Commentaire non trouvé",
       });
     }
 
@@ -1467,15 +1488,14 @@ app.put('/api/comments/:id', async (req, res) => {
         text: comment.text,
         photos: comment.photos,
         createdAt: comment.createdAt.getTime(),
-        updatedAt: comment.updatedAt.getTime()
-      }
+        updatedAt: comment.updatedAt.getTime(),
+      },
     });
-
   } catch (error) {
-    console.error('❌ Erreur modification commentaire:', error);
+    console.error("❌ Erreur modification commentaire:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
@@ -1484,7 +1504,7 @@ app.put('/api/comments/:id', async (req, res) => {
  * DELETE /api/comments/:id
  * Supprimer un commentaire
  */
-app.delete('/api/comments/:id', async (req, res) => {
+app.delete("/api/comments/:id", async (req, res) => {
   try {
     const commentId = req.params.id;
 
@@ -1494,29 +1514,28 @@ app.delete('/api/comments/:id', async (req, res) => {
     if (!comment) {
       return res.status(404).json({
         success: false,
-        error: 'Commentaire non trouvé'
+        error: "Commentaire non trouvé",
       });
     }
 
     res.json({
       success: true,
-      data: { message: 'Commentaire supprimé avec succès' }
+      data: { message: "Commentaire supprimé avec succès" },
     });
-
   } catch (error) {
-    console.error('❌ Erreur suppression commentaire:', error);
+    console.error("❌ Erreur suppression commentaire:", error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur'
+      error: "Erreur serveur",
     });
   }
 });
 
 // Gestion des erreurs 404 (uniquement pour les routes API)
-app.use('/api/*', (req, res) => {
+app.use("/api/*", (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Route API non trouvée'
+    error: "Route API non trouvée",
   });
 });
 
@@ -1529,11 +1548,17 @@ app.listen(PORT, () => {
   console.log(`      POST /api/auth/login - Connexion`);
   console.log(`      GET /api/auth/me - Profil utilisateur (protégé)`);
   console.log(`      DELETE /api/auth/account - Supprimer compte (protégé)`);
-  console.log(`   GET /api/sentiers - Liste des sentiers avec filtres (+ zone_specifique)`);
+  console.log(
+    `   GET /api/sentiers - Liste des sentiers avec filtres (+ zone_specifique)`
+  );
   console.log(`   GET /api/sentiers/:id - Détails d'un sentier`);
   console.log(`   GET /api/regions - Liste des régions`);
-  console.log(`   GET /api/regions/hierarchie - Hiérarchie régions > sous-régions`);
-  console.log(`   GET /api/regions/:region/sous-regions - Sous-régions d'une région`);
+  console.log(
+    `   GET /api/regions/hierarchie - Hiérarchie régions > sous-régions`
+  );
+  console.log(
+    `   GET /api/regions/:region/sous-regions - Sous-régions d'une région`
+  );
   console.log(`   GET /api/communes - Liste des communes`);
   console.log(`   GET /api/stats - Statistiques`);
   console.log(`   GET /api/search?q=... - Recherche`);
