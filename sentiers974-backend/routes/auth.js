@@ -40,21 +40,42 @@ const sendResetEmail = async (toEmail, token) => {
     }
   });
 
-  const baseUrl = RESET_URL_BASE || 'https://sentiers974.onrender.com';
-  const resetLink = `${baseUrl.replace(/\/$/, '')}/reset?token=${token}`;
+  // Deep link pour ouvrir l'app mobile directement
+  const resetLink = `sentiers974://reset-password?token=${token}`;
 
   const info = await transporter.sendMail({
     from: FROM_EMAIL || SMTP_USER,
     to: toEmail,
     subject: 'Réinitialisation de votre mot de passe - Sentiers 974',
     html: `
-      <p>Bonjour,</p>
-      <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
-      <p>Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe (valide 1h) :</p>
-      <p><a href="${resetLink}">${resetLink}</a></p>
-      <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
-      <p>— Équipe Sentiers 974</p>
-      <p style="font-size:12px;color:#666">Token: ${token}</p>
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #2196F3; padding: 20px; text-align: center;">
+          <h1 style="color: white; margin: 0;">Sentiers 974</h1>
+        </div>
+        <div style="padding: 30px; background-color: #f9f9f9;">
+          <p style="font-size: 16px; color: #333;">Bonjour,</p>
+          <p style="font-size: 16px; color: #333;">Vous avez demandé à réinitialiser votre mot de passe.</p>
+          <p style="font-size: 16px; color: #333;">Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe (valide 1h) :</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="background-color: #4CAF50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block;">
+              Réinitialiser mon mot de passe
+            </a>
+          </div>
+          <p style="font-size: 14px; color: #666; margin-top: 30px;">
+            <strong>Note :</strong> Ce lien ouvrira automatiquement l'application Sentiers 974 sur votre téléphone.
+          </p>
+          <p style="font-size: 14px; color: #666;">
+            Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :<br>
+            <span style="color: #2196F3; word-break: break-all;">${resetLink}</span>
+          </p>
+          <p style="font-size: 14px; color: #999; margin-top: 30px;">
+            Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.
+          </p>
+        </div>
+        <div style="background-color: #333; padding: 20px; text-align: center;">
+          <p style="color: #999; font-size: 12px; margin: 0;">© Sentiers 974 - La Réunion</p>
+        </div>
+      </div>
     `
   });
   console.log('[SMTP] Email reset envoyé', {
