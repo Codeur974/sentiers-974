@@ -1507,11 +1507,11 @@ app.delete('/api/comments/:id', async (req, res) => {
   }
 });
 
-// Gestion des erreurs 404
-app.use('*', (req, res) => {
+// Gestion des erreurs 404 (uniquement pour les routes API)
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Route non trouvée'
+    error: 'Route API non trouvée'
   });
 });
 
