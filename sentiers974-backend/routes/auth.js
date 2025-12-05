@@ -4,6 +4,52 @@ const User = require('../models/User');
 const Session = require('../models/Session');
 const { generateToken, verifyToken } = require('../middleware/auth');
 const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+
+// Helper d'envoi d'email de reset (SMTP configurable via env)
+const sendResetEmail = async (toEmail, token) => {
+  const {
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+    SMTP_PASS,
+    SMTP_SECURE,
+    FROM_EMAIL,
+    RESET_URL_BASE
+  } = process.env;
+
+  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
+    throw new Error('SMTP non configuré (manque host/port/user/pass)');
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: parseInt(SMTP_PORT, 10),
+    secure: SMTP_SECURE === 'true', // true pour 465, false pour STARTTLS
+    auth: {
+      user: SMTP_USER,
+      pass: SMTP_PASS
+    }
+  });
+
+  const baseUrl = RESET_URL_BASE || 'https://sentiers974.onrender.com';
+  const resetLink = `${baseUrl.replace(/\/$/, '')}/reset?token=${token}`;
+
+  await transporter.sendMail({
+    from: FROM_EMAIL || SMTP_USER,
+    to: toEmail,
+    subject: 'Réinitialisation de votre mot de passe - Sentiers 974',
+    html: `
+      <p>Bonjour,</p>
+      <p>Vous avez demandé à réinitialiser votre mot de passe.</p>
+      <p>Cliquez sur le lien ci-dessous pour définir un nouveau mot de passe (valide 1h) :</p>
+      <p><a href="${resetLink}">${resetLink}</a></p>
+      <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
+      <p>— Équipe Sentiers 974</p>
+      <p style="font-size:12px;color:#666">Token: ${token}</p>
+    `
+  });
+};
 
 /**
  * 📝 INSCRIPTION (Signup)
@@ -275,12 +321,23 @@ router.post('/reset/request', async (req, res) => {
     user.passwordResetExpires = new Date(expires);
     await user.save();
 
-    // TODO: envoyer l'email avec le token. Pour l'instant, on le renvoie en dev.
+    // Envoyer l'email (si SMTP configuré)
+    try {
+      await sendResetEmail(email, token);
+    } catch (mailError) {
+      console.error('🚨 Erreur envoi email reset:', mailError);
+      return res.status(500).json({
+        success: false,
+        error: 'Impossible d\'envoyer l\'email de réinitialisation'
+      });
+    }
+
     const response = {
       success: true,
-      message: 'Si un compte existe pour cet email, un lien de réinitialisation a été généré'
+      message: 'Si un compte existe pour cet email, un lien de réinitialisation a été envoyé'
     };
 
+    // En non-prod, renvoyer le token pour debug
     if (process.env.NODE_ENV !== 'production') {
       response.resetToken = token;
       console.log(`🔑 Token reset généré pour ${email}: ${token}`);
