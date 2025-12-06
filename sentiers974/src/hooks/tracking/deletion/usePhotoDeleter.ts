@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import { usePOIs } from '../../../store/useDataStore';
 import { logger } from '../../../utils/logger';
+import * as FileSystem from 'expo-file-system';
 
 interface PhotoItem {
   id: string;
@@ -62,6 +63,19 @@ export const usePhotoDeleter = (onRefresh: () => void) => {
         logger.debug('Suppression photo backend', { id: photo.id }, 'PhotoDeleter');
         // TODO: Implémenter apiService.deletePhoto(photo.id)
         logger.debug('Photo backend supprimée', undefined, 'PhotoDeleter');
+      }
+
+      // Nettoyage local uniquement si fichier local
+      if (photo.uri && photo.uri.startsWith('file://')) {
+        const info = await FileSystem.getInfoAsync(photo.uri);
+        if (info.exists) {
+          await FileSystem.deleteAsync(photo.uri, { idempotent: true });
+          logger.debug('Fichier local supprimé', { uri: photo.uri }, 'PhotoDeleter');
+        } else {
+          logger.debug('Fichier déjà absent', { uri: photo.uri }, 'PhotoDeleter');
+        }
+      } else {
+        logger.debug('URI distante, pas de delete local', { uri: photo.uri }, 'PhotoDeleter');
       }
 
       logger.debug('Photo supprimée avec succès', { title: photo.title }, 'PhotoDeleter');
