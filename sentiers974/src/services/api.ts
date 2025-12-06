@@ -19,6 +19,9 @@ if (__DEV__) {
 // Export pour utilisation dans AuthContext
 export const API_URL = API_BASE_URL;
 
+// Log minimal pour voir l'URL utilisée (utile en dev/diagnostic APK)
+console.log('API_URL utilisé:', API_URL);
+
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -43,6 +46,7 @@ class ApiService {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const token = await AsyncStorage.getItem('userToken');
+        const url = `${this.baseURL}${endpoint}`;
 
         const config: RequestInit = {
           ...options,
@@ -53,8 +57,17 @@ class ApiService {
           },
         };
 
-        const response = await fetch(`${this.baseURL}${endpoint}`, config);
-        const data = await response.json();
+        const response = await fetch(url, config);
+        let data: any = null;
+        try {
+          data = await response.json();
+        } catch (parseErr) {
+          console.warn('[API] JSON parse failed', { url, status: response.status });
+        }
+        if (attempt === 0) {
+          const size = Array.isArray(data) ? data.length : (data ? 1 : 0);
+          console.log(`[API] ${options.method || 'GET'} ${url} -> status ${response.status}, size ${size}`);
+        }
 
         if (!response.ok) {
           // Erreurs 4xx ne doivent pas être retryées
@@ -341,7 +354,11 @@ class ApiService {
     if (params?.dateFrom) queryParams.append('dateFrom', params.dateFrom);
     if (params?.dateTo) queryParams.append('dateTo', params.dateTo);
 
-    return this.request(`/sessions?${queryParams.toString()}`);
+    const res = await this.request(`/sessions?${queryParams.toString()}`);
+    // Loger le résultat pour diagnostiquer les sessions distantes
+    const count = Array.isArray(res?.data) ? res.data.length : 0;
+    console.log('[API] getUserSessions -> success:', res?.success, 'count:', count);
+    return res;
   }
 
   // Récupérer les statistiques quotidiennes depuis MongoDB
