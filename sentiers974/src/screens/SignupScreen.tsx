@@ -218,14 +218,14 @@ export default function SignupScreen() {
                 J'accepte la{' '}
                 <Text
                   style={styles.link}
-                  onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+                  onPress={() => Linking.openURL('https://sentiers-974.onrender.com/privacy-policy')}
                 >
                   politique de confidentialité
                 </Text>
                 {' '}et les{' '}
                 <Text
                   style={styles.link}
-                  onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+                  onPress={() => Linking.openURL('https://sentiers-974.onrender.com/terms-of-service')}
                 >
                   conditions d'utilisation
                 </Text>

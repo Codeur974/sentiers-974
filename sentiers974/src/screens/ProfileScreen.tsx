@@ -195,13 +195,13 @@ export default function ProfileScreen() {
             {/* Liens légaux */}
             <View style={styles.legalLinksContainer}>
               <TouchableOpacity
-                onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+                onPress={() => Linking.openURL('https://sentiers-974.onrender.com/privacy-policy')}
               >
                 <Text style={styles.legalLink}>Politique de confidentialité</Text>
               </TouchableOpacity>
               <Text style={styles.separator}>•</Text>
               <TouchableOpacity
-                onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+                onPress={() => Linking.openURL('https://sentiers-974.onrender.com/terms-of-service')}
               >
                 <Text style={styles.legalLink}>Conditions d'utilisation</Text>
               </TouchableOpacity>
@@ -213,13 +213,13 @@ export default function ProfileScreen() {
         {!isAuthenticated && (
           <View style={styles.legalLinksContainer}>
             <TouchableOpacity
-              onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+              onPress={() => Linking.openURL('https://sentiers-974.onrender.com/privacy-policy')}
             >
               <Text style={styles.legalLink}>Politique de confidentialité</Text>
             </TouchableOpacity>
             <Text style={styles.separator}>•</Text>
             <TouchableOpacity
-              onPress={() => Linking.openURL('https://sentiers974.onrender.com/terms-of-service.html')}
+              onPress={() => Linking.openURL('https://sentiers-974.onrender.com/terms-of-service')}
             >
               <Text style={styles.legalLink}>Conditions d'utilisation</Text>
             </TouchableOpacity>

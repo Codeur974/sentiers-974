@@ -170,7 +170,7 @@ export default function LoginScreen() {
             {/* Lien politique de confidentialité */}
             <TouchableOpacity
               style={styles.privacyContainer}
-              onPress={() => Linking.openURL('https://sentiers974.onrender.com/privacy-policy.html')}
+              onPress={() => Linking.openURL('https://sentiers-974.onrender.com/privacy-policy')}
               disabled={isLoading}
               activeOpacity={1}
             >
