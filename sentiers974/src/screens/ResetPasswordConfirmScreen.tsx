@@ -22,6 +22,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 export default function ResetPasswordConfirmScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const navigation = useNavigation();
@@ -127,30 +129,48 @@ export default function ResetPasswordConfirmScreen() {
           <View style={styles.form}>
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Nouveau mot de passe</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Au moins 8 caractères"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={[styles.input, styles.inputWithButton]}
+                  placeholder="Au moins 8 caractères"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁️'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.inputContainer}>
               <Text style={styles.label}>Confirmer le mot de passe</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Confirmez votre mot de passe"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={[styles.input, styles.inputWithButton]}
+                  placeholder="Confirmez votre mot de passe"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirm}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowConfirm((prev) => !prev)}
+                  disabled={isLoading}
+                >
+                  <Text style={styles.eyeText}>{showConfirm ? '🙈' : '👁️'}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity
@@ -236,6 +256,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#e0e0e0'
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  inputWithButton: {
+    flex: 1
+  },
+  eyeButton: {
+    marginLeft: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: '#eef2f7',
+    borderWidth: 1,
+    borderColor: '#e0e0e0'
+  },
+  eyeText: {
+    fontSize: 18
   },
   confirmButton: {
     backgroundColor: '#4CAF50',
