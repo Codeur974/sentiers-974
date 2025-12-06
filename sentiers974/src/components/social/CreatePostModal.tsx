@@ -13,6 +13,7 @@ import {
   Keyboard,
   SafeAreaView
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { SocialPhoto, CreatePostData, SocialPost } from '../../types/social';
 import { uploadService } from '../../services/uploadService';
@@ -34,6 +35,7 @@ export default function CreatePostModal({
   onSelectFromHistory,
   selectedHistoryPhotos
 }: CreatePostModalProps) {
+  const insets = useSafeAreaInsets();
   const [caption, setCaption] = useState('');
   const [photos, setPhotos] = useState<SocialPhoto[]>([]);
   const [location, setLocation] = useState('');
@@ -318,7 +320,10 @@ export default function CreatePostModal({
         >
           <View className="flex-1 bg-white">
             {/* Header */}
-            <View className="flex-row items-center justify-between p-4 border-b border-gray-200">
+            <View
+              className="flex-row items-center justify-between p-4 border-b border-gray-200"
+              style={{ paddingTop: (insets.top || 0) + 8 }}
+            >
             <TouchableOpacity onPress={handleClose}>
               <Text className="text-blue-500 font-semibold text-lg">Annuler</Text>
             </TouchableOpacity>
