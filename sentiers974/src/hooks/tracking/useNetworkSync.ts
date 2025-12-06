@@ -40,7 +40,9 @@ export const useNetworkSync = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-      const token = await AsyncStorage.getItem('userToken');
+      const token =
+        (await AsyncStorage.getItem('authToken')) ||
+        (await AsyncStorage.getItem('userToken'));
 
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',

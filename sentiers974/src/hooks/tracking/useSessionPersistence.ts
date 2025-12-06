@@ -100,7 +100,9 @@ export const useSessionPersistence = () => {
 
       // Déterminer le userId : user connecté > deviceId > 'anonymous'
       const userId = user?.id || deviceId || 'anonymous';
-      const token = await AsyncStorage.getItem('userToken');
+      const token =
+        (await AsyncStorage.getItem('authToken')) ||
+        (await AsyncStorage.getItem('userToken'));
 
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',

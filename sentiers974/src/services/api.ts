@@ -35,6 +35,13 @@ class ApiService {
     this.baseURL = baseURL;
   }
 
+  // Récupère le token JWT (clé unifiée `authToken`, fallback legacy `userToken`)
+  private async getAuthToken() {
+    const token = await AsyncStorage.getItem('authToken');
+    if (token) return token;
+    return await AsyncStorage.getItem('userToken');
+  }
+
   // Méthode générique pour les requêtes avec retry automatique
   private async request<T>(
     endpoint: string,
@@ -45,7 +52,7 @@ class ApiService {
 
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
-        const token = await AsyncStorage.getItem('userToken');
+        const token = await this.getAuthToken();
         const url = `${this.baseURL}${endpoint}`;
 
         const config: RequestInit = {
@@ -273,6 +280,8 @@ class ApiService {
     if (response.success && response.data) {
       const data = response.data as any;
       if (data.token) {
+        // Stocker sous la clé standard + legacy pour compatibilité
+        await AsyncStorage.setItem('authToken', data.token);
         await AsyncStorage.setItem('userToken', data.token);
         await AsyncStorage.setItem('userId', data.user?.id || '');
       }
@@ -291,6 +300,7 @@ class ApiService {
 
   // Déconnexion
   async logout() {
+    await AsyncStorage.removeItem('authToken');
     await AsyncStorage.removeItem('userToken');
     await AsyncStorage.removeItem('userId');
     return { success: true };
@@ -298,7 +308,7 @@ class ApiService {
 
   // Vérifier si l'utilisateur est connecté
   async isAuthenticated(): Promise<boolean> {
-    const token = await AsyncStorage.getItem('userToken');
+    const token = await this.getAuthToken();
     return !!token;
   }
 
@@ -317,9 +327,9 @@ class ApiService {
 
       if (response.success) {
         // Nettoyer le stockage local après suppression réussie
+        await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('userId');
-        await AsyncStorage.removeItem('authToken');
       }
 
       return response;

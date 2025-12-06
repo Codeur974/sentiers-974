@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import { API_URL } from '../services/api';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 /**
- * Écran de confirmation de réinitialisation de mot de passe
+ * Ecran de confirmation de reinitialisation de mot de passe
  * Accessible via deep link depuis l'email
  * sentiers974://reset-password?token=xxx
  */
@@ -30,7 +30,7 @@ export default function ResetPasswordConfirmScreen() {
   const route = useRoute();
 
   useEffect(() => {
-    // Récupérer le token depuis les paramètres de navigation (deep link)
+    // Recuperer le token depuis les parametres de navigation (deep link)
     const params = route.params as { token?: string } | undefined;
     if (params?.token) {
       setToken(params.token);
@@ -39,12 +39,12 @@ export default function ResetPasswordConfirmScreen() {
 
   const handleResetConfirm = async () => {
     if (!token) {
-      Alert.alert('Erreur', 'Token manquant. Veuillez utiliser le lien reçu par email.');
+      Alert.alert('Erreur', 'Token manquant. Veuillez utiliser le lien recu par email.');
       return;
     }
 
     if (!password || password.length < 8) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 8 caractères');
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 8 caracteres');
       return;
     }
 
@@ -67,16 +67,22 @@ export default function ResetPasswordConfirmScreen() {
       try {
         data = text ? JSON.parse(text) : {};
       } catch (parseError) {
-        throw new Error('Réponse inattendue du serveur');
+        throw new Error('Reponse inattendue du serveur');
       }
 
       if (!response.ok || data?.success === false) {
-        throw new Error(data?.error || 'Erreur lors de la réinitialisation');
+        throw new Error(data?.error || 'Erreur lors de la reinitialisation');
       }
 
+      // Rediriger immediatement vers l'ecran de connexion apres succes
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' as never }]
+      });
+
       Alert.alert(
-        'Succès',
-        'Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter.',
+        'Succes',
+        'Votre mot de passe a ete reinitialise avec succes. Vous pouvez maintenant vous connecter.',
         [
           {
             text: 'OK',
@@ -85,7 +91,7 @@ export default function ResetPasswordConfirmScreen() {
         ]
       );
     } catch (error: any) {
-      Alert.alert('Erreur', error.message || 'Impossible de réinitialiser le mot de passe');
+      Alert.alert('Erreur', error.message || 'Impossible de reinitialiser le mot de passe');
     } finally {
       setIsLoading(false);
     }
@@ -98,13 +104,13 @@ export default function ResetPasswordConfirmScreen() {
           <View style={styles.errorBox}>
             <Text style={styles.errorTitle}>Token manquant</Text>
             <Text style={styles.errorText}>
-              Veuillez utiliser le lien reçu par email pour réinitialiser votre mot de passe.
+              Veuillez utiliser le lien recu par email pour reinitialiser votre mot de passe.
             </Text>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.navigate('Login' as never)}
             >
-              <Text style={styles.backButtonText}>Retour à la connexion</Text>
+              <Text style={styles.backButtonText}>Retour a la connexion</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -132,7 +138,7 @@ export default function ResetPasswordConfirmScreen() {
               <View style={styles.inputRow}>
                 <TextInput
                   style={[styles.input, styles.inputWithButton]}
-                  placeholder="Au moins 8 caractères"
+                  placeholder="Au moins 8 caracteres"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
@@ -145,7 +151,7 @@ export default function ResetPasswordConfirmScreen() {
                   onPress={() => setShowPassword((prev) => !prev)}
                   disabled={isLoading}
                 >
-                  <Text style={styles.eyeText}>{showPassword ? '🙈' : '👁️'}</Text>
+                  <Text style={styles.eyeText}>{showPassword ? '👁' : '👁‍🗨'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -168,7 +174,7 @@ export default function ResetPasswordConfirmScreen() {
                   onPress={() => setShowConfirm((prev) => !prev)}
                   disabled={isLoading}
                 >
-                  <Text style={styles.eyeText}>{showConfirm ? '🙈' : '👁️'}</Text>
+                  <Text style={styles.eyeText}>{showConfirm ? '👁' : '👁‍🗨'}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -182,7 +188,7 @@ export default function ResetPasswordConfirmScreen() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.confirmButtonText}>Réinitialiser</Text>
+                <Text style={styles.confirmButtonText}>Reinitialiser</Text>
               )}
             </TouchableOpacity>
 
