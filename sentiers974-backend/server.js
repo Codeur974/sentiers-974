@@ -74,6 +74,15 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // Servir les pages statiques (mentions légales)
 app.use(express.static(path.join(__dirname, "public")));
 
+// Alias lisibles pour les pages légales
+app.get("/privacy-policy", (_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "privacy-policy.html"));
+});
+
+app.get("/terms-of-service", (_req, res) => {
+  res.sendFile(path.join(__dirname, "public", "terms-of-service.html"));
+});
+
 // Page de reset password (lien mail)
 app.get("/reset-password", (_req, res) => {
   res.sendFile(path.join(__dirname, "public", "reset-password.html"));
