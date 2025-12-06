@@ -57,7 +57,7 @@
     }
     if (!token) {
       statusMessage.style.color = '#d14343';
-      statusMessage.textContent = 'Token manquant dans l’URL.';
+      statusMessage.textContent = "Token manquant dans l'URL.";
       return;
     }
 
@@ -74,7 +74,7 @@
         throw new Error(data?.error || 'Echec de la reinitialisation');
       }
       statusMessage.style.color = '#0f5cc0';
-      statusMessage.textContent = 'Mot de passe mis a jour. Vous pouvez retourner dans l’app et vous reconnecter.';
+      statusMessage.textContent = "Mot de passe mis a jour. Vous pouvez retourner dans l'app et vous reconnecter.";
     } catch (err) {
       statusMessage.style.color = '#d14343';
       statusMessage.textContent = err?.message || 'Erreur lors de la reinitialisation.';
