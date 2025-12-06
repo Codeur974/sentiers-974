@@ -706,11 +706,9 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         }
       };
 
-      // Délai de 100ms pour laisser Phase 1 terminer
+      // Délai de 100ms pour laisser Phase 1 terminer, puis chargement distant même si aucun groupe local
       const timer = setTimeout(() => {
-        if (photoGroupsRef.current.length > 0) {
-          loadRemoteData();
-        }
+        loadRemoteData();
       }, 100);
 
       return () => clearTimeout(timer);
