@@ -133,7 +133,17 @@ SessionSchema.methods.toClientFormat = function() {
     timestamp: p.timestamp,
     title: p.title,
   }));
-  const photosArray = [...(this.photos || []), ...photosFromPois];
+
+  // Dédupliquer photos (session.photos + photos issues des POI) pour éviter les doublons
+  const photosArray = [];
+  const seen = new Set();
+  [...(this.photos || []), ...photosFromPois].forEach((ph) => {
+    const key = ph.id || ph.url || ph.uri;
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      photosArray.push(ph);
+    }
+  });
 
   return {
     id: this.sessionId,
