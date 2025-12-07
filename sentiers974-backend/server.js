@@ -860,6 +860,168 @@ app.delete("/api/sessions/:sessionId/photos/:photoId", async (req, res) => {
 });
 
 /**
+ * POST /api/sessions/:sessionId/poi
+ * Ajouter un POI à une session (utilisé par l'app mobile)
+ * Body (multipart/form-data):
+ *  - title (required)
+ *  - note (optional)
+ *  - latitude, longitude (required)
+ *  - distance, time (optionnels)
+ *  - photo (fichier, optionnel)
+ */
+app.post(
+  "/api/sessions/:sessionId/poi",
+  upload.single("photo"),
+  async (req, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { title, note, latitude, longitude, distance, time } = req.body;
+
+      if (!title || !latitude || !longitude) {
+        return res.status(400).json({
+          success: false,
+          error: "title, latitude et longitude sont requis",
+        });
+      }
+
+      const session = await Session.findOne({ sessionId });
+      if (!session) {
+        return res.status(404).json({
+          success: false,
+          error: "Session non trouvée",
+        });
+      }
+
+      let photoUrl = null;
+      if (req.file) {
+        try {
+          const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString(
+            "base64"
+          )}`;
+          const uploadResult = await cloudinary.uploader.upload(base64Image, {
+            folder: "sentiers974/poi",
+            resource_type: "image",
+            transformation: [
+              { width: 1600, height: 1600, crop: "limit" },
+              { quality: "auto:good" },
+              { fetch_format: "auto" },
+            ],
+          });
+          photoUrl = uploadResult.secure_url;
+        } catch (err) {
+          console.warn("⚠️ Upload photo POI échoué, continue sans photo:", err);
+        }
+      }
+
+      const poiId = `poi_${Date.now()}_${new mongoose.Types.ObjectId().toString()}`;
+      const poi = {
+        id: poiId,
+        title: title.trim(),
+        note: note ? note.trim() : undefined,
+        coordinates: {
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
+        },
+        photo: photoUrl,
+        timestamp: time ? parseInt(time) : Date.now(),
+      };
+
+      session.pois = session.pois || [];
+      session.pois.push(poi);
+      await session.save();
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: poi.id,
+          sessionId,
+          title: poi.title,
+          note: poi.note,
+          coordinates: poi.coordinates,
+          photoUrl: poi.photo,
+          timestamp: poi.timestamp,
+        },
+      });
+    } catch (error) {
+      console.error("❌ Erreur ajout POI:", error);
+      res.status(500).json({
+        success: false,
+        error: "Erreur serveur lors de l'ajout du POI",
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/pointofinterests
+ * Retourner tous les POI (flatten depuis Session.pois)
+ * Limité à 1000 éléments pour protéger le serveur.
+ */
+app.get("/api/pointofinterests", async (_req, res) => {
+  try {
+    const pois = await Session.aggregate([
+      { $match: { pois: { $exists: true, $ne: [] } } },
+      { $unwind: "$pois" },
+      {
+        $project: {
+          _id: 0,
+          id: "$pois.id",
+          sessionId: "$sessionId",
+          title: "$pois.title",
+          note: "$pois.note",
+          coordinates: "$pois.coordinates",
+          photo: "$pois.photo",
+          timestamp: "$pois.timestamp",
+        },
+      },
+      { $sort: { timestamp: -1 } },
+      { $limit: 1000 },
+    ]);
+
+    res.json(pois || []);
+  } catch (error) {
+    console.error("❌ Erreur récupération POI:", error);
+    res.status(500).json({
+      success: false,
+      error: "Erreur serveur lors de la récupération des POI",
+    });
+  }
+});
+
+/**
+ * DELETE /api/pointofinterests/:poiId
+ * Supprimer un POI dans la session qui le contient
+ */
+app.delete("/api/pointofinterests/:poiId", async (req, res) => {
+  try {
+    const { poiId } = req.params;
+
+    const result = await Session.updateOne(
+      { "pois.id": poiId },
+      { $pull: { pois: { id: poiId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "POI non trouvé",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "POI supprimé",
+    });
+  } catch (error) {
+    console.error("❌ Erreur suppression POI:", error);
+    res.status(500).json({
+      success: false,
+      error: "Erreur serveur lors de la suppression du POI",
+    });
+  }
+});
+
+/**
  * GET /api/sessions/stats/daily
  * Récupérer les statistiques quotidiennes
  */
