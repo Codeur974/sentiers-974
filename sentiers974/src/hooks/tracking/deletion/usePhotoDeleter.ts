@@ -67,8 +67,8 @@ export const usePhotoDeleter = (onRefresh: () => void) => {
 
       // Nettoyage local uniquement si fichier local
       if (photo.uri && photo.uri.startsWith('file://')) {
-        const info = await FileSystem.getInfoAsync(photo.uri);
-        if (info.exists) {
+        const info = await FileSystem.statAsync(photo.uri).catch(() => null);
+        if (info?.exists) {
           await FileSystem.deleteAsync(photo.uri, { idempotent: true });
           logger.debug('Fichier local supprimé', { uri: photo.uri }, 'PhotoDeleter');
         } else {
