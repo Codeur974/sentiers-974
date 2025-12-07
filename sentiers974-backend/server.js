@@ -615,6 +615,20 @@ app.get("/api/search", async (req, res) => {
 app.post("/api/sessions", async (req, res) => {
   try {
     const sessionData = req.body;
+    console.log("🛰️ POST /api/sessions payload", {
+      sessionId: sessionData?.sessionId,
+      userId: sessionData?.userId,
+      sport: sessionData?.sport?.nom || sessionData?.sport,
+      trackingPathLength: Array.isArray(sessionData?.trackingPath)
+        ? sessionData.trackingPath.length
+        : 0,
+      distance: sessionData?.distance,
+      duration: sessionData?.duration,
+      steps: sessionData?.steps,
+      poisCount: Array.isArray(sessionData?.pois) ? sessionData.pois.length : 0,
+      photosCount: Array.isArray(sessionData?.photos) ? sessionData.photos.length : 0,
+      keys: Object.keys(sessionData || {}),
+    });
 
     // Validation basique
     if (!sessionData.sport?.nom) {
