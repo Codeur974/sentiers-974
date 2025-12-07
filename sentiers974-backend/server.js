@@ -91,6 +91,12 @@ app.get("/reset-password", (_req, res) => {
 // Appliquer rate limiting général sur toutes les routes API
 app.use("/api/", apiLimiter);
 
+// Log minimal des requêtes (méthode + URL) pour debug
+app.use((req, _res, next) => {
+  console.log(`[REQ] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Connexion MongoDB
 mongoose
   .connect(process.env.MONGODB_URI)
