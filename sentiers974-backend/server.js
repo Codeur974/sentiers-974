@@ -876,6 +876,8 @@ app.post(
     try {
       const { sessionId } = req.params;
       const { title, note, latitude, longitude, distance, time } = req.body;
+      const photoPayload =
+        req.body.photoUri || req.body.photoUrl || req.body.uri || req.body.photo;
 
       if (!title || !latitude || !longitude) {
         return res.status(400).json({
@@ -910,6 +912,34 @@ app.post(
           photoUrl = uploadResult.secure_url;
         } catch (err) {
           console.warn("⚠️ Upload photo POI échoué, continue sans photo:", err);
+        }
+      }
+
+      if (!photoUrl && photoPayload) {
+        try {
+          if (photoPayload.startsWith("http")) {
+            photoUrl = photoPayload;
+          } else {
+            const normalized =
+              photoPayload.startsWith("data:")
+                ? photoPayload
+                : `data:image/jpeg;base64,${photoPayload}`;
+            const uploadResult = await cloudinary.uploader.upload(normalized, {
+              folder: "sentiers974/poi",
+              resource_type: "image",
+              transformation: [
+                { width: 1600, height: 1600, crop: "limit" },
+                { quality: "auto:good" },
+                { fetch_format: "auto" },
+              ],
+            });
+            photoUrl = uploadResult.secure_url;
+          }
+        } catch (err) {
+          console.warn(
+            "Upload photo POI (string/base64) echoue, continue sans photo:",
+            err
+          );
         }
       }
 
