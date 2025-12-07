@@ -932,6 +932,13 @@ app.post(
         }
       }
 
+      console.log("POI upload apres fichier", {
+        hasFile: !!req.file,
+        fileMimetype: req.file?.mimetype,
+        fileSize: req.file?.size,
+        photoUrl,
+      });
+
       if (!photoUrl && photoPayload) {
         try {
           if (photoPayload.startsWith("http")) {
@@ -961,6 +968,13 @@ app.post(
           photoUrl = photoPayload;
         }
       }
+
+      console.log("POI upload final", {
+        sessionId,
+        photoUrl,
+        photoPayloadType: typeof photoPayload,
+        hasPayload: !!photoPayload,
+      });
 
       const poiId =
         req.body.id && typeof req.body.id === "string"
