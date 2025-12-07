@@ -879,6 +879,17 @@ app.post(
       const photoPayload =
         req.body.photoUri || req.body.photoUrl || req.body.uri || req.body.photo;
 
+      console.log("POI upload payload", {
+        sessionId,
+        hasFile: !!req.file,
+        photoPayloadType: typeof photoPayload,
+        photoPayloadSnippet:
+          photoPayload && typeof photoPayload === "string"
+            ? photoPayload.slice(0, 60)
+            : null,
+        bodyKeys: Object.keys(req.body || {}),
+      });
+
       if (!title || !latitude || !longitude) {
         return res.status(400).json({
           success: false,
@@ -940,6 +951,8 @@ app.post(
             "Upload photo POI (string/base64) echoue, continue sans photo:",
             err
           );
+          // Si l'upload échoue, conserver au moins la valeur envoyée pour ne pas perdre la référence
+          photoUrl = photoPayload;
         }
       }
 
