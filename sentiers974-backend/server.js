@@ -913,7 +913,11 @@ app.post(
         }
       }
 
-      const poiId = `poi_${Date.now()}_${new mongoose.Types.ObjectId().toString()}`;
+      // Réutiliser l'id fourni par l'app si présent, sinon en générer un
+      const poiId =
+        req.body.id && typeof req.body.id === "string"
+          ? req.body.id
+          : `poi_${Date.now()}_${new mongoose.Types.ObjectId().toString()}`;
       const poi = {
         id: poiId,
         title: title.trim(),
@@ -939,6 +943,8 @@ app.post(
           note: poi.note,
           coordinates: poi.coordinates,
           photoUrl: poi.photo,
+          photoUri: poi.photo, // champ attendu par l'app mobile
+          uri: poi.photo, // compatibilité legacy
           timestamp: poi.timestamp,
         },
       });
@@ -971,6 +977,8 @@ app.get("/api/pointofinterests", async (_req, res) => {
           note: "$pois.note",
           coordinates: "$pois.coordinates",
           photo: "$pois.photo",
+          photoUri: "$pois.photo", // champ attendu par l'app mobile
+          uri: "$pois.photo", // compatibilité legacy
           timestamp: "$pois.timestamp",
         },
       },
