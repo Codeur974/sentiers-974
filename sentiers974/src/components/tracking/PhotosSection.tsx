@@ -84,6 +84,8 @@ interface SessionGroup {
   performance?: SessionPerformance;
 }
 
+const MIN_TIMESTAMP = new Date("2020-01-01").getTime();
+
 const normalizeTimestamp = (value: any) => {
   if (value === undefined || value === null) {
     return Date.now();
@@ -97,7 +99,7 @@ const normalizeTimestamp = (value: any) => {
     ts = ts * 1000;
   }
 
-  if (!Number.isFinite(ts) || ts <= 0) {
+  if (!Number.isFinite(ts) || ts <= 0 || ts < MIN_TIMESTAMP) {
     ts = Date.now();
   }
 

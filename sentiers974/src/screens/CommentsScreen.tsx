@@ -17,6 +17,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSocialStore } from '../store/useSocialStore';
 import { SocialPost } from '../types/social';
 import * as ImagePicker from 'expo-image-picker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface CommentsScreenProps {
   route: {
@@ -30,6 +31,7 @@ export default function CommentsScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { postId } = route.params as { postId: string };
+  const insets = useSafeAreaInsets();
 
   const [commentText, setCommentText] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -196,11 +198,11 @@ export default function CommentsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top : insets.bottom}
       >
         {/* Header */}
         <View className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white">
@@ -216,7 +218,7 @@ export default function CommentsScreen() {
           className="flex-1 p-4"
           keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
+          contentContainerStyle={{ paddingBottom: 120 + insets.bottom, paddingTop: 4 }}
         >
         {post.comments && post.comments.length > 0 ? (
           post.comments.slice().reverse().map((comment) => (
@@ -293,7 +295,7 @@ export default function CommentsScreen() {
       </ScrollView>
 
       {/* Zone de saisie fixe en bas */}
-      <View className="p-4 border-t border-gray-200 bg-white">
+      <View className="p-4 pb-8 border-t border-gray-200 bg-white" style={{ paddingBottom: 12 + insets.bottom }}>
         {/* Photos sélectionnées */}
         {selectedPhotos.length > 0 && (
           <ScrollView horizontal className="mb-3" showsHorizontalScrollIndicator={false}>

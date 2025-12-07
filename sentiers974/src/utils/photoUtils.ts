@@ -7,7 +7,8 @@ export class PhotoManager {
 
   // Assurer que le dossier photos existe
   static async ensurePhotosDirectory(): Promise<void> {
-    const dirInfo = await FileSystem.statAsync(this.PHOTOS_DIR).catch(() => null);
+    const statFn = (FileSystem as any).statAsync || (FileSystem as any).getInfoAsync || null;
+    const dirInfo = statFn ? await statFn(this.PHOTOS_DIR).catch(() => null) : null;
     if (!dirInfo?.exists) {
       await FileSystem.makeDirectoryAsync(this.PHOTOS_DIR, { intermediates: true });
       console.log('📁 Dossier photos créé:', this.PHOTOS_DIR);
@@ -105,7 +106,8 @@ export class PhotoManager {
   // Supprimer une photo
   static async deletePhoto(photoUri: string): Promise<boolean> {
     try {
-      const fileInfo = await FileSystem.statAsync(photoUri).catch(() => null);
+      const statFn = (FileSystem as any).statAsync || (FileSystem as any).getInfoAsync || null;
+      const fileInfo = statFn ? await statFn(photoUri).catch(() => null) : null;
       if (fileInfo?.exists) {
         await FileSystem.deleteAsync(photoUri, { idempotent: true });
         console.log('🗑️ Photo supprimée:', photoUri);

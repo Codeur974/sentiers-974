@@ -1,4 +1,4 @@
-import { Alert } from 'react-native';
+﻿import { Alert } from 'react-native';
 import { usePOIs } from '../../../store/useDataStore';
 import { logger } from '../../../utils/logger';
 import * as FileSystem from 'expo-file-system';
@@ -46,39 +46,32 @@ export const usePhotoDeleter = (onRefresh: () => void) => {
 
   const deletePhoto = async (photo: PhotoItem) => {
     try {
-      logger.debug('Début suppression photo', {
+      logger.debug('D?but suppression photo', {
         title: photo.title,
         source: photo.source,
         id: photo.id
       }, 'PhotoDeleter');
 
-      if (photo.source === 'poi') {
-        // Suppression POI local uniquement
-        logger.debug('Suppression POI local', { id: photo.id }, 'PhotoDeleter');
-        await deletePOI(photo.id);
-        logger.debug('POI local supprimé avec succès', undefined, 'PhotoDeleter');
+      // Supprimer le POI associ? (m?me pour backend, l'id correspond au POI)
+      logger.debug('Suppression POI', { id: photo.id, source: photo.source }, 'PhotoDeleter');
+      await deletePOI(photo.id);
+      logger.debug('POI supprim? (local + tentative backend si applicable)', undefined, 'PhotoDeleter');
 
-      } else if (photo.source === 'backend') {
-        // Suppression photo backend via API
-        logger.debug('Suppression photo backend', { id: photo.id }, 'PhotoDeleter');
-        // TODO: Implémenter apiService.deletePhoto(photo.id)
-        logger.debug('Photo backend supprimée', undefined, 'PhotoDeleter');
-      }
-
-      // Nettoyage local uniquement si fichier local
+      // Nettoyage local uniquement si fichier local (compat statAsync/getInfoAsync)
       if (photo.uri && photo.uri.startsWith('file://')) {
-        const info = await FileSystem.statAsync(photo.uri).catch(() => null);
+        const statFn = (FileSystem as any).statAsync || (FileSystem as any).getInfoAsync || null;
+        const info = statFn ? await statFn(photo.uri).catch(() => null) : null;
         if (info?.exists) {
           await FileSystem.deleteAsync(photo.uri, { idempotent: true });
-          logger.debug('Fichier local supprimé', { uri: photo.uri }, 'PhotoDeleter');
+          logger.debug('Fichier local supprim?', { uri: photo.uri }, 'PhotoDeleter');
         } else {
-          logger.debug('Fichier déjà absent', { uri: photo.uri }, 'PhotoDeleter');
+          logger.debug('Fichier d?j? absent', { uri: photo.uri }, 'PhotoDeleter');
         }
       } else {
         logger.debug('URI distante, pas de delete local', { uri: photo.uri }, 'PhotoDeleter');
       }
 
-      logger.debug('Photo supprimée avec succès', { title: photo.title }, 'PhotoDeleter');
+      logger.debug('Photo supprim?e avec succ?s', { title: photo.title }, 'PhotoDeleter');
 
       // Forcer le rechargement de l'interface
       setTimeout(() => {
@@ -88,8 +81,12 @@ export const usePhotoDeleter = (onRefresh: () => void) => {
     } catch (error) {
       logger.error('Erreur suppression photo', error, 'PhotoDeleter');
       Alert.alert(
-        '❌ Erreur',
-        `Impossible de supprimer la photo "${photo.title}".\n\nErreur: ${error instanceof Error ? error.message : error}\n\nVérifiez votre connexion.`
+        '?? Erreur',
+        `Impossible de supprimer la photo "${photo.title}".
+
+Erreur: ${error instanceof Error ? error.message : error}
+
+V?rifiez votre connexion.`
       );
     }
   };
@@ -99,3 +96,4 @@ export const usePhotoDeleter = (onRefresh: () => void) => {
     deletePhoto
   };
 };
+
