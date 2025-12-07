@@ -3,7 +3,6 @@ import { Alert } from 'react-native';
 import { usePOIs } from '../../../store/useDataStore';
 import { PhotoManager } from '../../../utils/photoUtils';
 import { logger } from '../../../utils/logger';
-import { uploadService } from '../../../services/uploadService';
 
 export const useAddPhoto = (onRefresh: () => void) => {
   const { pois, createPOI } = usePOIs();
@@ -108,21 +107,6 @@ export const useAddPhoto = (onRefresh: () => void) => {
       // Position par défaut pour photo oubliée
       const defaultCoords = { latitude: -21.1151, longitude: 55.5364, altitude: 0 };
 
-      // Upload photo vers Cloudinary si nécessaire
-      let cloudinaryUri = selectedPhotoUri;
-      if (selectedPhotoUri && !selectedPhotoUri.startsWith('http')) {
-        try {
-          logger.debug('Upload photo vers Cloudinary', undefined, 'AddPhoto');
-          cloudinaryUri = await uploadService.uploadImage(selectedPhotoUri);
-          logger.debug('Photo uploadée avec succès', { url: cloudinaryUri }, 'AddPhoto');
-        } catch (error) {
-          logger.error('Erreur upload Cloudinary', error, 'AddPhoto');
-          Alert.alert('Erreur', 'Impossible d\'uploader la photo. Vérifiez votre connexion internet.');
-          setCreatingPhoto(false);
-          return;
-        }
-      }
-
       const poi = await createPOI({
         latitude: defaultCoords.latitude,
         longitude: defaultCoords.longitude,
@@ -130,7 +114,7 @@ export const useAddPhoto = (onRefresh: () => void) => {
         time: 0, // Temps a 0 car photo ajoutee apres coup
         title: photoTitle.trim(),
         note: photoNote.trim() || undefined,
-        photoUri: cloudinaryUri || undefined,
+        photoUri: selectedPhotoUri || undefined,
         sessionId: selectedSessionId,
         createdAt: sessionTimestamp,
         isDraft: false // Photo confirmée, pas en mode brouillon

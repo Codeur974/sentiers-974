@@ -1038,8 +1038,10 @@ app.post(
         session.photos.push({
           id: poi.id,
           url: photoUrl,
+          uri: photoUrl, // compat schema
           title: title.trim(),
           createdAt: safeTimestamp,
+          timestamp: safeTimestamp,
         });
       }
       await session.save();
