@@ -885,12 +885,6 @@ app.post(
           error: "title, latitude et longitude sont requis",
         });
       }
-      if (!req.file && !photoPayload) {
-        return res.status(400).json({
-          success: false,
-          error: "Une photo est requise pour ajouter ce POI",
-        });
-      }
 
       const session = await Session.findOne({ sessionId });
       if (!session) {
@@ -963,13 +957,6 @@ app.post(
           ? timestampValue * 1000
           : timestampValue;
 
-      if (!photoUrl) {
-        return res.status(500).json({
-          success: false,
-          error: "La photo n'a pas pu être enregistrée",
-        });
-      }
-
       const coordinates = {
         latitude: parseFloat(latitude),
         longitude: parseFloat(longitude),
@@ -987,14 +974,16 @@ app.post(
 
       session.pois = session.pois || [];
       session.pois.push(poi);
-      session.photos = session.photos || [];
-      session.photos.push({
-        id: `poiPhoto_${poiId}`,
-        uri: photoUrl,
-        coordinates,
-        timestamp: safeTimestamp,
-        caption: title ? `POI: ${title.trim()}` : undefined,
-      });
+      if (photoUrl) {
+        session.photos = session.photos || [];
+        session.photos.push({
+          id: `poiPhoto_${poiId}`,
+          uri: photoUrl,
+          coordinates,
+          timestamp: safeTimestamp,
+          caption: title ? `POI: ${title.trim()}` : undefined,
+        });
+      }
       await session.save();
 
       res.status(201).json({
