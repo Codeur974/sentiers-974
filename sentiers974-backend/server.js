@@ -1031,6 +1031,17 @@ app.post(
 
       session.pois = session.pois || [];
       session.pois.push(poi);
+
+      // Ajouter aussi la photo dans session.photos pour compter côté client
+      session.photos = session.photos || [];
+      if (photoUrl) {
+        session.photos.push({
+          id: poi.id,
+          url: photoUrl,
+          title: title.trim(),
+          createdAt: safeTimestamp,
+        });
+      }
       await session.save();
 
       res.status(201).json({
