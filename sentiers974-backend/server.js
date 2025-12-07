@@ -715,10 +715,24 @@ app.get("/api/sessions", async (req, res) => {
       if (dateTo) query.createdAt.$lte = new Date(dateTo);
     }
 
+    console.log("[sessions] GET /api/sessions params", {
+      userId,
+      sport: sport || null,
+      limit,
+      dateFrom: dateFrom || null,
+      dateTo: dateTo || null,
+      query,
+    });
+
     // Récupérer les sessions
     const sessions = await Session.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(limit));
+
+    console.log("[sessions] GET /api/sessions result", {
+      count: sessions.length,
+      firstIds: sessions.slice(0, 3).map((s) => s.sessionId),
+    });
 
     res.json({
       success: true,
@@ -1135,6 +1149,13 @@ app.get("/api/sessions/stats/daily", async (req, res) => {
       endDate.setHours(23, 59, 59, 999);
     }
 
+    console.log("[sessions] GET /api/sessions/stats/daily params", {
+      userId,
+      date: date || "today",
+      startDate,
+      endDate,
+    });
+
     const stats = await Session.aggregate([
       {
         $match: {
@@ -1168,6 +1189,12 @@ app.get("/api/sessions/stats/daily", async (req, res) => {
         },
       },
     ]);
+
+    console.log("[sessions] GET /api/sessions/stats/daily result", {
+      sessions: stats?.[0]?.totalSessions || 0,
+      distance: stats?.[0]?.totalDistance || 0,
+      duration: stats?.[0]?.totalDuration || 0,
+    });
 
     res.json({
       success: true,
