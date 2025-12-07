@@ -69,7 +69,8 @@ export const PhotoItemComponent: React.FC<PhotoItemProps> = ({
         uri={photo.uri}
         title={photo.title}
         note={photo.note}
-        isOrphan={isOrphan}
+        // Ne pas afficher l'alerte "session introuvable" pour les photos venant du backend
+        isOrphan={isOrphan && photo.source !== 'backend'}
         sessionId={photo.sessionId}
       />
 

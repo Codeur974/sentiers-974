@@ -228,7 +228,7 @@ export const useDataStore = create<DataState>()(
         logger.debug('Chargement POI...', undefined, 'DATA');
 
         try {
-          const [mongoPois, localPois] = await Promise.all([
+          const [mongoPoisRaw, localPois] = await Promise.all([
             (Promise.race([
               fetch(`${API_BASE_URL}/api/pointofinterests`),
               new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
@@ -241,14 +241,31 @@ export const useDataStore = create<DataState>()(
               .catch(() => [])
           ]);
 
+          const mongoPois = (mongoPoisRaw || []).map((p: any) => ({
+            ...p,
+            source: 'backend',
+            photoUri: p.photoUri || p.photo,
+          }));
+
           const uniquePois = Array.from(
             new Map(
               [...mongoPois, ...localPois].map(poi => [poi.id, poi])
             ).values()
           );
 
-          set({ pois: uniquePois, lastPoisUpdate: Date.now(), poisError: null });
-          logger.info('POI chargés', { count: uniquePois.length }, 'DATA');
+          // Dédupliquer les doublons (ex: même photo/session mais id différent)
+          const dedupByPhoto = Array.from(
+            new Map(
+              uniquePois.map((poi) => {
+                const key =
+                  `${poi.sessionId || ''}|${poi.photoUri || poi.photo || ''}|${poi.title || ''}`;
+                return [key, poi];
+              })
+            ).values()
+          );
+
+          set({ pois: dedupByPhoto, lastPoisUpdate: Date.now(), poisError: null });
+          logger.info('POI chargés', { count: dedupByPhoto.length }, 'DATA');
         } catch (error) {
           logger.error('Erreur chargement POI', error, 'DATA');
           set({ poisError: String(error) });
@@ -291,6 +308,8 @@ export const useDataStore = create<DataState>()(
             const timeout = setTimeout(() => controller.abort(), 2000);
 
             const formData = new FormData();
+            // Envoyer l'id généré côté client pour permettre au backend de le réutiliser
+            formData.append('id', poi.id);
             formData.append('title', data.title);
             if (data.note) formData.append('note', data.note);
             formData.append('latitude', String(data.latitude));
@@ -315,6 +334,7 @@ export const useDataStore = create<DataState>()(
 
             if (response.ok) {
               const returnedPhoto = await response.json();
+              const originalId = poi.id;
               poi.id = returnedPhoto.data?.id || poi.id;
               const returnedUri = returnedPhoto.data?.photoUrl || returnedPhoto.data?.uri;
               if (returnedUri) {
@@ -323,7 +343,10 @@ export const useDataStore = create<DataState>()(
               poi.source = 'mongodb';
 
               set(state => ({
-                pois: state.pois.map(p => p.id === poi.id ? poi : p),
+                // Remplacer l'entrée locale (id initial) ou l'éventuel id serveur
+                pois: state.pois.map(p =>
+                  p.id === poi.id || p.id === originalId ? poi : p
+                ),
                 lastPoisUpdate: Date.now()
               }));
 

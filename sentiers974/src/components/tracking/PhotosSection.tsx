@@ -491,9 +491,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           });
         });
 
+        // Ne supprimer que les POI locaux orphelins (éviter d'effacer ceux issus du backend
+        // quand une session distante n'est pas encore synchronisée)
         const orphanPOIs = pois.filter(poi =>
           poi.sessionId &&
           !poi.isDraft &&
+          poi.source !== "mongodb" &&
+          poi.source !== "backend" &&
           !validSessionIds.has(poi.sessionId)
         );
 
@@ -651,17 +655,35 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
 
             const remoteSessions = remoteGroup.sessionGroups?.length || 0;
             const localSessions = localGroup?.sessionGroups?.length || 0;
+            const countPhotosAll = (group?: PhotoGroup) =>
+              (group?.sessionGroups?.reduce((sum, sg) => sum + (sg.photos?.length || 0), 0) || 0) +
+              (group?.orphanPhotos?.length || 0);
+            const countPhotosAssigned = (group?: PhotoGroup) =>
+              group?.sessionGroups?.reduce((sum, sg) => sum + (sg.photos?.length || 0), 0) || 0;
+
+            const remotePhotos = countPhotosAll(remoteGroup);
+            const localPhotos = countPhotosAll(localGroup);
+            const remotePhotosAssigned = countPhotosAssigned(remoteGroup);
+            const localPhotosAssigned = countPhotosAssigned(localGroup);
 
             console.log(`🔄 Date ${remoteGroup.date}: Remote ${remoteSessions} sessions, Local ${localSessions} sessions`);
 
             // TOUJOURS prioriser LOCAL (AsyncStorage) si local a des données
-            // N'utiliser MongoDB QUE si MongoDB a STRICTEMENT PLUS de sessions
+            // N'utiliser MongoDB QUE si MongoDB a STRICTEMENT PLUS de sessions ou PLUS de photos
             if (localGroup && localSessions > 0) {
-              if (remoteSessions > localSessions) {
-                console.log(`✅ Merge: Utiliser ${remoteSessions} sessions MongoDB pour ${remoteGroup.date} (remote > local)`);
+              if (
+                remoteSessions > localSessions ||
+                remotePhotos > localPhotos ||
+                remotePhotosAssigned > localPhotosAssigned // préférer la version qui associe réellement les photos
+              ) {
+                console.log(
+                  `✅ Merge: Utiliser MongoDB pour ${remoteGroup.date} (remote > local : sessions ${remoteSessions}/${localSessions}, photos ${remotePhotos}/${localPhotos})`
+                );
                 return remoteGroup;
               } else {
-                console.log(`✅ Merge: Garder ${localSessions} sessions locales pour ${remoteGroup.date} (local prioritaire)`);
+                console.log(
+                  `✅ Merge: Garder sessions locales pour ${remoteGroup.date} (local prioritaire : sessions ${localSessions}, photos ${localPhotos})`
+                );
                 return localGroup;
               }
             }
