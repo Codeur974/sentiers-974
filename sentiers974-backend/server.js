@@ -876,11 +876,19 @@ app.post(
     try {
       const { sessionId } = req.params;
       const { title, note, latitude, longitude, distance, time } = req.body;
+      const photoPayload =
+        req.body.photoUri || req.body.photoUrl || req.body.uri || req.body.photo;
 
       if (!title || !latitude || !longitude) {
         return res.status(400).json({
           success: false,
           error: "title, latitude et longitude sont requis",
+        });
+      }
+      if (!req.file && !photoPayload) {
+        return res.status(400).json({
+          success: false,
+          error: "Une photo est requise pour ajouter ce POI",
         });
       }
 
@@ -914,24 +922,79 @@ app.post(
       }
 
       // Réutiliser l'id fourni par l'app si présent, sinon en générer un
+      if (!photoUrl && photoPayload) {
+        try {
+          if (photoPayload.startsWith("http")) {
+            // Photo deja hebergee (ex: upload expo)
+            photoUrl = photoPayload;
+          } else {
+            const normalized =
+              photoPayload.startsWith("data:")
+                ? photoPayload
+                : `data:image/jpeg;base64,${photoPayload}`;
+            const uploadResult = await cloudinary.uploader.upload(normalized, {
+              folder: "sentiers974/poi",
+              resource_type: "image",
+              transformation: [
+                { width: 1600, height: 1600, crop: "limit" },
+                { quality: "auto:good" },
+                { fetch_format: "auto" },
+              ],
+            });
+            photoUrl = uploadResult.secure_url;
+          }
+        } catch (err) {
+          console.warn(
+            "Upload photo POI (string/base64) echoue, continue sans photo:",
+            err
+          );
+        }
+      }
+
       const poiId =
         req.body.id && typeof req.body.id === "string"
           ? req.body.id
           : `poi_${Date.now()}_${new mongoose.Types.ObjectId().toString()}`;
+      const timestampValue = time ? parseInt(time) : Date.now();
+      const safeTimestamp =
+        !timestampValue || Number.isNaN(timestampValue) || timestampValue <= 0
+          ? Date.now()
+          : timestampValue < 1e12
+          ? timestampValue * 1000
+          : timestampValue;
+
+      if (!photoUrl) {
+        return res.status(500).json({
+          success: false,
+          error: "La photo n'a pas pu être enregistrée",
+        });
+      }
+
+      const coordinates = {
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+      };
+
       const poi = {
         id: poiId,
         title: title.trim(),
         note: note ? note.trim() : undefined,
-        coordinates: {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
-        },
+        coordinates,
         photo: photoUrl,
-        timestamp: time ? parseInt(time) : Date.now(),
+        timestamp: safeTimestamp,
+        createdAt: safeTimestamp,
       };
 
       session.pois = session.pois || [];
       session.pois.push(poi);
+      session.photos = session.photos || [];
+      session.photos.push({
+        id: `poiPhoto_${poiId}`,
+        uri: photoUrl,
+        coordinates,
+        timestamp: safeTimestamp,
+        caption: title ? `POI: ${title.trim()}` : undefined,
+      });
       await session.save();
 
       res.status(201).json({
