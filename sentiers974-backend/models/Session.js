@@ -125,6 +125,16 @@ SessionSchema.virtual('durationFormatted').get(function() {
 
 // Méthode pour format client
 SessionSchema.methods.toClientFormat = function() {
+  const poisWithPhotos = (this.pois || []).filter((p) => p.photo);
+  const photosFromPois = poisWithPhotos.map((p) => ({
+    id: p.id,
+    uri: p.photo,
+    url: p.photo,
+    timestamp: p.timestamp,
+    title: p.title,
+  }));
+  const photosArray = [...(this.photos || []), ...photosFromPois];
+
   return {
     id: this.sessionId,
     sport: this.sport,
@@ -137,8 +147,8 @@ SessionSchema.methods.toClientFormat = function() {
     maxSpeed: this.maxSpeed,
     steps: this.steps,
     poisCount: this.pois ? this.pois.length : 0,
-    photosCount: this.photos ? this.photos.length : 0,
-    photos: this.photos || [], // Inclure les photos pour l'historique
+    photosCount: photosArray.length,
+    photos: photosArray, // Inclure les photos pour l'historique
     status: this.status,
     startLocation: this.startLocation,
     date: this.createdAt,
