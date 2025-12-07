@@ -314,7 +314,11 @@ class ApiService {
 
   // Obtenir l'ID utilisateur actuel
   async getCurrentUserId(): Promise<string | null> {
-    return await AsyncStorage.getItem('userId');
+    const storedUserId = await AsyncStorage.getItem('userId');
+    if (storedUserId) return storedUserId;
+    // Fallback pour les utilisateurs non connectés : utiliser deviceId pour lier les sessions/POI
+    const deviceId = await AsyncStorage.getItem('deviceId');
+    return deviceId;
   }
 
   // Supprimer le compte utilisateur et toutes ses données (RGPD)

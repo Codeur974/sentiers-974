@@ -1,13 +1,18 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
-import { logger } from '../utils/logger';
-import { PhotoManager } from '../utils/photoUtils';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
+import { logger } from "../utils/logger";
+import { PhotoManager } from "../utils/photoUtils";
+import { purgeLegacyCaches } from "./purgeLegacyCaches";
 
-const STORAGE_KEY = 'sentiers974_pois';
+const STORAGE_KEY = "sentiers974_pois";
 let isLoadingPOIs = false;
-const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.apiUrl || "https://sentiers-974.onrender.com";
+
+// Purger d'anciennes clés (daily_stats_ / data-store / sentiers974_pois) pour éviter les sessions fantômes
+purgeLegacyCaches().catch(() => {});
 
 /**
  * Store Zustand pour les données de l'application
@@ -43,7 +48,7 @@ interface POI {
   sessionId?: string;
   createdAt: number;
   updatedAt?: number;
-  source?: 'local' | 'mongodb';
+  source?: "local" | "mongodb" | "backend";
   isDraft?: boolean; // POI temporaire pendant la session active
 }
 
@@ -60,7 +65,7 @@ interface DataState {
   activitiesLoading: boolean;
   activitiesError: string | null;
   lastActivitiesUpdate: number | null;
-  
+
   // POIs data
   pois: POI[];
   poisLoading: boolean;
@@ -73,7 +78,7 @@ interface DataState {
 
   // Cache management
   cacheExpiry: number;
-  
+
   // Activities actions
   setActivities: (activities: Activity[]) => void;
   addActivity: (activity: Activity) => void;
@@ -81,7 +86,7 @@ interface DataState {
   deleteActivity: (id: string) => void;
   setActivitiesLoading: (loading: boolean) => void;
   setActivitiesError: (error: string | null) => void;
-  
+
   // POIs actions
   loadPOIs: () => Promise<void>;
   setPOIs: (pois: POI[]) => void;
@@ -132,7 +137,7 @@ export const useDataStore = create<DataState>()(
       activitiesLoading: false,
       activitiesError: null,
       lastActivitiesUpdate: null,
-      
+
       pois: [],
       poisLoading: false,
       poisError: null,
@@ -142,114 +147,130 @@ export const useDataStore = create<DataState>()(
       isSyncing: false,
 
       cacheExpiry: CACHE_DURATION,
-      
+
       // Activities actions
       setActivities: (activities) => {
-        logger.debug('Activities mises à jour', { count: activities.length }, 'DATA');
+        logger.debug(
+          "Activities mises à jour",
+          { count: activities.length },
+          "DATA"
+        );
         set({
           activities,
           lastActivitiesUpdate: Date.now(),
-          activitiesError: null
+          activitiesError: null,
         });
       },
-      
+
       addActivity: (activity) => {
-        set(state => ({
+        set((state) => ({
           activities: [activity, ...state.activities],
-          lastActivitiesUpdate: Date.now()
+          lastActivitiesUpdate: Date.now(),
         }));
-        logger.info('Activité ajoutée', { id: activity._id, sport: activity.sport }, 'DATA');
+        logger.info(
+          "Activité ajoutée",
+          { id: activity._id, sport: activity.sport },
+          "DATA"
+        );
       },
-      
+
       updateActivity: (id, updates) => {
-        set(state => ({
-          activities: state.activities.map(activity =>
+        set((state) => ({
+          activities: state.activities.map((activity) =>
             activity._id === id ? { ...activity, ...updates } : activity
           ),
-          lastActivitiesUpdate: Date.now()
+          lastActivitiesUpdate: Date.now(),
         }));
-        logger.info('Activité mise à jour', { id, updates }, 'DATA');
+        logger.info("Activité mise à jour", { id, updates }, "DATA");
       },
-      
+
       deleteActivity: (id) => {
-        set(state => ({
-          activities: state.activities.filter(activity => activity._id !== id),
-          lastActivitiesUpdate: Date.now()
+        set((state) => ({
+          activities: state.activities.filter(
+            (activity) => activity._id !== id
+          ),
+          lastActivitiesUpdate: Date.now(),
         }));
-        logger.info('Activité supprimée', { id }, 'DATA');
+        logger.info("Activité supprimée", { id }, "DATA");
       },
-      
+
       setActivitiesLoading: (loading) => {
         set({ activitiesLoading: loading });
       },
-      
+
       setActivitiesError: (error) => {
-        logger.error('Erreur activities', error, 'DATA');
+        logger.error("Erreur activities", error, "DATA");
         set({ activitiesError: error });
       },
-      
+
       // POIs actions
       setPOIs: (pois) => {
-        logger.debug('POIs mis à jour', { count: pois.length }, 'DATA');
+        logger.debug("POIs mis à jour", { count: pois.length }, "DATA");
         set({
           pois,
           lastPoisUpdate: Date.now(),
-          poisError: null
+          poisError: null,
         });
       },
-      
+
       addPOI: (poi) => {
-        set(state => ({
+        set((state) => ({
           pois: [poi, ...state.pois],
-          lastPoisUpdate: Date.now()
+          lastPoisUpdate: Date.now(),
         }));
-        logger.info('POI ajouté', { id: poi.id, title: poi.title }, 'DATA');
+        logger.info("POI ajouté", { id: poi.id, title: poi.title }, "DATA");
       },
-      
+
       updatePOI: (id, updates) => {
-        set(state => ({
-          pois: state.pois.map(poi =>
+        set((state) => ({
+          pois: state.pois.map((poi) =>
             poi.id === id ? { ...poi, ...updates, updatedAt: Date.now() } : poi
           ),
-          lastPoisUpdate: Date.now()
+          lastPoisUpdate: Date.now(),
         }));
-        logger.info('POI mis à jour', { id, updates }, 'DATA');
+        logger.info("POI mis à jour", { id, updates }, "DATA");
       },
-      
+
       // Load POIs from MongoDB + AsyncStorage
       loadPOIs: async () => {
         if (isLoadingPOIs) {
-          logger.debug('Chargement POI déjà en cours, skip', undefined, 'DATA');
+          logger.debug("Chargement POI déjà en cours, skip", undefined, "DATA");
           return;
         }
 
         isLoadingPOIs = true;
         set({ poisLoading: true });
-        logger.debug('Chargement POI...', undefined, 'DATA');
+        logger.debug("Chargement POI...", undefined, "DATA");
 
         try {
           const [mongoPoisRaw, localPois] = await Promise.all([
-            (Promise.race([
-              fetch(`${API_BASE_URL}/api/pointofinterests`),
-              new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-            ]) as Promise<Response>)
-              .then(r => r.ok ? r.json() : [])
+            (
+              Promise.race([
+                fetch(`${API_BASE_URL}/api/pointofinterests`),
+                new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error("timeout")), 3000)
+                ),
+              ]) as Promise<Response>
+            )
+              .then((r) => (r.ok ? r.json() : []))
               .catch(() => []),
 
             AsyncStorage.getItem(STORAGE_KEY)
-              .then(json => json ? JSON.parse(json) : [])
-              .catch(() => [])
+              .then((json) => (json ? JSON.parse(json) : []))
+              .catch(() => []),
           ]);
 
           const mongoPois = (mongoPoisRaw || []).map((p: any) => ({
             ...p,
-            source: 'backend',
+            source: "backend",
             photoUri: p.photoUri || p.photo,
+            createdAt: p.createdAt || p.timestamp || Date.now(), // assurer un timestamp pour éviter "invalid date"
+            timestamp: p.timestamp || p.createdAt || Date.now(),
           }));
 
           const uniquePois = Array.from(
             new Map(
-              [...mongoPois, ...localPois].map(poi => [poi.id, poi])
+              [...mongoPois, ...localPois].map((poi) => [poi.id, poi])
             ).values()
           );
 
@@ -257,17 +278,22 @@ export const useDataStore = create<DataState>()(
           const dedupByPhoto = Array.from(
             new Map(
               uniquePois.map((poi) => {
-                const key =
-                  `${poi.sessionId || ''}|${poi.photoUri || poi.photo || ''}|${poi.title || ''}`;
+                const key = `${poi.sessionId || ""}|${
+                  poi.photoUri || poi.photo || ""
+                }|${poi.title || ""}`;
                 return [key, poi];
               })
             ).values()
           );
 
-          set({ pois: dedupByPhoto, lastPoisUpdate: Date.now(), poisError: null });
-          logger.info('POI chargés', { count: dedupByPhoto.length }, 'DATA');
+          set({
+            pois: dedupByPhoto,
+            lastPoisUpdate: Date.now(),
+            poisError: null,
+          });
+          logger.info("POI chargés", { count: dedupByPhoto.length }, "DATA");
         } catch (error) {
-          logger.error('Erreur chargement POI', error, 'DATA');
+          logger.error("Erreur chargement POI", error, "DATA");
           set({ poisError: String(error) });
         } finally {
           set({ poisLoading: false });
@@ -276,10 +302,29 @@ export const useDataStore = create<DataState>()(
       },
 
       createPOI: async (data) => {
-        logger.debug('Création POI', data, 'DATA');
+        logger.debug("Création POI", data, "DATA");
+
+        // Sanitize createdAt (ms) pour éviter les dates invalides (1970)
+        const rawCreatedAt = data.createdAt ?? Date.now();
+        let safeCreatedAt = Number(rawCreatedAt);
+        if (!Number.isFinite(safeCreatedAt) || safeCreatedAt <= 0) {
+          safeCreatedAt = Date.now();
+        }
+        // Si en secondes (ex: 10 digits), convertir en ms
+        if (safeCreatedAt < 1e12) {
+          safeCreatedAt = safeCreatedAt * 1000;
+        }
+
+        if (!data.photoUri) {
+          logger.warn("createPOI: tentative sans photo", data, "DATA");
+          throw new Error(
+            "Une photo est requise pour créer ce point d'intérêt."
+          );
+        }
 
         const poi: POI = {
-          id: 'poi_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          id:
+            "poi_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9),
           latitude: data.latitude,
           longitude: data.longitude,
           distance: data.distance,
@@ -288,18 +333,18 @@ export const useDataStore = create<DataState>()(
           note: data.note,
           photoUri: data.photoUri,
           sessionId: data.sessionId,
-          createdAt: data.createdAt ?? Date.now(),
-          source: 'local',
-          isDraft: data.isDraft !== undefined ? data.isDraft : !!data.sessionId // Utiliser isDraft fourni, sinon draft si sessionId existe
+          createdAt: safeCreatedAt,
+          source: "local",
+          isDraft: data.isDraft !== undefined ? data.isDraft : !!data.sessionId, // Utiliser isDraft fourni, sinon draft si sessionId existe
         };
 
-        set(state => ({
+        set((state) => ({
           pois: [poi, ...state.pois],
-          lastPoisUpdate: Date.now()
+          lastPoisUpdate: Date.now(),
         }));
 
         const state = get();
-        const localPois = state.pois.filter(p => p.source !== 'mongodb');
+        const localPois = state.pois.filter((p) => p.source !== "mongodb");
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(localPois));
 
         if (data.sessionId) {
@@ -308,27 +353,36 @@ export const useDataStore = create<DataState>()(
             const timeout = setTimeout(() => controller.abort(), 2000);
 
             const formData = new FormData();
+            if (!data.photoUri) {
+              clearTimeout(timeout);
+              throw new Error(
+                "Une photo est requise pour enregistrer ce point d'intérêt."
+              );
+            }
             // Envoyer l'id généré côté client pour permettre au backend de le réutiliser
-            formData.append('id', poi.id);
-            formData.append('title', data.title);
-            if (data.note) formData.append('note', data.note);
-            formData.append('latitude', String(data.latitude));
-            formData.append('longitude', String(data.longitude));
-            formData.append('distance', String(data.distance));
-            formData.append('time', String(data.time));
+            formData.append("id", poi.id);
+            formData.append("title", data.title);
+            if (data.note) formData.append("note", data.note);
+            formData.append("latitude", String(data.latitude));
+            formData.append("longitude", String(data.longitude));
+            formData.append("distance", String(data.distance));
+            formData.append("time", String(data.time));
             if (data.photoUri) {
-              formData.append('photo', {
+              formData.append("photo", {
                 uri: data.photoUri,
-                type: 'image/jpeg',
-                name: 'photo.jpg'
+                type: "image/jpeg",
+                name: "photo.jpg",
               } as any);
             }
 
-            const response = await fetch(`${API_BASE_URL}/api/sessions/${data.sessionId}/poi`, {
-              method: 'POST',
-              body: formData,
-              signal: controller.signal,
-            });
+            const response = await fetch(
+              `${API_BASE_URL}/api/sessions/${data.sessionId}/poi`,
+              {
+                method: "POST",
+                body: formData,
+                signal: controller.signal,
+              }
+            );
 
             clearTimeout(timeout);
 
@@ -336,208 +390,249 @@ export const useDataStore = create<DataState>()(
               const returnedPhoto = await response.json();
               const originalId = poi.id;
               poi.id = returnedPhoto.data?.id || poi.id;
-              const returnedUri = returnedPhoto.data?.photoUrl || returnedPhoto.data?.uri;
+              const returnedUri =
+                returnedPhoto.data?.photoUrl || returnedPhoto.data?.uri;
               if (returnedUri) {
                 poi.photoUri = returnedUri;
               }
-              poi.source = 'mongodb';
+              poi.source = "mongodb";
 
-              set(state => ({
+              set((state) => ({
                 // Remplacer l'entrée locale (id initial) ou l'éventuel id serveur
-                pois: state.pois.map(p =>
+                pois: state.pois.map((p) =>
                   p.id === poi.id || p.id === originalId ? poi : p
                 ),
-                lastPoisUpdate: Date.now()
+                lastPoisUpdate: Date.now(),
               }));
 
-              logger.info('POI créé sur MongoDB', { id: poi.id }, 'DATA');
+              logger.info("POI créé sur MongoDB", { id: poi.id }, "DATA");
             }
           } catch (mongoError) {
-            logger.warn('POI créé localement seulement', mongoError, 'DATA');
+            logger.warn("POI créé localement seulement", mongoError, "DATA");
           }
         }
 
-        logger.info('POI créé', { id: poi.id, title: poi.title }, 'DATA');
+        logger.info("POI créé", { id: poi.id, title: poi.title }, "DATA");
         return poi;
       },
 
       deletePOIsBatch: async (ids) => {
-        logger.debug('Suppression batch POI', { count: ids.length }, 'DATA');
-        
+        logger.debug("Suppression batch POI", { count: ids.length }, "DATA");
+
         for (const poiId of ids) {
           await get().deletePOI(poiId);
         }
-        
-        logger.info('Batch suppression terminée', { count: ids.length }, 'DATA');
+
+        logger.info(
+          "Batch suppression terminée",
+          { count: ids.length },
+          "DATA"
+        );
       },
 
       getPOIsForSession: (sessionId) => {
         const state = get();
-        return state.pois.filter(poi => poi.sessionId === sessionId);
+        return state.pois.filter((poi) => poi.sessionId === sessionId);
       },
 
       // Confirmer les POI draft : marquer comme permanents (session sauvegardée)
       confirmDraftPOIs: async (sessionId) => {
-        logger.info('Confirmation POI draft pour session', { sessionId }, 'DATA');
+        logger.info(
+          "Confirmation POI draft pour session",
+          { sessionId },
+          "DATA"
+        );
 
         const state = get();
         const draftPOIs = state.pois.filter(
-          poi => poi.sessionId === sessionId && poi.isDraft
+          (poi) => poi.sessionId === sessionId && poi.isDraft
         );
 
         if (draftPOIs.length === 0) {
-          logger.debug('Aucun POI draft à confirmer', { sessionId }, 'DATA');
+          logger.debug("Aucun POI draft à confirmer", { sessionId }, "DATA");
           return;
         }
 
         // Marquer tous les POI draft comme permanents
-        set(state => ({
-          pois: state.pois.map(poi =>
+        set((state) => ({
+          pois: state.pois.map((poi) =>
             poi.sessionId === sessionId && poi.isDraft
               ? { ...poi, isDraft: false }
               : poi
           ),
-          lastPoisUpdate: Date.now()
+          lastPoisUpdate: Date.now(),
         }));
 
         // Sauvegarder dans AsyncStorage
-        const updatedPois = get().pois.filter(p => p.source !== 'mongodb');
+        const updatedPois = get().pois.filter((p) => p.source !== "mongodb");
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
 
-        logger.info('POI draft confirmés', { sessionId, count: draftPOIs.length }, 'DATA');
+        logger.info(
+          "POI draft confirmés",
+          { sessionId, count: draftPOIs.length },
+          "DATA"
+        );
       },
 
       // Supprimer les POI draft (session annulée)
       cancelDraftPOIs: async (sessionId) => {
-        logger.info('Annulation POI draft pour session', { sessionId }, 'DATA');
+        logger.info("Annulation POI draft pour session", { sessionId }, "DATA");
 
         const state = get();
         const draftPOIs = state.pois.filter(
-          poi => poi.sessionId === sessionId && poi.isDraft
+          (poi) => poi.sessionId === sessionId && poi.isDraft
         );
 
         if (draftPOIs.length === 0) {
-          logger.debug('Aucun POI draft à annuler', { sessionId }, 'DATA');
+          logger.debug("Aucun POI draft à annuler", { sessionId }, "DATA");
           return;
         }
 
         // Supprimer les photos associées
         for (const poi of draftPOIs) {
-          if (poi.photoUri && !poi.photoUri.includes('placeholder')) {
+          if (poi.photoUri && !poi.photoUri.includes("placeholder")) {
             await PhotoManager.deletePhoto(poi.photoUri);
           }
         }
 
         // Supprimer les POI draft du store
-        set(state => ({
+        set((state) => ({
           pois: state.pois.filter(
-            poi => !(poi.sessionId === sessionId && poi.isDraft)
+            (poi) => !(poi.sessionId === sessionId && poi.isDraft)
           ),
-          lastPoisUpdate: Date.now()
+          lastPoisUpdate: Date.now(),
         }));
 
         // Sauvegarder dans AsyncStorage
-        const updatedPois = get().pois.filter(p => p.source !== 'mongodb');
+        const updatedPois = get().pois.filter((p) => p.source !== "mongodb");
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
 
-        logger.info('POI draft annulés', { sessionId, count: draftPOIs.length }, 'DATA');
+        logger.info(
+          "POI draft annulés",
+          { sessionId, count: draftPOIs.length },
+          "DATA"
+        );
       },
 
       deletePOI: async (id) => {
         const state = get();
-        const poiToDelete = state.pois.find(p => p.id === id);
+        const poiToDelete = state.pois.find((p) => p.id === id);
         if (!poiToDelete) {
-          logger.warn('POI introuvable', { id }, 'DATA');
+          logger.warn("POI introuvable", { id }, "DATA");
           return;
         }
 
-        logger.debug('Suppression POI', { id, source: poiToDelete.source, title: poiToDelete.title }, 'DATA');
+        logger.debug(
+          "Suppression POI",
+          { id, source: poiToDelete.source, title: poiToDelete.title },
+          "DATA"
+        );
 
         try {
           // MongoDB cleanup
-          if (poiToDelete.source === 'mongodb') {
+          if (poiToDelete.source === "mongodb") {
             try {
               const controller = new AbortController();
               const timeout = setTimeout(() => controller.abort(), 2000);
 
-              const response = await fetch(`${API_BASE_URL}/api/pointofinterests/${id}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                signal: controller.signal,
-              });
+              const response = await fetch(
+                `${API_BASE_URL}/api/pointofinterests/${id}`,
+                {
+                  method: "DELETE",
+                  headers: { "Content-Type": "application/json" },
+                  signal: controller.signal,
+                }
+              );
 
               clearTimeout(timeout);
 
               if (response.ok) {
-                logger.info('POI MongoDB supprimé du serveur', { id }, 'DATA');
+                logger.info("POI MongoDB supprimé du serveur", { id }, "DATA");
               } else {
-                logger.warn('Échec suppression serveur', { id, status: response.status }, 'DATA');
+                logger.warn(
+                  "Échec suppression serveur",
+                  { id, status: response.status },
+                  "DATA"
+                );
               }
             } catch (serverError) {
-              logger.warn('Erreur serveur, suppression locale seulement', serverError, 'DATA');
+              logger.warn(
+                "Erreur serveur, suppression locale seulement",
+                serverError,
+                "DATA"
+              );
             }
           }
 
           // Photo cleanup
-          if (poiToDelete?.photoUri && !poiToDelete.photoUri.includes('placeholder')) {
+          if (
+            poiToDelete?.photoUri &&
+            !poiToDelete.photoUri.includes("placeholder")
+          ) {
             await PhotoManager.deletePhoto(poiToDelete.photoUri);
           }
 
           // Local state update
-          set(state => ({
-            pois: state.pois.filter(poi => poi.id !== id),
-            lastPoisUpdate: Date.now()
+          set((state) => ({
+            pois: state.pois.filter((poi) => poi.id !== id),
+            lastPoisUpdate: Date.now(),
           }));
 
           // AsyncStorage update
-          const updatedPois = get().pois.filter(p => p.source !== 'mongodb');
+          const updatedPois = get().pois.filter((p) => p.source !== "mongodb");
           await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
 
-          logger.info('POI supprimé', { id, title: poiToDelete.title }, 'DATA');
+          logger.info("POI supprimé", { id, title: poiToDelete.title }, "DATA");
         } catch (error) {
-          logger.error('Erreur suppression POI', error, 'DATA');
+          logger.error("Erreur suppression POI", error, "DATA");
           throw error;
         }
       },
-      
+
       setPOIsLoading: (loading) => {
         set({ poisLoading: loading });
       },
-      
+
       setPOIsError: (error) => {
-        logger.error('Erreur POIs', error, 'DATA');
+        logger.error("Erreur POIs", error, "DATA");
         set({ poisError: error });
       },
 
       // Sync Queue actions
       addToSyncQueue: async (sessionData) => {
         const newSession: PendingSession = {
-          id: `pending_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          id: `pending_${Date.now()}_${Math.random()
+            .toString(36)
+            .substring(2, 9)}`,
           sessionData,
           timestamp: Date.now(),
           retryCount: 0,
         };
 
-        set(state => ({
-          pendingSessions: [...state.pendingSessions, newSession]
+        set((state) => ({
+          pendingSessions: [...state.pendingSessions, newSession],
         }));
 
-        logger.info('Session ajoutée à la sync queue', { id: newSession.id }, 'DATA');
+        logger.info(
+          "Session ajoutée à la sync queue",
+          { id: newSession.id },
+          "DATA"
+        );
       },
 
       removeFromSyncQueue: async (id) => {
-        set(state => ({
-          pendingSessions: state.pendingSessions.filter(s => s.id !== id)
+        set((state) => ({
+          pendingSessions: state.pendingSessions.filter((s) => s.id !== id),
         }));
 
-        logger.info('Session retirée de la sync queue', { id }, 'DATA');
+        logger.info("Session retirée de la sync queue", { id }, "DATA");
       },
 
       incrementRetry: async (id) => {
-        set(state => ({
-          pendingSessions: state.pendingSessions.map(s =>
+        set((state) => ({
+          pendingSessions: state.pendingSessions.map((s) =>
             s.id === id ? { ...s, retryCount: s.retryCount + 1 } : s
-          )
+          ),
         }));
       },
 
@@ -551,29 +646,31 @@ export const useDataStore = create<DataState>()(
 
       // Cache management
       invalidateCache: () => {
-        logger.debug('Cache invalidé', undefined, 'DATA');
+        logger.debug("Cache invalidé", undefined, "DATA");
         set({
           lastActivitiesUpdate: null,
-          lastPoisUpdate: null
+          lastPoisUpdate: null,
         });
       },
-      
+
       isDataStale: () => {
         const state = get();
         const now = Date.now();
-        
-        const activitiesStale = !state.lastActivitiesUpdate || 
-          (now - state.lastActivitiesUpdate) > state.cacheExpiry;
-        
-        const poisStale = !state.lastPoisUpdate || 
-          (now - state.lastPoisUpdate) > state.cacheExpiry;
-        
+
+        const activitiesStale =
+          !state.lastActivitiesUpdate ||
+          now - state.lastActivitiesUpdate > state.cacheExpiry;
+
+        const poisStale =
+          !state.lastPoisUpdate ||
+          now - state.lastPoisUpdate > state.cacheExpiry;
+
         return activitiesStale || poisStale;
       },
-      
+
       // Cleanup
       clearAll: () => {
-        logger.info('Données effacées', undefined, 'DATA');
+        logger.info("Données effacées", undefined, "DATA");
         set({
           activities: [],
           activitiesLoading: false,
@@ -582,12 +679,12 @@ export const useDataStore = create<DataState>()(
           pois: [],
           poisLoading: false,
           poisError: null,
-          lastPoisUpdate: null
+          lastPoisUpdate: null,
         });
-      }
+      },
     }),
     {
-      name: 'data-store',
+      name: "data-store-v2",
       storage: createJSONStorage(() => AsyncStorage),
       // Persister toutes les données avec cache intelligent
       partialize: (state) => ({
@@ -595,8 +692,8 @@ export const useDataStore = create<DataState>()(
         lastActivitiesUpdate: state.lastActivitiesUpdate,
         pois: state.pois,
         lastPoisUpdate: state.lastPoisUpdate,
-        pendingSessions: state.pendingSessions
-      })
+        pendingSessions: state.pendingSessions,
+      }),
     }
   )
 );
@@ -612,7 +709,7 @@ export const useActivities = () => {
     updateActivity,
     deleteActivity,
     setActivitiesLoading,
-    setActivitiesError
+    setActivitiesError,
   } = useDataStore();
 
   return {
@@ -624,7 +721,7 @@ export const useActivities = () => {
     updateActivity,
     deleteActivity,
     setLoading: setActivitiesLoading,
-    setError: setActivitiesError
+    setError: setActivitiesError,
   };
 };
 
@@ -644,7 +741,7 @@ export const usePOIs = () => {
     confirmDraftPOIs,
     cancelDraftPOIs,
     setPOIsLoading,
-    setPOIsError
+    setPOIsError,
   } = useDataStore();
 
   return {
@@ -663,7 +760,7 @@ export const usePOIs = () => {
     confirmDraftPOIs,
     cancelDraftPOIs,
     setLoading: setPOIsLoading,
-    setError: setPOIsError
+    setError: setPOIsError,
   };
 };
 
@@ -673,7 +770,7 @@ export const useDataCache = () => {
     lastPoisUpdate,
     invalidateCache,
     isDataStale,
-    clearAll
+    clearAll,
   } = useDataStore();
 
   return {
@@ -681,6 +778,32 @@ export const useDataCache = () => {
     lastPoisUpdate,
     invalidateCache,
     isDataStale,
-    clearAll
+    clearAll,
   };
+};
+
+// Utilitaire dev : nettoyer la persistance locale (stats, POI, store)
+export const clearLocalPersistence = async () => {
+  try {
+    const keys = await AsyncStorage.getAllKeys();
+    const keysToRemove = keys.filter(
+      (k) =>
+        k === STORAGE_KEY ||
+        k === "data-store-v2" ||
+        k === "currentSessionId" ||
+        k.startsWith("daily_stats_")
+    );
+
+    if (keysToRemove.length) {
+      await AsyncStorage.multiRemove(keysToRemove);
+    }
+
+    // Réinitialiser le store en mémoire
+    useDataStore.getState().clearAll();
+
+    logger.info("Persistance locale nettoyée (dev)", { removed: keysToRemove }, "DATA");
+  } catch (error) {
+    logger.error("Erreur clearLocalPersistence", error, "DATA");
+    throw error;
+  }
 };

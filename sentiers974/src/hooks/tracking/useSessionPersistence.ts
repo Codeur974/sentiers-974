@@ -95,11 +95,15 @@ export const useSessionPersistence = () => {
 
     // CrÃ©er sur MongoDB avec timeout rapide (5s)
     try {
+      // DÃ©terminer le userId : user connectÃ© > deviceId > 'anonymous'
+      const storedUserId = await AsyncStorage.getItem('userId');
+      const userId = user?.id || storedUserId || null; // si null, rester en local
+      if (!userId) {
+        console.log('createSession: aucun userId, session gardee en local uniquement');
+        return newSessionId;
+      }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      // DÃ©terminer le userId : user connectÃ© > deviceId > 'anonymous'
-      const userId = user?.id || deviceId || 'anonymous';
       const token =
         (await AsyncStorage.getItem('authToken')) ||
         (await AsyncStorage.getItem('userToken'));
@@ -216,6 +220,17 @@ export const useSessionPersistence = () => {
     };
     let localStatsUpdated = false;
 
+    const storedUserId = await AsyncStorage.getItem('userId');
+    const resolvedUserId = user?.id || storedUserId || null; // si null, rester en local
+
+    if (!resolvedUserId) {
+      console.log('saveSession: aucun userId, sauvegarde locale uniquement');
+      await updateLocalStats(true);
+      DeviceEventEmitter.emit('sessionSaved', { sessionId, date: today });
+      console.log('saveSession: sauvegarde locale terminee sans sync distante');
+      return;
+    }
+
     try {
       // Sauvegarder sur MongoDB
       console.log('ðŸŒ saveSession: Tentative sauvegarde MongoDB...', MONGODB_API_URL);
@@ -224,6 +239,7 @@ export const useSessionPersistence = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...sessionData,
+          userId: resolvedUserId,
           sessionId,
           status: 'completed'
         })
@@ -251,7 +267,7 @@ export const useSessionPersistence = () => {
       await addToSyncQueue({
         ...sessionData,
         sessionId,
-        userId: user?.id || deviceId || 'anonymous'
+        userId: resolvedUserId
       });
       console.log('ðŸ“¥ saveSession: Session ajoutÃ©e Ã  la sync queue');
     }

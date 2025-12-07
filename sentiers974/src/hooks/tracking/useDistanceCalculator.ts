@@ -98,6 +98,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
 
     // Détection dynamique de la qualité GPS (4 niveaux)
     const accuracy = coords.accuracy || 999;
+    const prevAccuracy = lastCoords.current?.accuracy;
     let teleportThreshold: number;
     if (accuracy < 15) {
       teleportThreshold = thresholds.excellent; // Excellent: plein air dégagé
@@ -110,6 +111,17 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     }
 
     const maxDistPerSecond = teleportThreshold / 1000;
+    // Si l'accuracy s'améliore brutalement (ex: 60m -> 10m), rejeter le premier point "bon" s'il saute trop loin/rapide
+    const accuracyJump = prevAccuracy && prevAccuracy > 50 && accuracy < 20;
+    if (accuracyJump) {
+      const jumpDistMeters = newDist * 1000;
+      const jumpSpeedKmh = (newDist / Math.max(timeDiff, 1)) * 3600;
+      if (jumpDistMeters > 10 && jumpSpeedKmh > 10) {
+        console.log(`⚠️ Saut ignoré après amélioration d'accuracy: ${jumpDistMeters.toFixed(1)}m à ${jumpSpeedKmh.toFixed(1)} km/h`);
+        lastCoords.current = { ...coords };
+        return;
+      }
+    }
     if (newDist > maxDistPerSecond * Math.max(timeDiff, 1)) {
       console.log(`🚫 Saut GPS rejeté: ${(newDist * 1000).toFixed(1)}m en ${timeDiff.toFixed(1)}s = ${((newDist / timeDiff) * 3600).toFixed(1)} km/h`);
       lastCoords.current = { ...coords };
@@ -132,12 +144,21 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
         minDistanceMeters = isInitialPhase
           ? Math.min(minDistanceMetersBase, adaptive)
           : Math.max(0.5, adaptive); // Minimum absolu 0.5m au lieu de 2m
+        // Si accuracy mauvaise (>50m), relever le seuil pour éviter les petits sauts au passage "bon"
+        if (coords.accuracy > 50) {
+          minDistanceMeters = Math.max(minDistanceMeters, Math.min(5, coords.accuracy / 10)); // ex: acc 60 -> 5m max
+        }
       } else if (isInitialPhase) {
         minDistanceMeters = Math.min(minDistanceMetersBase, 0.5);
       }
     }
 
     const isLikelyStopped = gpsSpeedKmh !== null ? gpsSpeedKmh < 0.5 : false;
+    // Si accuracy très mauvaise et distance minuscule + vitesse quasi nulle, ignorer ce point
+    if (coords.accuracy && coords.accuracy > 50 && distanceMeters < 5 && (gpsSpeedKmh === null || gpsSpeedKmh < 0.5)) {
+      lastCoords.current = { ...coords };
+      return;
+    }
     // Si course et accuracy médiocre, autoriser quand même l'accumulation pour que le fallback soit crédible
     const shouldAddDistance = distanceMeters >= minDistanceMeters;
 
