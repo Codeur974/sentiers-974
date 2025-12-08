@@ -3,8 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
 // Configuration de l'API
-// Production: Backend déployé sur Render avec HTTPS
-// Dev: Backend local (décommenter pour développement)
+// Production: Backend dploy sur Render avec HTTPS
+// Dev: Backend local (dcommenter pour dveloppement)
 const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl
   ? `${Constants.expoConfig.extra.apiUrl}/api`
   : 'https://sentiers-974.onrender.com/api';
@@ -12,15 +12,15 @@ const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl
 
 // Log pour debug (visible uniquement en dev)
 if (__DEV__) {
-  console.log('🌐 API_BASE_URL configurée:', API_BASE_URL);
-  console.log('📱 Constants.expoConfig?.extra?.apiUrl:', Constants.expoConfig?.extra?.apiUrl);
+  console.log(' API_BASE_URL configure:', API_BASE_URL);
+  console.log(' Constants.expoConfig?.extra?.apiUrl:', Constants.expoConfig?.extra?.apiUrl);
 }
 
 // Export pour utilisation dans AuthContext
 export const API_URL = API_BASE_URL;
 
-// Log minimal pour voir l'URL utilisée (utile en dev/diagnostic APK)
-console.log('API_URL utilisé:', API_URL);
+// Log minimal pour voir l'URL utilise (utile en dev/diagnostic APK)
+console.log('API_URL utilis:', API_URL);
 
 interface ApiResponse<T = any> {
   success: boolean;
@@ -35,14 +35,14 @@ class ApiService {
     this.baseURL = baseURL;
   }
 
-  // Récupère le token JWT (clé unifiée `authToken`, fallback legacy `userToken`)
+  // Rcupre le token JWT (cl unifie `authToken`, fallback legacy `userToken`)
   private async getAuthToken() {
     const token = await AsyncStorage.getItem('authToken');
     if (token) return token;
     return await AsyncStorage.getItem('userToken');
   }
 
-  // Méthode générique pour les requêtes avec retry automatique
+  // Mthode gnrique pour les requtes avec retry automatique
   private async request<T>(
     endpoint: string,
     options: RequestInit = {},
@@ -77,7 +77,7 @@ class ApiService {
         }
 
         if (!response.ok) {
-          // Erreurs 4xx ne doivent pas être retryées
+          // Erreurs 4xx ne doivent pas tre retryes
           if (response.status >= 400 && response.status < 500) {
             return {
               success: false,
@@ -99,28 +99,28 @@ class ApiService {
           break;
         }
 
-        // Attendre avant de réessayer (backoff exponentiel)
+        // Attendre avant de ressayer (backoff exponentiel)
         const delayMs = Math.min(1000 * Math.pow(2, attempt), 5000);
-        console.log(`⚠️ Tentative ${attempt + 1}/${retries + 1} échouée, retry dans ${delayMs}ms...`);
+        console.log(` Tentative ${attempt + 1}/${retries + 1} choue, retry dans ${delayMs}ms...`);
         await new Promise<void>(resolve => setTimeout(() => resolve(), delayMs));
       }
     }
 
-    // Message d'erreur amélioré
+    // Message d'erreur amlior
     const userFriendlyMessage = lastError?.message.includes('fetch')
-      ? 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.'
+      ? 'Impossible de se connecter au serveur. Vrifiez votre connexion internet.'
       : lastError?.message || 'Une erreur est survenue';
 
-    console.error('❌ Erreur API après tous les retries:', lastError);
+    console.error(' Erreur API aprs tous les retries:', lastError);
     return {
       success: false,
       message: userFriendlyMessage,
     };
   }
 
-  // ===== ACTIVITÉS =====
+  // ===== ACTIVITS =====
   
-  // Créer une nouvelle activité
+  // Crer une nouvelle activit
   async createActivity(activityData: {
     title: string;
     activityType: string;
@@ -152,17 +152,17 @@ class ApiService {
     });
   }
 
-  // Obtenir toutes les activités de l'utilisateur
+  // Obtenir toutes les activits de l'utilisateur
   async getUserActivities() {
     return this.request('/activities');
   }
 
-  // Obtenir une activité par ID
+  // Obtenir une activit par ID
   async getActivity(activityId: string) {
     return this.request(`/activities/${activityId}`);
   }
 
-  // Mettre à jour une activité
+  // Mettre  jour une activit
   async updateActivity(activityId: string, updateData: any) {
     return this.request(`/activities/${activityId}`, {
       method: 'PUT',
@@ -170,16 +170,16 @@ class ApiService {
     });
   }
 
-  // Supprimer une activité
+  // Supprimer une activit
   async deleteActivity(activityId: string) {
     return this.request(`/activities/${activityId}`, {
       method: 'DELETE',
     });
   }
 
-  // ===== POINTS D'INTÉRÊT =====
+  // ===== POINTS D'INTRT =====
   
-  // Créer un POI
+  // Crer un POI
   async createPOI(activityId: string, poiData: {
     title: string;
     note?: string;
@@ -207,7 +207,7 @@ class ApiService {
     });
   }
 
-  // Obtenir les POI d'une activité
+  // Obtenir les POI d'une activit
   async getActivityPOIs(activityId: string) {
     return this.request(`/poi/activity/${activityId}`);
   }
@@ -224,8 +224,8 @@ class ApiService {
   // Upload d'une photo
   async uploadPhoto(photoUri: string, filename: string = 'photo.jpg') {
     try {
-      console.log('🔍 Début upload photo:', { photoUri, filename, baseURL: this.baseURL });
-      const token = await AsyncStorage.getItem('userToken');
+      console.log(' Dbut upload photo:', { photoUri, filename, baseURL: this.baseURL });
+      const token = await this.getAuthToken();
       
       const formData = new FormData();
       formData.append('photo', {
@@ -234,22 +234,22 @@ class ApiService {
         name: filename,
       } as any);
 
-      const uploadUrl = `${this.baseURL.replace('/api', '')}/api/upload/photo`;
-      console.log('📤 Upload photo vers:', uploadUrl);
-      console.log('🔐 Token présent:', !!token);
+      const uploadUrl = `${this.baseURL}/upload`;
+      console.log(' Upload photo vers:', uploadUrl);
+      console.log(' Token prsent:', !!token);
       
       const response = await fetch(uploadUrl, {
         method: 'POST',
         headers: {
-          // Ne pas définir Content-Type manuellement avec FormData
+          // Ne pas dfinir Content-Type manuellement avec FormData
           ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: formData,
       });
 
-      console.log('📊 Status réponse:', response.status, response.statusText);
+      console.log(' Status rponse:', response.status, response.statusText);
       const result = await response.json();
-      console.log('📥 Réponse upload:', result);
+      console.log(' Rponse upload:', result);
       
       if (!response.ok) {
         throw new Error(result.message || 'Erreur upload');
@@ -260,7 +260,7 @@ class ApiService {
         data: result.data,
       };
     } catch (error) {
-      console.error('❌ Erreur upload photo:', error);
+      console.error(' Erreur upload photo:', error);
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Erreur upload',
@@ -280,7 +280,7 @@ class ApiService {
     if (response.success && response.data) {
       const data = response.data as any;
       if (data.token) {
-        // Stocker sous la clé standard + legacy pour compatibilité
+        // Stocker sous la cl standard + legacy pour compatibilit
         await AsyncStorage.setItem('authToken', data.token);
         await AsyncStorage.setItem('userToken', data.token);
         await AsyncStorage.setItem('userId', data.user?.id || '');
@@ -298,7 +298,7 @@ class ApiService {
     });
   }
 
-  // Déconnexion
+  // Dconnexion
   async logout() {
     await AsyncStorage.removeItem('authToken');
     await AsyncStorage.removeItem('userToken');
@@ -306,7 +306,7 @@ class ApiService {
     return { success: true };
   }
 
-  // Vérifier si l'utilisateur est connecté
+  // Vrifier si l'utilisateur est connect
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getAuthToken();
     return !!token;
@@ -316,21 +316,21 @@ class ApiService {
   async getCurrentUserId(): Promise<string | null> {
     const storedUserId = await AsyncStorage.getItem('userId');
     if (storedUserId) return storedUserId;
-    // Fallback pour les utilisateurs non connectés : utiliser deviceId pour lier les sessions/POI
+    // Fallback pour les utilisateurs non connects : utiliser deviceId pour lier les sessions/POI
     const deviceId = await AsyncStorage.getItem('deviceId');
     return deviceId;
   }
 
-  // Supprimer le compte utilisateur et toutes ses données (RGPD)
+  // Supprimer le compte utilisateur et toutes ses donnes (RGPD)
   async deleteAccount() {
     try {
-      // La route backend nécessite un token valide dans le header
+      // La route backend ncessite un token valide dans le header
       const response = await this.request('/auth/account', {
         method: 'DELETE'
       });
 
       if (response.success) {
-        // Nettoyer le stockage local après suppression réussie
+        // Nettoyer le stockage local aprs suppression russie
         await AsyncStorage.removeItem('authToken');
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('userId');
@@ -338,7 +338,7 @@ class ApiService {
 
       return response;
     } catch (error) {
-      console.error('❌ Erreur suppression compte:', error);
+      console.error(' Erreur suppression compte:', error);
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Erreur suppression compte'
@@ -348,20 +348,14 @@ class ApiService {
 
   // ===== SESSIONS DE TRACKING =====
 
-  // Récupérer toutes les sessions de l'utilisateur
+  // Recuperer toutes les sessions de l'utilisateur
   async getUserSessions(params?: {
     limit?: number;
     sport?: string;
     dateFrom?: string;
     dateTo?: string;
   }) {
-    const userId = await this.getCurrentUserId();
-    if (!userId) {
-      return { success: false, message: 'Utilisateur non connecté' };
-    }
-
     const queryParams = new URLSearchParams();
-    queryParams.append('userId', userId);
 
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.sport) queryParams.append('sport', params.sport);
@@ -369,22 +363,18 @@ class ApiService {
     if (params?.dateTo) queryParams.append('dateTo', params.dateTo);
 
     const res = await this.request(`/sessions?${queryParams.toString()}`);
-    // Loger le résultat pour diagnostiquer les sessions distantes
+    // Loger le resultat pour diagnostiquer les sessions distantes
     const count = Array.isArray(res?.data) ? res.data.length : 0;
     console.log('[API] getUserSessions -> success:', res?.success, 'count:', count);
     return res;
   }
 
-  // Récupérer les statistiques quotidiennes depuis MongoDB
+  // Recuperer les statistiques quotidiennes depuis MongoDB
   async getDailyStats(date: string) {
-    const userId = await this.getCurrentUserId();
-    if (!userId) {
-      return { success: false, message: 'Utilisateur non connecté' };
-    }
-    return this.request(`/sessions/stats/daily?userId=${userId}&date=${date}`);
+    return this.request(`/sessions/stats/daily?date=${date}`);
   }
 
-  // Récupérer une session spécifique
+  // Rcuprer une session spcifique
   async getSession(sessionId: string) {
     return this.request(`/sessions/${sessionId}`);
   }
@@ -398,7 +388,7 @@ class ApiService {
 
   // ===== PHOTOS DANS SESSIONS =====
 
-  // Ajouter une photo à une session
+  // Ajouter une photo  une session
   async addPhotoToSession(sessionId: string, photoData: {
     title: string;
     note?: string;

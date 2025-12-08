@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SocialPost, CreatePostData } from '../types/social';
 import Constants from 'expo-constants';
 
@@ -16,10 +17,14 @@ class SocialApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${API_BASE_URL}/api${endpoint}`;
+    const token =
+      (await AsyncStorage.getItem('authToken')) ||
+      (await AsyncStorage.getItem('userToken'));
 
     const response = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
       ...options,
@@ -54,14 +59,14 @@ class SocialApiService {
   }
 
   async createPost(postData: CreatePostData & {
-    userId: string;
     userName: string;
     userAvatar?: string;
     userLocation?: string;
   }): Promise<SocialPost> {
+    const { userId: _ignoredUserId, ...safePost } = postData;
     return this.makeRequest<SocialPost>('/posts', {
       method: 'POST',
-      body: JSON.stringify(postData),
+      body: JSON.stringify(safePost),
     });
   }
 
@@ -81,7 +86,7 @@ class SocialApiService {
   async likePost(postId: string, userId: string): Promise<{ liked: boolean; likesCount: number }> {
     return this.makeRequest<{ liked: boolean; likesCount: number }>(`/posts/${postId}/like`, {
       method: 'POST',
-      body: JSON.stringify({ userId }),
+      body: JSON.stringify({}), // userId pris depuis le token
     });
   }
 
@@ -91,15 +96,15 @@ class SocialApiService {
   }
 
   async addComment(postId: string, commentData: {
-    userId: string;
     userName: string;
     userAvatar?: string;
     text: string;
     photos?: Array<{id: string, uri: string}>;
   }): Promise<any> {
+    const { userId: _ignoredUserId, ...safeComment } = commentData;
     return this.makeRequest<any>(`/posts/${postId}/comments`, {
       method: 'POST',
-      body: JSON.stringify(commentData),
+      body: JSON.stringify(safeComment),
     });
   }
 

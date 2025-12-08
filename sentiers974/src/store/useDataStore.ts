@@ -375,10 +375,15 @@ export const useDataStore = create<DataState>()(
               } as any);
             }
 
+            const token =
+              (await AsyncStorage.getItem("authToken")) ||
+              (await AsyncStorage.getItem("userToken"));
+
             const response = await fetch(
               `${API_BASE_URL}/api/sessions/${data.sessionId}/poi`,
               {
                 method: "POST",
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
                 body: formData,
                 signal: controller.signal,
               }
@@ -533,6 +538,9 @@ export const useDataStore = create<DataState>()(
           if (poiToDelete.source === "mongodb" || poiToDelete.sessionId) {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 4000);
+            const token =
+              (await AsyncStorage.getItem("authToken")) ||
+              (await AsyncStorage.getItem("userToken"));
 
             const endpoints = [
               poiToDelete.sessionId
@@ -546,17 +554,20 @@ export const useDataStore = create<DataState>()(
               try {
                 const response = await fetch(url, {
                   method: "DELETE",
-                  headers: { "Content-Type": "application/json" },
+                  headers: {
+                    "Content-Type": "application/json",
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                  },
                   signal: controller.signal,
                 });
 
                 if (response.ok) {
                   deletedRemote = true;
-                  logger.info("POI supprimé du serveur", { id, url }, "DATA");
+                  logger.info("POI supprimï¿½ du serveur", { id, url }, "DATA");
                   break;
                 } else {
                   logger.warn(
-                    "Échec suppression serveur",
+                    "ï¿½chec suppression serveur",
                     { id, status: response.status, url },
                     "DATA"
                   );
@@ -573,7 +584,7 @@ export const useDataStore = create<DataState>()(
             clearTimeout(timeout);
             if (!deletedRemote) {
               logger.warn(
-                "Aucune suppression distante confirmée (continuation locale)",
+                "Aucune suppression distante confirmï¿½e (continuation locale)",
                 { id },
                 "DATA"
               );
@@ -598,7 +609,7 @@ export const useDataStore = create<DataState>()(
           const updatedPois = get().pois.filter((p) => p.source !== "mongodb");
           await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPois));
 
-          logger.info("POI supprimé", { id, title: poiToDelete.title }, "DATA");
+          logger.info("POI supprimï¿½", { id, title: poiToDelete.title }, "DATA");
         } catch (error) {
           logger.error("Erreur suppression POI", error, "DATA");
           throw error;
