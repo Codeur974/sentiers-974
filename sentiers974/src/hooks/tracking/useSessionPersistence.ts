@@ -220,11 +220,12 @@ export const useSessionPersistence = () => {
     };
     let localStatsUpdated = false;
 
-    const storedUserId = await AsyncStorage.getItem('userId');
-    const resolvedUserId = user?.id || storedUserId || null; // si null, rester en local
+    const token =
+      (await AsyncStorage.getItem('authToken')) ||
+      (await AsyncStorage.getItem('userToken'));
 
-    if (!resolvedUserId) {
-      console.log('saveSession: aucun userId, sauvegarde locale uniquement');
+    if (!token) {
+      console.log('saveSession: aucun token, sauvegarde locale uniquement');
       await updateLocalStats(true);
       DeviceEventEmitter.emit('sessionSaved', { sessionId, date: today });
       console.log('saveSession: sauvegarde locale terminee sans sync distante');
@@ -236,10 +237,12 @@ export const useSessionPersistence = () => {
       console.log('ðŸŒ saveSession: Tentative sauvegarde MongoDB...', MONGODB_API_URL);
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({
           ...sessionData,
-          userId: resolvedUserId,
           sessionId,
           status: 'completed'
         })
@@ -266,8 +269,7 @@ export const useSessionPersistence = () => {
       // Ajouter Ã  la file de synchronisation pour retry automatique
       await addToSyncQueue({
         ...sessionData,
-        sessionId,
-        userId: resolvedUserId
+        sessionId
       });
       console.log('ðŸ“¥ saveSession: Session ajoutÃ©e Ã  la sync queue');
     }
@@ -291,6 +293,9 @@ export const useSessionPersistence = () => {
         try {
           const response = await fetch(`${MONGODB_API_URL}/${sessionId}`, {
             method: 'DELETE',
+            headers: {
+              Authorization: token ? `Bearer ${token}` : undefined
+            }
           });
           if (response.ok) {
             console.log('ðŸ—‘ï¸ Session MongoDB supprimÃ©e:', sessionId);
