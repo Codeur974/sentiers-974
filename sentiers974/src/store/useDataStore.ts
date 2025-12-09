@@ -244,22 +244,44 @@ export const useDataStore = create<DataState>()(
         logger.debug("Chargement POI...", undefined, "DATA");
 
         try {
+          console.log('🔍 Appel API /api/pointofinterests...');
+
+          // Récupérer le token pour l'authentification (même logique que apiService)
+          let token = await AsyncStorage.getItem("authToken");
+          if (!token) {
+            token = await AsyncStorage.getItem("userToken");
+          }
+          console.log('🔑 Token trouvé:', token ? 'OUI' : 'NON');
+
           const [mongoPoisRaw, localPois] = await Promise.all([
             (
               Promise.race([
-                fetch(`${API_BASE_URL}/api/pointofinterests`),
+                fetch(`${API_BASE_URL}/api/pointofinterests`, {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                  },
+                }),
                 new Promise((_, reject) =>
                   setTimeout(() => reject(new Error("timeout")), 3000)
                 ),
               ]) as Promise<Response>
             )
-              .then((r) => (r.ok ? r.json() : []))
-              .catch(() => []),
+              .then((r) => {
+                console.log('📡 Response /api/pointofinterests:', { ok: r.ok, status: r.status });
+                return r.ok ? r.json() : [];
+              })
+              .catch((err) => {
+                console.log('❌ Erreur fetch /api/pointofinterests:', err.message);
+                return [];
+              }),
 
             AsyncStorage.getItem(STORAGE_KEY)
               .then((json) => (json ? JSON.parse(json) : []))
               .catch(() => []),
           ]);
+
+          console.log('📦 POIs MongoDB bruts:', Array.isArray(mongoPoisRaw) ? mongoPoisRaw.length : 'pas un array', mongoPoisRaw);
 
           const mongoPois = (mongoPoisRaw || []).map((p: any) => ({
             ...p,
@@ -268,6 +290,8 @@ export const useDataStore = create<DataState>()(
             createdAt: p.createdAt || p.timestamp || Date.now(), // assurer un timestamp pour éviter "invalid date"
             timestamp: p.timestamp || p.createdAt || Date.now(),
           }));
+
+          console.log('✅ POIs MongoDB après mapping:', mongoPois.length);
 
           const uniquePois = Array.from(
             new Map(
