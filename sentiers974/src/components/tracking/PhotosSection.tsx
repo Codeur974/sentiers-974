@@ -106,6 +106,35 @@ const normalizeTimestamp = (value: any) => {
   return ts;
 };
 
+const buildSessionPerformance = (session: any): SessionPerformance | null => {
+  if (!session) return null;
+
+  const sessionId = session.sessionId || session.id || session._id;
+  if (!sessionId) {
+    return null;
+  }
+
+  const timestampSource = session.createdAt || session.date || session.timestamp;
+  const timestamp = normalizeTimestamp(timestampSource);
+
+  const sport =
+    typeof session.sport === "string"
+      ? session.sport
+      : session.sport?.nom || session.sport || "Sport";
+
+  return {
+    sessionId,
+    distance: session.distance || 0,
+    duration: session.duration || 0,
+    calories: session.calories || 0,
+    avgSpeed: session.avgSpeed || 0,
+    maxSpeed: session.maxSpeed || 0,
+    steps: session.steps || 0,
+    sport,
+    timestamp,
+  };
+};
+
 const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
   ({ isVisible, onInteraction }, ref) => {
     const { pois, reload: reloadPois, deletePOI } = usePOIs();
@@ -515,6 +544,8 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
 
           const allDatesWithPerformance = new Set<string>();
           photoGroups.forEach((group) => allDatesWithPerformance.add(group.date));
+          const sessionsByDate = new Map<string, SessionPerformance[]>();
+          const photosFromSessions = new Map<string, PhotoItem[]>();
 
           if (sessionsResponse.success && sessionsResponse.data) {
             const sessions = Array.isArray(sessionsResponse.data)
@@ -522,11 +553,38 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               : (sessionsResponse.data as any)?.data;
             if (sessions && Array.isArray(sessions)) {
               sessions.forEach((session: any) => {
+                const performance = buildSessionPerformance(session);
+                if (!performance) {
+                  return;
+                }
+
                 const sessionDate = getLocalDateString(
-                  session.createdAt || session.date
+                  session.createdAt || session.date || performance.timestamp
                 );
+
                 if (sessionDate) {
                   allDatesWithPerformance.add(sessionDate);
+                  const bucket = sessionsByDate.get(sessionDate) || [];
+                  bucket.push(performance);
+                  sessionsByDate.set(sessionDate, bucket);
+
+                  // Extraire les photos de la session
+                  if (session.photos && Array.isArray(session.photos) && session.photos.length > 0) {
+                    const sessionPhotos: PhotoItem[] = session.photos.map((photo: any) => ({
+                      id: photo.id,
+                      uri: photo.uri || photo.url || "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
+                      title: photo.title || photo.caption || "Photo",
+                      note: photo.caption,
+                      sessionId: session.id || session.sessionId,
+                      createdAt: normalizeTimestamp(photo.timestamp || photo.createdAt || session.createdAt),
+                      source: "backend" as const,
+                    }));
+
+                    const existingPhotos = photosFromSessions.get(sessionDate) || [];
+                    photosFromSessions.set(sessionDate, [...existingPhotos, ...sessionPhotos]);
+
+                    console.log(`📸 Extracted ${sessionPhotos.length} photos from session ${session.id || session.sessionId} for date ${sessionDate}`);
+                  }
                 }
               });
             }
@@ -541,7 +599,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           );
 
           // Créer les photos depuis POI (filtrer les draft)
-          const allPhotos: PhotoItem[] = pois
+          const photosFromPOIs: PhotoItem[] = pois
             .filter((poi) => !poi.isDraft) // Exclure les POI temporaires (session active)
             .map((poi) => {
               const createdAt = normalizeTimestamp(poi.createdAt);
@@ -558,7 +616,22 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               };
             });
 
-          const groupedByDate = allPhotos.reduce((groups, photo) => {
+          // Combiner les photos POI avec les photos des sessions MongoDB
+          const allPhotos: PhotoItem[] = [...photosFromPOIs];
+          photosFromSessions.forEach((sessionPhotos, date) => {
+            allPhotos.push(...sessionPhotos);
+          });
+
+          console.log(`📊 Total photos: ${allPhotos.length} (POIs: ${photosFromPOIs.length}, Sessions: ${allPhotos.length - photosFromPOIs.length})`);
+
+          // Dédupliquer les photos par ID pour éviter les doublons
+          const uniquePhotos = Array.from(
+            new Map(allPhotos.map((photo) => [photo.id, photo])).values()
+          );
+
+          console.log(`📊 Photos after dedup: ${uniquePhotos.length}`);
+
+          const groupedByDate = uniquePhotos.reduce((groups, photo) => {
             const date = getLocalDateString(photo.createdAt);
             const displayDate = new Date(photo.createdAt).toLocaleDateString(
               "fr-FR",
@@ -601,19 +674,31 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
             allGroups.map(async (group) => {
               const performance = await loadDayPerformanceRemote(group.date);
 
-              const sessionGroups: Record<string, SessionGroup> = {};
+            const sessionGroups: Record<string, SessionGroup> = {};
+            const statsSessions = performance?.sessionsList || [];
+            const fallbackSessions = sessionsByDate.get(group.date) || [];
+            const mergedPerformances: Record<string, SessionPerformance> = {};
 
-              if (performance?.sessionsList) {
-                performance.sessionsList.forEach((sessionPerformance) => {
-                  if (!sessionGroups[sessionPerformance.sessionId]) {
-                    sessionGroups[sessionPerformance.sessionId] = {
-                      sessionId: sessionPerformance.sessionId,
-                      photos: [],
-                      performance: sessionPerformance,
-                    };
-                  }
-                });
+            [...statsSessions, ...fallbackSessions].forEach((sessionPerformance) => {
+              if (!sessionPerformance?.sessionId) return;
+              if (!mergedPerformances[sessionPerformance.sessionId]) {
+                mergedPerformances[sessionPerformance.sessionId] = sessionPerformance;
               }
+            });
+
+            Object.values(mergedPerformances).forEach((sessionPerformance) => {
+              sessionGroups[sessionPerformance.sessionId] = {
+                sessionId: sessionPerformance.sessionId,
+                photos: [],
+                performance: sessionPerformance,
+              };
+            });
+
+            if (!statsSessions.length && fallbackSessions.length) {
+              console.log(
+                `PhotosSection PHASE 2: Fallback ${fallbackSessions.length} sessions pour ${group.date} (stats manquantes)`
+              );
+            }
 
               const orphanPhotos = associatePhotosToSessions(group.photos, sessionGroups);
 
