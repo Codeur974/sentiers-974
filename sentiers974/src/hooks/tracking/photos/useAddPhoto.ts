@@ -148,7 +148,10 @@ export const useAddPhoto = (onRefresh: () => void) => {
       }
     } catch (error) {
       logger.error('Erreur création photo oubliée', error, 'AddPhoto');
-      Alert.alert('Erreur', 'Erreur lors de l\'ajout de la photo');
+      Alert.alert(
+        'Ajout impossible',
+        'Ajoute une photo à ta session (et vérifie ta connexion si le problème persiste).'
+      );
     } finally {
       setCreatingPhoto(false);
     }
