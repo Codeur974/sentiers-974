@@ -111,9 +111,20 @@ router.get("/sessions", verifyToken, async (req, res) => {
       if (dateTo) query.createdAt.$lte = new Date(dateTo);
     }
 
+    console.log("🔍 GET /sessions - req.userId:", req.userId, typeof req.userId);
+    console.log("🔍 GET /sessions - Query:", JSON.stringify(query, null, 2));
+
     const sessions = await Session.find(query)
       .sort({ createdAt: -1 })
       .limit(parseInt(limit, 10));
+
+    console.log(`✅ GET /sessions - Found ${sessions.length} sessions`);
+    if (sessions.length === 0) {
+      // Compter combien de sessions existent au total pour cet userId
+      const totalCount = await Session.countDocuments({ userId: req.userId });
+      const totalCountStr = await Session.countDocuments({ userId: String(req.userId) });
+      console.log(`⚠️ 0 sessions trouvées mais il y a ${totalCount} sessions avec userId (ObjectId) et ${totalCountStr} avec userId (String)`);
+    }
 
     res.json({
       success: true,
