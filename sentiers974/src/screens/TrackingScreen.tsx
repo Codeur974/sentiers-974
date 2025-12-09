@@ -361,6 +361,7 @@ export default function TrackingScreen({ route }: any) {
             <FooterNavigation
               currentPage="Tracking"
               forceShowTrackingButton={true}
+              onEnregistrer={() => setSportFilterVisible(true)}
             />
           ) : null
         }
@@ -612,9 +613,11 @@ export default function TrackingScreen({ route }: any) {
                   await trackingLogic.handleNewSession();
                   setSelectedSport(sport);
                   setStoreSport(sport);
+                  navigation.setParams({ showSuiviMode: false } as never);
                 }}
                 onCloseFilter={() => setShowSportModal(false)}
                 autoOpen={true}
+                visible={showSportModal}
               />
             </View>
           </View>
@@ -628,7 +631,7 @@ export default function TrackingScreen({ route }: any) {
           onRequestClose={() => setSportFilterVisible(false)}
         >
           <View className="flex-1 justify-end bg-black/50">
-            <View className="bg-white rounded-t-3xl max-h-128">
+              <View className="bg-white rounded-t-3xl max-h-128">
               <Filter
                 onSportSelect={(sport) => {
                   setSportFilterVisible(false);
@@ -637,14 +640,16 @@ export default function TrackingScreen({ route }: any) {
                   // Quitter le mode Suivi et afficher le tracking
                   setStayOnSuivi(false);
                   setShowTrackingUI(true);
+                  navigation.setParams({ showSuiviMode: false } as never);
                 }}
                 onCloseFilter={() => setSportFilterVisible(false)}
                 autoOpen={true}
                 showCloseButton={true}
+                visible={sportFilterVisible}
               />
             </View>
-          </View>
-        </Modal>
+            </View>
+          </Modal>
 
         {/* Modal pour crÃ©er un post social depuis les photos */}
         <CreatePostModal

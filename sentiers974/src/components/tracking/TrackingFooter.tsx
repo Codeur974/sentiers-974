@@ -110,19 +110,22 @@ export default function TrackingFooter({
 
       console.log('🎯 RESULTAT CREATION POI:', poi);
 
-      if (poi) {
-        setShowPOIModal(false);
-        setPoiTitle('');
-        setPoiNote('');
-        setPoiPhoto(null);
-        Alert.alert('Succès', `Point d'intérêt "${poi.title}" créé !`);
-      } else {
-        Alert.alert('Erreur', 'Impossible de créer le point d\'intérêt');
-      }
-    } catch (error) {
-      console.error('❌ Erreur création POI:', error);
-      Alert.alert('Erreur', 'Erreur lors de la création');
-    } finally {
+    if (poi) {
+      setShowPOIModal(false);
+      setPoiTitle('');
+      setPoiNote('');
+      setPoiPhoto(null);
+      Alert.alert('Succès', `Point d'intérêt "${poi.title}" créé !`);
+    } else {
+      Alert.alert('Ajout impossible', 'Ajoute une photo à ta session avant de valider.');
+    }
+  } catch (error) {
+    console.error('❌ Erreur création POI:', error);
+    Alert.alert(
+      'Ajout impossible',
+      'Ajoute une photo à ta session (et vérifie ta connexion si le problème persiste).'
+    );
+  } finally {
       setCreatingPOI(false);
     }
   };

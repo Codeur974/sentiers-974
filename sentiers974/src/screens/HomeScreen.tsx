@@ -465,6 +465,7 @@ export default function HomeScreen() {
               onSportSelect={handleSportSelect}
               onCloseFilter={() => {}}
               autoOpen={true}
+              visible={sportFilterVisible}
             />
           </View>
         </View>

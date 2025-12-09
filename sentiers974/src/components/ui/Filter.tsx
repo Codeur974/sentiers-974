@@ -1,18 +1,19 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useState, useImperativeHandle, forwardRef } from "react";
+import { useState, useImperativeHandle, useEffect, forwardRef } from "react";
 
 interface FilterProps {
   onSportSelect?: (sport: any) => void;
   onCloseFilter?: () => void;
   autoOpen?: boolean;
   showCloseButton?: boolean;
+  visible?: boolean;
 }
 
 export interface FilterRef {
   closeSportsFilter: () => void;
 }
 
-const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter, autoOpen = false, showCloseButton = false }, ref) => {
+const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilter, autoOpen = false, showCloseButton = false, visible }, ref) => {
   const [sportSelected, setSportSelected] = useState<any | null>(null);
   const [showSports, setShowSports] = useState(autoOpen);
 
@@ -20,6 +21,12 @@ const Filter = forwardRef<FilterRef, FilterProps>(({ onSportSelect, onCloseFilte
   useImperativeHandle(ref, () => ({
     closeSportsFilter: () => setShowSports(false)
   }));
+
+  useEffect(() => {
+    if (visible && autoOpen) {
+      setShowSports(true);
+    }
+  }, [visible, autoOpen]);
 
   // Sports data intégré directement pour éviter les problèmes d'import JSON
   const sports = [
