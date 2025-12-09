@@ -422,11 +422,17 @@ router.get("/pointofinterests", verifyToken, async (req, res) => {
           timestamp: "$pois.timestamp",
         },
       },
-      { $sort: { timestamp: -1 } },
-      { $limit: 1000 },
+    { $sort: { timestamp: -1 } },
+    { $limit: 1000 },
     ]);
 
-    res.json(pois || []);
+    const safePois = pois || [];
+    const missingPhoto = safePois.filter(poi => !poi.photo && !poi.photoUri);
+    console.log(
+      `GET /pointofinterests -> total ${safePois.length}, missingPhoto ${missingPhoto.length}` +
+        (missingPhoto.length ? `, exampleSession=${missingPhoto[0].sessionId}` : "")
+    );
+    res.json(safePois);
   } catch (error) {
     console.error("Erreur recuperation POI:", error);
     res.status(500).json({
