@@ -1,3 +1,4 @@
+import { Alert } from "react-native";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -316,10 +317,10 @@ export const useDataStore = create<DataState>()(
         }
 
         if (!data.photoUri) {
+          const message = "Ajoute une photo à ta session avant de valider.";
           logger.warn("createPOI: tentative sans photo", data, "DATA");
-          throw new Error(
-            "Une photo est requise pour créer ce point d'intérêt."
-          );
+          Alert.alert("Ajout impossible", message);
+          return null;
         }
 
         const poi: POI = {
