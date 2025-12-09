@@ -8,18 +8,20 @@ export const useAddPhoto = (onRefresh: () => void) => {
   const { pois, createPOI } = usePOIs();
   const [showAddPhotoModal, setShowAddPhotoModal] = useState(false);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [selectedSessionTimestamp, setSelectedSessionTimestamp] = useState<number | null>(null);
   const [photoTitle, setPhotoTitle] = useState('');
   const [photoNote, setPhotoNote] = useState('');
   const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
   const [creatingPhoto, setCreatingPhoto] = useState(false);
 
-  const handleAddForgottenPhoto = (sessionId: string) => {
+  const handleAddForgottenPhoto = (sessionId: string, sessionTimestamp?: number) => {
     logger.debug('Ouverture modal ajout photo oubliée', { sessionId }, 'AddPhoto');
     setSelectedSessionId(sessionId);
     setShowAddPhotoModal(true);
     setPhotoTitle('');
     setPhotoNote('');
     setSelectedPhotoUri(null);
+    setSelectedSessionTimestamp(sessionTimestamp ?? null);
   };
 
   const handleCloseModal = () => {
@@ -29,6 +31,7 @@ export const useAddPhoto = (onRefresh: () => void) => {
     setPhotoTitle('');
     setPhotoNote('');
     setSelectedPhotoUri(null);
+    setSelectedSessionTimestamp(null);
   };
 
   const handleTakePhoto = async () => {
@@ -91,17 +94,24 @@ export const useAddPhoto = (onRefresh: () => void) => {
       }, 'AddPhoto');
 
       // Récupérer le timestamp de la session originale
-      let sessionTimestamp = Date.now();
+      let sessionTimestamp = selectedSessionTimestamp ?? null;
 
-      const existingPOI = pois.find(poi => poi.sessionId === selectedSessionId);
-      if (existingPOI) {
-        sessionTimestamp = existingPOI.createdAt;
-        logger.debug('Timestamp trouvé depuis POI', {
-          timestamp: sessionTimestamp,
-          date: new Date(sessionTimestamp).toLocaleString()
-        }, 'AddPhoto');
-      } else {
-        logger.debug('Session non trouvée, utilisation timestamp actuel', undefined, 'AddPhoto');
+      if (!sessionTimestamp) {
+        const existingPOI = pois.find((poi) => poi.sessionId === selectedSessionId);
+        if (existingPOI) {
+          sessionTimestamp = existingPOI.createdAt;
+          logger.debug(
+            'Timestamp trouvé depuis POI',
+            {
+              timestamp: sessionTimestamp,
+              date: new Date(sessionTimestamp).toLocaleString(),
+            },
+            'AddPhoto'
+          );
+        } else {
+          logger.debug('Session non trouvée, utilisation timestamp actuel', undefined, 'AddPhoto');
+          sessionTimestamp = Date.now();
+        }
       }
 
       // Position par défaut pour photo oubliée

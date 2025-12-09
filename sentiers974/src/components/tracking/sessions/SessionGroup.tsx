@@ -62,12 +62,13 @@ export const SessionGroupComponent: React.FC<SessionGroupProps> = ({
     <View className="mb-4">
       {/* Performance de la session */}
       <View className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
-        <SessionHeader
-          sessionId={sessionGroup.sessionId}
-          sport={sessionGroup.performance.sport}
-          onAddPhoto={onAddPhoto}
-          onDeleteSession={(sessionId) => onDeleteSession(sessionId, sessionGroup)}
-        />
+          <SessionHeader
+            sessionId={sessionGroup.sessionId}
+            sport={sessionGroup.performance.sport}
+            sessionTimestamp={sessionGroup.performance.timestamp}
+            onAddPhoto={onAddPhoto}
+            onDeleteSession={(sessionId) => onDeleteSession(sessionId, sessionGroup)}
+          />
 
         <SessionStats performance={sessionGroup.performance} />
       </View>

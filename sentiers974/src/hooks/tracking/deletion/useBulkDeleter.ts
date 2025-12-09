@@ -26,8 +26,8 @@ export const useBulkDeleter = (
   const { deleteSession } = useSessionDeleter(onRefresh);
 
   const deleteSelectedItems = async () => {
-    const photoCount = selectedPhotos.size;
-    const sessionCount = selectedSessions.size;
+    const photoCount = selectedPhotos.length;
+    const sessionCount = selectedSessions.length;
 
     Alert.alert(
       '🗑️ Suppression multiple',
@@ -43,8 +43,8 @@ export const useBulkDeleter = (
           onPress: async () => {
             try {
               logger.debug('=== DÉBUT SUPPRESSION MULTIPLE ===', {
-                photos: Array.from(selectedPhotos),
-                sessions: Array.from(selectedSessions)
+                photos: selectedPhotos,
+                sessions: selectedSessions
               }, 'BulkDeleter');
 
               // Supprimer les photos individuelles (seulement celles des sections ouvertes)

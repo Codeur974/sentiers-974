@@ -41,7 +41,7 @@ interface PhotoGroup {
 
 interface PhotoDayContentProps {
   group: PhotoGroup;
-  onAddPhoto: (sessionId: string) => void;
+  onAddPhoto: (sessionId: string, sessionTimestamp?: number) => void;
   onDeleteSession: (sessionId: string, sessionGroup: SessionGroup) => void;
   onPhotoPress: (photo: PhotoItem) => void;
   onPhotoDelete: (photo: PhotoItem) => void;

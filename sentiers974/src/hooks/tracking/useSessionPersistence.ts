@@ -288,6 +288,9 @@ export const useSessionPersistence = () => {
   // Supprimer session
   const clearSession = async () => {
     try {
+      const token =
+        (await AsyncStorage.getItem('authToken')) ||
+        (await AsyncStorage.getItem('userToken'));
       // Supprimer de MongoDB si sessionId existe
       if (sessionId) {
         try {

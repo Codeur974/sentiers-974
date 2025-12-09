@@ -94,7 +94,7 @@ export const usePhotoSelectionStore = create<SelectionState>((set, get) => ({
 
   getSelectedCount: () => {
     const state = get();
-    return state.selectedPhotos.length;
+    return state.selectedPhotos.length + state.selectedSessions.length;
   },
 
   isPhotoSelected: (photoId: string) => {

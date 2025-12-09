@@ -5,13 +5,15 @@ import { usePhotoSelection } from '../../../hooks/tracking/selection/usePhotoSel
 interface SessionHeaderProps {
   sessionId: string;
   sport: string;
-  onAddPhoto: (sessionId: string) => void;
+  sessionTimestamp?: number;
+  onAddPhoto: (sessionId: string, sessionTimestamp?: number) => void;
   onDeleteSession: (sessionId: string) => void;
 }
 
 export const SessionHeader: React.FC<SessionHeaderProps> = ({
   sessionId,
   sport,
+  sessionTimestamp,
   onAddPhoto,
   onDeleteSession
 }) => {
@@ -52,7 +54,7 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
       {!checkboxesVisible && (
         <View className="flex-row space-x-2">
           <TouchableOpacity
-            onPress={() => onAddPhoto(sessionId)}
+            onPress={() => onAddPhoto(sessionId, sessionTimestamp)}
             className="bg-blue-100 px-2 py-1 rounded-full"
             activeOpacity={1}
           >

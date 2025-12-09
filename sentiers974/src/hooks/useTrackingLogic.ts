@@ -434,10 +434,85 @@ export const useTrackingLogic = (selectedSport: any) => {
   const handlePauseTracking = () => pause();
   const handleResumeTracking = () => resume();
 
-  const handleStopTracking = async () => {
+  const finalizeStop = async (shouldSave: boolean, finalDuration: number) => {
+    console.log(`⏹️ useTrackingLogic: finalizing stop (save=${shouldSave})`);
+    stop();
+    gpsTracking.stopGPSTracking();
+
+    if (!shouldSave) {
+      console.log('❌ useTrackingLogic: Utilisateur a cliqué NON - Suppression session');
+      if (persistence.sessionId) {
+        await cancelDraftPOIs(persistence.sessionId);
+        console.log('🗑️ POI temporaires supprimés');
+      }
+      await persistence.clearSession();
+      await clearSnapshot();
+      resetTracking();
+      setHydratedSport(null);
+      return;
+    }
+
+    console.log('========================================');
+    console.log('✅ useTrackingLogic: Utilisateur a cliqué OUI');
+    console.log('📊 useTrackingLogic: Session à sauvegarder:', {
+      sessionId: persistence.sessionId,
+      sport: activeSport?.nom,
+      distance: distanceCalc.distance,
+      duration: finalDuration
+    });
+    console.log('========================================');
+
+    if (persistence.sessionId) {
+      console.log('🔄 useTrackingLogic: Confirmation POI draft...');
+      await confirmDraftPOIs(persistence.sessionId);
+      console.log('✅ useTrackingLogic: POI confirmés');
+    }
+
+    console.log('🔄 useTrackingLogic: Appel persistence.saveSession...');
+    await persistence.saveSession({
+      sport: activeSport,
+      distance: distanceCalc.distance,
+      duration: finalDuration,
+      calories: calculateCalories(),
+      avgSpeed: avgSpeed,
+      maxSpeed: distanceCalc.maxSpeed,
+      steps: steps,
+      trackingPath: distanceCalc.trackingPath,
+      elevationGain: elevation.elevationGain,
+      elevationLoss: elevation.elevationLoss
+    });
+    console.log('✅ useTrackingLogic: persistence.saveSession terminé');
+
+    await clearSnapshot();
+    console.log('✅ useTrackingLogic: Snapshot cleared');
+
+    resetTracking();
+    setHydratedSport(null);
+    console.log('✅ useTrackingLogic: Tracking reset - TERMINÉ');
+    console.log('========================================');
+  };
+
+  const showSaveConfirmation = (finalDuration: number) => {
+    Alert.alert(
+      "Enregistrer la session ?",
+      `Souhaitez-vous sauvegarder cette session ?\n\nDurée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
+      [
+        {
+          text: "Non",
+          style: "cancel",
+          onPress: () => finalizeStop(false, finalDuration)
+        },
+        {
+          text: "Oui",
+          onPress: () => finalizeStop(true, finalDuration)
+        }
+      ]
+    );
+  };
+
+  const handleStopTracking = () => {
     const finalDuration = getDuration();
 
-    // 1ère confirmation : Arrêter le tracking ?
     Alert.alert(
       "Arrêter le tracking ?",
       `Voulez-vous vraiment arrêter votre session ?\n\nDurée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
@@ -452,84 +527,14 @@ export const useTrackingLogic = (selectedSport: any) => {
         {
           text: "Arrêter",
           style: "destructive",
-          onPress: async () => {
+          onPress: () => {
             console.log('⏹️ Utilisateur confirme l\'arrêt');
-            stop();
-            gpsTracking.stopGPSTracking();
-
-            // 2ème confirmation : Enregistrer la session ?
-            Alert.alert(
-              "Enregistrer la session ?",
-              `Souhaitez-vous sauvegarder cette session ?\n\nDurée: ${Math.floor(finalDuration / 60000)}min ${Math.floor((finalDuration % 60000) / 1000)}s\nDistance: ${distanceCalc.distance.toFixed(2)}km`,
-              [
-                {
-                  text: "Non",
-                  style: "cancel",
-                  onPress: async () => {
-                    console.log('❌ Utilisateur a cliqué NON - Suppression session');
-                    // Supprimer les POI temporaires de la session
-                    if (persistence.sessionId) {
-                      await cancelDraftPOIs(persistence.sessionId);
-                      console.log('🗑️ POI temporaires supprimés');
-                    }
-                    await persistence.clearSession();
-                    await clearSnapshot();
-                    resetTracking();
-                    setHydratedSport(null);
-                  }
-                },
-                {
-                  text: "Oui",
-                  onPress: async () => {
-                    console.log('========================================');
-                    console.log('✅ useTrackingLogic: Utilisateur a cliqué OUI');
-                    console.log('📊 useTrackingLogic: Session à sauvegarder:', {
-                      sessionId: persistence.sessionId,
-                      sport: activeSport?.nom,
-                      distance: distanceCalc.distance,
-                      duration: finalDuration
-                    });
-                    console.log('========================================');
-
-                    // Confirmer les POI temporaires (les rendre permanents)
-                    if (persistence.sessionId) {
-                      console.log('🔄 useTrackingLogic: Confirmation POI draft...');
-                      await confirmDraftPOIs(persistence.sessionId);
-                      console.log('✅ useTrackingLogic: POI confirmés');
-                    }
-
-                    console.log('🔄 useTrackingLogic: Appel persistence.saveSession...');
-                    await persistence.saveSession({
-                      sport: activeSport,
-                      distance: distanceCalc.distance,
-                      duration: finalDuration,
-                      calories: calculateCalories(),
-                      avgSpeed: avgSpeed,
-                      maxSpeed: distanceCalc.maxSpeed,
-                      steps: steps,
-                      trackingPath: distanceCalc.trackingPath,
-                      elevationGain: elevation.elevationGain,
-                      elevationLoss: elevation.elevationLoss
-                    });
-                    console.log('✅ useTrackingLogic: persistence.saveSession terminé');
-
-                    await clearSnapshot();
-                    console.log('✅ useTrackingLogic: Snapshot cleared');
-
-                    resetTracking();
-                    setHydratedSport(null);
-                    console.log('✅ useTrackingLogic: Tracking reset - TERMINÉ');
-                    console.log('========================================');
-                  }
-                }
-              ]
-            );
+            showSaveConfirmation(finalDuration);
           }
         }
       ]
     );
   };
-
   const resetTracking = () => {
     reset();
     setDuration(0);
