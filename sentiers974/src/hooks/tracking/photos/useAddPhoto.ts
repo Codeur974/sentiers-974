@@ -76,7 +76,7 @@ export const useAddPhoto = (onRefresh: () => void) => {
     }
 
     if (!selectedPhotoUri) {
-      Alert.alert('Erreur', 'Photo obligatoire pour ajouter un souvenir');
+      Alert.alert('Ajout impossible', 'Ajoute d’abord une photo à ta session.');
       return;
     }
 
@@ -146,12 +146,13 @@ export const useAddPhoto = (onRefresh: () => void) => {
       } else {
         Alert.alert('Erreur', 'Impossible d\'ajouter la photo');
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Erreur création photo oubliée', error, 'AddPhoto');
-      Alert.alert(
-        'Ajout impossible',
-        'Ajoute une photo à ta session (et vérifie ta connexion si le problème persiste).'
-      );
+      const friendlyMessage =
+        error?.message?.includes("Une photo est requise")
+          ? 'Ajoute une photo à ta session avant de valider.'
+          : 'Ajoute une photo à ta session (et vérifie ta connexion si le problème persiste).';
+      Alert.alert('Ajout impossible', friendlyMessage);
     } finally {
       setCreatingPhoto(false);
     }
