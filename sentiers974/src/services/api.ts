@@ -77,14 +77,18 @@ class ApiService {
         }
 
         if (!response.ok) {
+          const backendMessage = data?.message || `Erreur ${response.status}`;
+          const friendlyMessage = backendMessage.includes("point d'intérêt")
+            ? "Ajoute une photo à ta session avant de valider."
+            : backendMessage;
           // Erreurs 4xx ne doivent pas tre retryes
           if (response.status >= 400 && response.status < 500) {
             return {
               success: false,
-              message: data.message || `Erreur ${response.status}`,
+              message: friendlyMessage,
             };
           }
-          throw new Error(data.message || 'Erreur serveur');
+          throw new Error(friendlyMessage);
         }
 
         return {

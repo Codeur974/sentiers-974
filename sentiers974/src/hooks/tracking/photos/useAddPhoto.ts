@@ -144,7 +144,7 @@ export const useAddPhoto = (onRefresh: () => void) => {
         logger.debug('Appel onRefresh après création photo', undefined, 'AddPhoto');
         onRefresh();
       } else {
-        Alert.alert('Erreur', 'Impossible d\'ajouter la photo');
+        Alert.alert('Ajout impossible', 'Ajoute une photo à ta session avant de valider.');
       }
     } catch (error: any) {
       logger.error('Erreur création photo oubliée', error, 'AddPhoto');
