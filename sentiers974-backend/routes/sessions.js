@@ -405,6 +405,7 @@ router.post(
 
 router.get("/pointofinterests", verifyToken, async (req, res) => {
   try {
+    console.log("pointofinterests handler invoked", { userId: req.userId });
     const pois = await Session.aggregate([
       { $match: { pois: { $exists: true, $ne: [] }, ...buildUserFilter(req.userId) } },
       { $unwind: "$pois" },
@@ -434,7 +435,7 @@ router.get("/pointofinterests", verifyToken, async (req, res) => {
     );
     res.json(safePois);
   } catch (error) {
-    console.error("Erreur recuperation POI:", error);
+    console.error("Erreur recuperation POI:", error?.message || error);
     res.status(500).json({
       success: false,
       error: "Erreur serveur lors de la recuperation des POI",
