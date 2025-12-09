@@ -536,7 +536,7 @@ export const useDataStore = create<DataState>()(
 
         try {
           // Suppression backend : tenter la route session/poi puis fallback pointofinterests
-          if (poiToDelete.source === "mongodb" || poiToDelete.sessionId) {
+          if (poiToDelete.source === "mongodb" || poiToDelete.source === "backend" || poiToDelete.sessionId) {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 4000);
             const token =
