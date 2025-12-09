@@ -201,7 +201,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     // Recharger les photos quand le composant devient visible
     useEffect(() => {
       if (isVisible) {
-        console.log('🔄 PhotosSection: Rechargement POIs car isVisible=true');
         reloadPois();
       }
     }, [isVisible]);
@@ -425,8 +424,6 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       const loadLocalData = async () => {
         console.log('🔄 PhotosSection PHASE 1: Début chargement données locales');
         console.log('📊 PhotosSection PHASE 1: POIs totaux:', pois.length);
-        console.log('📊 PhotosSection PHASE 1: POIs backend:', pois.filter(p => p.source === "backend" || p.source === "mongodb").length);
-        console.log('📊 PhotosSection PHASE 1: POIs locaux:', pois.filter(p => !p.source || p.source === "local").length);
 
         // Créer les photos à partir des POI (filtrer les draft)
         const allPhotos: PhotoItem[] = pois
@@ -442,13 +439,11 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
               note: poi.note,
               sessionId: poi.sessionId,
               createdAt,
-              source: poi.source === "mongodb" || poi.source === "backend" ? "backend" : "poi",
+              source: poi.source === "mongodb" ? "backend" : "poi",
             };
           });
 
         console.log('📊 PhotosSection PHASE 1: POIs après filtre draft:', allPhotos.length);
-        console.log('📊 PhotosSection PHASE 1: Photos POI:', allPhotos.filter(p => p.source === "poi").length);
-        console.log('📊 PhotosSection PHASE 1: Photos backend:', allPhotos.filter(p => p.source === "backend").length);
 
         // Grouper par date
         const groupedByDate = allPhotos.reduce((groups, photo) => {
@@ -550,6 +545,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           const allDatesWithPerformance = new Set<string>();
           photoGroups.forEach((group) => allDatesWithPerformance.add(group.date));
           const sessionsByDate = new Map<string, SessionPerformance[]>();
+          const photosFromSessions = new Map<string, PhotoItem[]>();
 
           if (sessionsResponse.success && sessionsResponse.data) {
             const sessions = Array.isArray(sessionsResponse.data)
@@ -571,6 +567,24 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   const bucket = sessionsByDate.get(sessionDate) || [];
                   bucket.push(performance);
                   sessionsByDate.set(sessionDate, bucket);
+
+                  // Extraire les photos de la session
+                  if (session.photos && Array.isArray(session.photos) && session.photos.length > 0) {
+                    const sessionPhotos: PhotoItem[] = session.photos.map((photo: any) => ({
+                      id: photo.id,
+                      uri: photo.uri || photo.url || "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
+                      title: photo.title || photo.caption || "Photo",
+                      note: photo.caption,
+                      sessionId: session.id || session.sessionId,
+                      createdAt: normalizeTimestamp(photo.timestamp || photo.createdAt || session.createdAt),
+                      source: "backend" as const,
+                    }));
+
+                    const existingPhotos = photosFromSessions.get(sessionDate) || [];
+                    photosFromSessions.set(sessionDate, [...existingPhotos, ...sessionPhotos]);
+
+                    console.log(`📸 Extracted ${sessionPhotos.length} photos from session ${session.id || session.sessionId} for date ${sessionDate}`);
+                  }
                 }
               });
             }
@@ -585,7 +599,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           );
 
           // Créer les photos depuis POI (filtrer les draft)
-          const allPhotos: PhotoItem[] = pois
+          const photosFromPOIs: PhotoItem[] = pois
             .filter((poi) => !poi.isDraft) // Exclure les POI temporaires (session active)
             .map((poi) => {
               const createdAt = normalizeTimestamp(poi.createdAt);
@@ -598,11 +612,26 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                 note: poi.note,
                 sessionId: poi.sessionId,
                 createdAt,
-                source: poi.source === "mongodb" || poi.source === "backend" ? "backend" : "poi",
+                source: poi.source === "mongodb" ? "backend" : "poi",
               };
             });
 
-          const groupedByDate = allPhotos.reduce((groups, photo) => {
+          // Combiner les photos POI avec les photos des sessions MongoDB
+          const allPhotos: PhotoItem[] = [...photosFromPOIs];
+          photosFromSessions.forEach((sessionPhotos, date) => {
+            allPhotos.push(...sessionPhotos);
+          });
+
+          console.log(`📊 Total photos: ${allPhotos.length} (POIs: ${photosFromPOIs.length}, Sessions: ${allPhotos.length - photosFromPOIs.length})`);
+
+          // Dédupliquer les photos par ID pour éviter les doublons
+          const uniquePhotos = Array.from(
+            new Map(allPhotos.map((photo) => [photo.id, photo])).values()
+          );
+
+          console.log(`📊 Photos after dedup: ${uniquePhotos.length}`);
+
+          const groupedByDate = uniquePhotos.reduce((groups, photo) => {
             const date = getLocalDateString(photo.createdAt);
             const displayDate = new Date(photo.createdAt).toLocaleDateString(
               "fr-FR",
@@ -812,76 +841,18 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
       );
     }
 
-    // Fonction pour vider complètement le cache
-    const handleClearCache = async () => {
-      Alert.alert(
-        "Vider le cache",
-        "Cela va supprimer TOUS les POIs locaux et recharger depuis MongoDB. Continuer ?",
-        [
-          { text: "Annuler", style: "cancel" },
-          {
-            text: "Vider TOUT",
-            style: "destructive",
-            onPress: async () => {
-              console.log("🧹 Vidage COMPLET du cache...");
-
-              // Vider le cache des stats quotidiennes
-              dayStatsCache.current.clear();
-              inflightDayStats.current.clear();
-
-              // Vider TOUT le cache AsyncStorage
-              try {
-                const keys = await AsyncStorage.getAllKeys();
-                const cacheKeys = keys.filter(key =>
-                  key.startsWith('daily_stats_') ||
-                  key === 'sentiers974_pois'
-                );
-                if (cacheKeys.length > 0) {
-                  await AsyncStorage.multiRemove(cacheKeys);
-                  console.log(`🗑️ Supprimé ${cacheKeys.length} éléments du cache:`, cacheKeys);
-                }
-              } catch (error) {
-                console.error("Erreur suppression cache:", error);
-              }
-
-              // Vider l'état local
-              setPhotoGroups([]);
-              photoGroupsRef.current = [];
-
-              // Recharger les POIs depuis MongoDB (qui va déclencher un reload complet)
-              console.log("🔄 Rechargement depuis MongoDB...");
-              await reloadPois();
-
-              // Forcer un refresh complet après un court délai
-              setTimeout(() => {
-                setRefreshTrigger(prev => prev + 1);
-                console.log("✅ Cache vidé, données rechargées depuis MongoDB");
-              }, 500);
-            }
-          }
-        ]
-      );
-    };
-
     return (
       <View className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
         {/* Header avec indicateur de sync MongoDB */}
-        <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-1" />
-          <Text className="text-blue-800 font-bold text-lg text-center flex-1">
+        <View className="flex-row items-center justify-center mb-3">
+          <Text className="text-blue-800 font-bold text-lg text-center">
             Mon Historique
           </Text>
-          <View className="flex-1 flex-row justify-end items-center">
-            {isLoadingMongoDB && (
+          {isLoadingMongoDB && (
+            <View className="ml-2">
               <ActivityIndicator size="small" color="#1e40af" />
-            )}
-            <TouchableOpacity
-              onPress={handleClearCache}
-              className="ml-2 bg-red-100 px-2 py-1 rounded"
-            >
-              <Text className="text-red-600 text-xs font-semibold">🧹 Cache</Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          )}
         </View>
 
         {/* Graphique de progression */}

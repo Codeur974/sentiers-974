@@ -14,6 +14,16 @@ export const PhotoActions: React.FC<PhotoActionsProps> = ({
 }) => {
   const handleDelete = (e: any) => {
     e.stopPropagation();
+
+    if (source === 'backend') {
+      Alert.alert(
+        'ℹ️ Photo serveur',
+        'Cette photo provient du serveur.\n\nUtilisez "Supprimer Session" pour supprimer toute l\'activité.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     onDelete();
   };
 
@@ -35,10 +45,16 @@ export const PhotoActions: React.FC<PhotoActionsProps> = ({
       {/* Bouton supprimer */}
       <TouchableOpacity
         onPress={handleDelete}
-        className="px-3 py-2 rounded-lg border bg-red-100 border-red-200"
+        className={`px-3 py-2 rounded-lg border ${
+          source === 'backend'
+            ? 'bg-gray-100 border-gray-200 opacity-50'
+            : 'bg-red-100 border-red-200'
+        }`}
       >
-        <Text className="text-sm font-medium text-red-600">
-          🗑️
+        <Text className={`text-sm font-medium ${
+          source === 'backend' ? 'text-gray-500' : 'text-red-600'
+        }`}>
+          {source === 'backend' ? '🔒' : '🗑️'}
         </Text>
       </TouchableOpacity>
     </View>
