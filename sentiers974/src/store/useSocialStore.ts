@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Alert } from 'react-native';
 import { SocialPost, CreatePostData } from '../types/social';
 import { socialApi } from '../services/socialApi';
 
@@ -69,6 +70,13 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
     try {
       set({ loading: true, error: null });
       const posts = await socialApi.getPosts();
+
+      // Récupérer le vrai userId depuis les posts (celui qui correspond à l'utilisateur connecté)
+      const myPost = posts.find(post => post.userName === 'Moi');
+      if (myPost && myPost.userId) {
+        set({ currentUserId: myPost.userId });
+      }
+
       set({ posts, loading: false });
     } catch (error) {
       console.error('Erreur chargement posts:', error);
@@ -88,15 +96,26 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
         userLocation: 'La Réunion'
       });
 
+      // Mettre à jour le currentUserId avec celui retourné par le backend
+      if (newPost.userId && newPost.userId !== currentUserId) {
+        console.log('📝 Mise à jour currentUserId:', currentUserId, '→', newPost.userId);
+      }
+
       set(state => ({
         posts: [newPost, ...state.posts],
         createPostModalVisible: false,
         editingPost: null,
-        loading: false
+        loading: false,
+        // Utiliser le vrai userId retourné par le backend
+        currentUserId: newPost.userId || state.currentUserId
       }));
+
+      // Afficher message de succès
+      Alert.alert('✅ Succès', 'Post publié avec succès !');
     } catch (error) {
       console.error('Erreur création post:', error);
       set({ error: (error as Error).message, loading: false });
+      Alert.alert('❌ Erreur', 'Impossible de publier le post. Veuillez réessayer.');
     }
   },
 
@@ -113,9 +132,13 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
         editingPost: null,
         loading: false
       }));
+
+      // Afficher message de succès
+      Alert.alert('✅ Succès', 'Post modifié avec succès !');
     } catch (error) {
       console.error('Erreur modification post:', error);
       set({ error: (error as Error).message, loading: false });
+      Alert.alert('❌ Erreur', 'Impossible de modifier le post. Veuillez réessayer.');
     }
   },
 
@@ -128,9 +151,13 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
         posts: state.posts.filter(post => post.id !== postId),
         loading: false
       }));
+
+      // Afficher message de succès
+      Alert.alert('✅ Succès', 'Post supprimé avec succès !');
     } catch (error) {
       console.error('Erreur suppression post:', error);
       set({ error: (error as Error).message, loading: false });
+      Alert.alert('❌ Erreur', 'Impossible de supprimer le post. Veuillez réessayer.');
     }
   },
 

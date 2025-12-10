@@ -6,6 +6,7 @@ import Constants from "expo-constants";
 import { logger } from "../utils/logger";
 import { PhotoManager } from "../utils/photoUtils";
 import { purgeLegacyCaches } from "./purgeLegacyCaches";
+import { apiService } from "../services/api";
 
 const STORAGE_KEY = "sentiers974_pois";
 let isLoadingPOIs = false;
@@ -72,6 +73,7 @@ interface DataState {
   poisLoading: boolean;
   poisError: string | null;
   lastPoisUpdate: number | null;
+  recentlyDeletedPOIIds: Map<string, number>; // Map<poiId, deleteTimestamp>
 
   // Sync Queue data
   pendingSessions: PendingSession[];
@@ -112,6 +114,8 @@ interface DataState {
   cancelDraftPOIs: (sessionId: string) => Promise<void>; // Supprimer les POI draft (session annulée)
   setPOIsLoading: (loading: boolean) => void;
   setPOIsError: (error: string | null) => void;
+  cleanupOldDeletedPOIIds: () => void; // Nettoyer les IDs supprimés de plus de 5 minutes
+  isRecentlyDeleted: (id: string) => boolean; // Vérifier si un POI a été supprimé récemment
 
   // Sync Queue actions
   addToSyncQueue: (sessionData: any) => Promise<void>;
@@ -143,6 +147,7 @@ export const useDataStore = create<DataState>()(
       poisLoading: false,
       poisError: null,
       lastPoisUpdate: null,
+      recentlyDeletedPOIIds: new Map(),
 
       pendingSessions: [],
       isSyncing: false,
@@ -215,10 +220,17 @@ export const useDataStore = create<DataState>()(
       },
 
       addPOI: (poi) => {
-        set((state) => ({
-          pois: [poi, ...state.pois],
-          lastPoisUpdate: Date.now(),
-        }));
+        set((state) => {
+          // Retirer l'ID de la liste des suppressions récentes (au cas où on rajoute une photo supprimée)
+          const newDeletedIds = new Map(state.recentlyDeletedPOIIds);
+          newDeletedIds.delete(poi.id);
+
+          return {
+            pois: [poi, ...state.pois],
+            lastPoisUpdate: Date.now(),
+            recentlyDeletedPOIIds: newDeletedIds,
+          };
+        });
         logger.info("POI ajouté", { id: poi.id, title: poi.title }, "DATA");
       },
 
@@ -245,16 +257,12 @@ export const useDataStore = create<DataState>()(
 
         try {
           const [mongoPoisRaw, localPois] = await Promise.all([
-            (
-              Promise.race([
-                fetch(`${API_BASE_URL}/api/pointofinterests`),
+            Promise.race([
+                apiService.request("/pointofinterests"),
                 new Promise((_, reject) =>
                   setTimeout(() => reject(new Error("timeout")), 3000)
                 ),
-              ]) as Promise<Response>
-            )
-              .then((r) => (r.ok ? r.json() : []))
-              .catch(() => []),
+              ]).then((res: any) => (res?.success && res?.data ? res.data : [])).catch(() => []),
 
             AsyncStorage.getItem(STORAGE_KEY)
               .then((json) => (json ? JSON.parse(json) : []))
@@ -339,10 +347,17 @@ export const useDataStore = create<DataState>()(
           isDraft: data.isDraft !== undefined ? data.isDraft : !!data.sessionId, // Utiliser isDraft fourni, sinon draft si sessionId existe
         };
 
-        set((state) => ({
-          pois: [poi, ...state.pois],
-          lastPoisUpdate: Date.now(),
-        }));
+        set((state) => {
+          // Retirer l'ID de la liste des suppressions récentes
+          const newDeletedIds = new Map(state.recentlyDeletedPOIIds);
+          newDeletedIds.delete(poi.id);
+
+          return {
+            pois: [poi, ...state.pois],
+            lastPoisUpdate: Date.now(),
+            recentlyDeletedPOIIds: newDeletedIds,
+          };
+        });
 
         const state = get();
         const localPois = state.pois.filter((p) => p.source !== "mongodb");
@@ -547,7 +562,7 @@ export const useDataStore = create<DataState>()(
               poiToDelete.sessionId
                 ? `${API_BASE_URL}/api/sessions/${poiToDelete.sessionId}/poi/${id}`
                 : null,
-              `${API_BASE_URL}/api/pointofinterests/${id}`,
+              `${API_BASE_URL}/pointofinterests/${id}`,
             ].filter(Boolean) as string[];
 
             let deletedRemote = false;
@@ -600,11 +615,16 @@ export const useDataStore = create<DataState>()(
             await PhotoManager.deletePhoto(poiToDelete.photoUri);
           }
 
-          // Local state update
-          set((state) => ({
-            pois: state.pois.filter((poi) => poi.id !== id),
-            lastPoisUpdate: Date.now(),
-          }));
+          // Local state update + marquer comme récemment supprimé
+          set((state) => {
+            const newDeletedIds = new Map(state.recentlyDeletedPOIIds);
+            newDeletedIds.set(id, Date.now());
+            return {
+              pois: state.pois.filter((poi) => poi.id !== id),
+              lastPoisUpdate: Date.now(),
+              recentlyDeletedPOIIds: newDeletedIds,
+            };
+          });
 
           // AsyncStorage update
           const updatedPois = get().pois.filter((p) => p.source !== "mongodb");
@@ -622,6 +642,43 @@ export const useDataStore = create<DataState>()(
       setPOIsError: (error) => {
         logger.error("Erreur POIs", error, "DATA");
         set({ poisError: error });
+      },
+
+      cleanupOldDeletedPOIIds: () => {
+        const now = Date.now();
+        const EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes
+
+        set((state) => {
+          const newDeletedIds = new Map(state.recentlyDeletedPOIIds);
+          let cleanedCount = 0;
+
+          for (const [id, timestamp] of newDeletedIds.entries()) {
+            if (now - timestamp > EXPIRY_TIME) {
+              newDeletedIds.delete(id);
+              cleanedCount++;
+            }
+          }
+
+          if (cleanedCount > 0) {
+            logger.debug(
+              "Nettoyage POIs supprimés expirés",
+              { cleanedCount, remaining: newDeletedIds.size },
+              "DATA"
+            );
+          }
+
+          return { recentlyDeletedPOIIds: newDeletedIds };
+        });
+      },
+
+      isRecentlyDeleted: (id) => {
+        const state = get();
+        const deleteTimestamp = state.recentlyDeletedPOIIds.get(id);
+        if (!deleteTimestamp) return false;
+
+        const now = Date.now();
+        const EXPIRY_TIME = 5 * 60 * 1000; // 5 minutes
+        return now - deleteTimestamp < EXPIRY_TIME;
       },
 
       // Sync Queue actions

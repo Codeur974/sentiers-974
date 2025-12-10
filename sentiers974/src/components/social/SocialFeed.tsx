@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SocialPost } from '../../types/social';
 import SocialPostCard from './SocialPostCard';
@@ -37,34 +37,36 @@ export default function SocialFeed({
   };
 
   const handleCreatePost = () => {
-    if (!isAuthenticated) {
-      Alert.alert(
-        "Connexion requise",
-        "Vous devez être connecté pour publier un post.",
-        [
-          { text: "Annuler", style: "cancel" },
-          { text: "Se connecter", onPress: () => navigation.navigate("Profile" as never) }
-        ]
-      );
-      return;
-    }
+    // Le bouton n'est visible que si authentifié, pas besoin de vérifier
     onCreatePost();
   };
 
   return (
     <View className="mb-6">
-      {/* Header avec bouton + */}
+      {/* Header avec bouton + ou message de connexion */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-xl font-bold text-gray-900">
           🏆 Partager vos exploits
         </Text>
-        <TouchableOpacity
-          onPress={handleCreatePost}
-          className="bg-blue-500 px-4 py-2 rounded-full flex-row items-center"
-        >
-          <Text className="text-white font-semibold mr-1">+</Text>
-          <Text className="text-white font-semibold">Post</Text>
-        </TouchableOpacity>
+
+        {isAuthenticated ? (
+          <TouchableOpacity
+            onPress={handleCreatePost}
+            className="bg-blue-500 px-4 py-2 rounded-full flex-row items-center"
+          >
+            <Text className="text-white font-semibold mr-1">+</Text>
+            <Text className="text-white font-semibold">Post</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Profile" as never)}
+            className="bg-gray-100 px-3 py-2 rounded-full border border-gray-300"
+          >
+            <Text className="text-gray-600 font-medium text-xs">
+              🔒 Connexion
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Liste des posts */}

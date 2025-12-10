@@ -1,5 +1,7 @@
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 
 const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
 
@@ -39,6 +41,10 @@ class UploadService {
 
       const base64WithPrefix = `data:image/jpeg;base64,${manipulatedImage.base64}`;
 
+      // Récupérer le token d'authentification
+      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+      console.log('🔑 Token récupéré:', token ? 'Oui' : 'Non');
+
       console.log('🌐 Envoi requête vers:', `${API_BASE_URL}/api/upload`);
 
       // Envoyer au backend
@@ -46,6 +52,7 @@ class UploadService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           base64: base64WithPrefix,
@@ -91,11 +98,15 @@ class UploadService {
         })
       );
 
+      // Récupérer le token d'authentification
+      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+
       // Envoyer au backend
       const response = await fetch(`${API_BASE_URL}/api/upload/multiple`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           images: base64Images,
@@ -139,10 +150,14 @@ class UploadService {
 
       if (onProgress) onProgress(60);
 
+      // Récupérer le token d'authentification
+      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+
       const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({
           base64: base64WithPrefix,

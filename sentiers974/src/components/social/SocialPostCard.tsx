@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Image, ScrollView, Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../contexts/AuthContext';
 import { SocialPost } from '../../types/social';
 
 interface SocialPostCardProps {
@@ -15,6 +16,7 @@ interface SocialPostCardProps {
 
 export default function SocialPostCard({ post, currentUserId, onLike, onComment, onEdit, onDelete }: SocialPostCardProps) {
   const navigation = useNavigation();
+  const { isAuthenticated } = useAuth();
   const [showAllPhotos, setShowAllPhotos] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
@@ -28,7 +30,35 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
     navigation.navigate('Comments', { postId: post.id });
   };
 
+  const handleEdit = () => {
+    if (!isAuthenticated) {
+      Alert.alert(
+        'Connexion requise',
+        'Vous devez être connecté pour modifier ce post.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Se connecter', onPress: () => navigation.navigate('Profile' as never) }
+        ]
+      );
+      return;
+    }
+    setShowMenu(false);
+    onEdit && onEdit(post.id);
+  };
+
   const handleDelete = () => {
+    if (!isAuthenticated) {
+      Alert.alert(
+        'Connexion requise',
+        'Vous devez être connecté pour supprimer ce post.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Se connecter', onPress: () => navigation.navigate('Profile' as never) }
+        ]
+      );
+      return;
+    }
+    setShowMenu(false);
     Alert.alert(
       'Supprimer le post',
       'Êtes-vous sûr de vouloir supprimer ce post ?',
@@ -98,20 +128,14 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
             {showMenu && (
               <View className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[120px] z-50">
                 <TouchableOpacity
-                  onPress={() => {
-                    setShowMenu(false);
-                    onEdit && onEdit(post.id);
-                  }}
+                  onPress={handleEdit}
                   className="px-4 py-2 flex-row items-center"
                 >
                   <Text className="mr-2">✏️</Text>
                   <Text className="text-gray-900">Modifier</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => {
-                    setShowMenu(false);
-                    handleDelete();
-                  }}
+                  onPress={handleDelete}
                   className="px-4 py-2 flex-row items-center"
                 >
                   <Text className="mr-2">🗑️</Text>
