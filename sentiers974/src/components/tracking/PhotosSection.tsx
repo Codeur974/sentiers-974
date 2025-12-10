@@ -568,23 +568,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
                   bucket.push(performance);
                   sessionsByDate.set(sessionDate, bucket);
 
-                  // Extraire les photos de la session
-                  if (session.photos && Array.isArray(session.photos) && session.photos.length > 0) {
-                    const sessionPhotos: PhotoItem[] = session.photos.map((photo: any) => ({
-                      id: photo.id,
-                      uri: photo.uri || photo.url || "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",
-                      title: photo.title || photo.caption || "Photo",
-                      note: photo.caption,
-                      sessionId: session.id || session.sessionId,
-                      createdAt: normalizeTimestamp(photo.timestamp || photo.createdAt || session.createdAt),
-                      source: "backend" as const,
-                    }));
-
-                    const existingPhotos = photosFromSessions.get(sessionDate) || [];
-                    photosFromSessions.set(sessionDate, [...existingPhotos, ...sessionPhotos]);
-
-                    console.log(`📸 Extracted ${sessionPhotos.length} photos from session ${session.id || session.sessionId} for date ${sessionDate}`);
-                  }
+// Extraire les photos de session.photos[] ET session.pois[]                  const allSessionPhotos: PhotoItem[] = [];                  // Photos depuis session.photos[]                  if (session.photos && Array.isArray(session.photos) && session.photos.length > 0) {                    const sessionPhotos: PhotoItem[] = session.photos.map((photo: any) => ({                      id: photo.id,                      uri: photo.uri || photo.url || "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",                      title: photo.title || photo.caption || "Photo",                      note: photo.caption,                      sessionId: session.id || session.sessionId,                      createdAt: normalizeTimestamp(photo.timestamp || photo.createdAt || session.createdAt),                      source: "backend" as const,                    }));                    allSessionPhotos.push(...sessionPhotos);                  }                  // Photos depuis session.pois[]                  if (session.pois && Array.isArray(session.pois) && session.pois.length > 0) {                    const poisPhotos: PhotoItem[] = session.pois                      .filter((poi: any) => poi.photo || poi.photoUri)                      .map((poi: any) => ({                        id: poi.id,                        uri: poi.photo || poi.photoUri || "https://via.placeholder.com/150x150/e5e7eb/6b7280?text=Pas+de+photo",                        title: poi.title || "Photo",                        note: poi.note,                        sessionId: session.id || session.sessionId,                        createdAt: normalizeTimestamp(poi.timestamp || poi.createdAt || session.createdAt),                        source: "backend" as const,                      }));                    allSessionPhotos.push(...poisPhotos);                  }                  if (allSessionPhotos.length > 0) {                    const existingPhotos = photosFromSessions.get(sessionDate) || [];                    photosFromSessions.set(sessionDate, [...existingPhotos, ...allSessionPhotos]);                    console.log(`📸 Extracted ${allSessionPhotos.length} photos from session ${session.id || session.sessionId} for date ${sessionDate} (photos: ${session.photos?.length || 0}, pois: ${session.pois?.length || 0})`);                  }
                 }
               });
             }

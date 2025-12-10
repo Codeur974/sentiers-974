@@ -159,6 +159,9 @@ SessionSchema.methods.toClientFormat = function() {
     poisCount: this.pois ? this.pois.length : 0,
     photosCount: photosArray.length,
     photos: photosArray, // Inclure les photos pour l'historique
+    pois: this.pois || [], // Inclure les POIs complets
+    sessionId: this.sessionId, // Compatibilite
+    createdAt: this.createdAt, // Compatibilite
     status: this.status,
     startLocation: this.startLocation,
     date: this.createdAt,
