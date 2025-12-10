@@ -119,6 +119,16 @@ router.get("/sessions", verifyToken, async (req, res) => {
       .limit(parseInt(limit, 10));
 
     console.log(`✅ GET /sessions - Found ${sessions.length} sessions`);
+
+    // DEBUG: Afficher les POIs de chaque session
+    sessions.forEach((s, idx) => {
+      console.log(`📍 Session ${idx + 1} (${s.sessionId}): ${s.pois?.length || 0} POIs, ${s.photos?.length || 0} photos`);
+      if (s.pois && s.pois.length > 0) {
+        s.pois.forEach((poi, poiIdx) => {
+          console.log(`   POI ${poiIdx + 1}: ${poi.title} - photo: ${poi.photo ? "YES" : "NO"}`);
+        });
+      }
+    });
     if (sessions.length === 0) {
       // Compter combien de sessions existent au total pour cet userId
       const totalCount = await Session.countDocuments({ userId: req.userId });
