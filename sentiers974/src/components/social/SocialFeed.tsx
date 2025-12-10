@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+﻿import React, { useState } from 'react';
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SocialPost } from '../../types/social';
 import SocialPostCard from './SocialPostCard';
@@ -37,7 +37,17 @@ export default function SocialFeed({
   };
 
   const handleCreatePost = () => {
-    // Le bouton n'est visible que si authentifié, pas besoin de vérifier
+    if (!isAuthenticated) {
+      Alert.alert(
+        'Connexion requise',
+        'Vous devez être connecté pour publier un post.',
+        [
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Se connecter', onPress: () => navigation.navigate('Profile' as never) }
+        ]
+      );
+      return;
+    }
     onCreatePost();
   };
 
@@ -46,28 +56,24 @@ export default function SocialFeed({
       {/* Header avec bouton + ou message de connexion */}
       <View className="flex-row items-center justify-between mb-4">
         <Text className="text-xl font-bold text-gray-900">
-          🏆 Partager vos exploits
+          🏅 Partager vos exploits
         </Text>
 
-        {isAuthenticated ? (
-          <TouchableOpacity
-            onPress={handleCreatePost}
-            className="bg-blue-500 px-4 py-2 rounded-full flex-row items-center"
-          >
-            <Text className="text-white font-semibold mr-1">+</Text>
-            <Text className="text-white font-semibold">Post</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={() => navigation.navigate("Profile" as never)}
-            className="bg-gray-100 px-3 py-2 rounded-full border border-gray-300"
-          >
-            <Text className="text-gray-600 font-medium text-xs">
-              🔒 Connexion
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={handleCreatePost}
+          className={`${isAuthenticated ? 'bg-blue-500' : 'bg-gray-200'} px-4 py-2 rounded-full flex-row items-center`}
+        >
+          <Text className={`${isAuthenticated ? 'text-white' : 'text-gray-500'} font-semibold mr-1`}>+</Text>
+          <Text className={`${isAuthenticated ? 'text-white' : 'text-gray-600'} font-semibold`}>
+            Post
+          </Text>
+        </TouchableOpacity>
       </View>
+      {!isAuthenticated && (
+        <Text className="text-xs text-gray-500 mb-3 text-right">
+          Connectez-vous pour pouvoir publier.
+        </Text>
+      )}
 
       {/* Liste des posts */}
       <ScrollView

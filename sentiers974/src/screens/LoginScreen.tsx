@@ -60,9 +60,10 @@ export default function LoginScreen() {
         ]
       );
     } catch (error: any) {
+      console.error('Erreur login', error);
       Alert.alert(
         'Erreur de connexion',
-        error.message || 'Email ou mot de passe incorrect'
+        'Email ou mot de passe incorrect'
       );
     } finally {
       setIsLoading(false);

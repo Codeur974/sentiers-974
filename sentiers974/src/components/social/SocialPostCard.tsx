@@ -73,7 +73,7 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
     );
   };
 
-  const isOwner = post.userId === currentUserId;
+  const isOwner = isAuthenticated && post.userId === currentUserId;
 
   const formatTime = (timestamp: number) => {
     const now = Date.now();
@@ -97,22 +97,26 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
           className="w-10 h-10 rounded-full"
         />
         <View className="ml-3 flex-1">
-          <Text className="font-semibold text-gray-900">{post.userName}</Text>
-          <View className="flex-row items-center">
-            <Text className="text-gray-500 text-sm">{formatTime(post.createdAt)}</Text>
-            {post.location && (
-              <>
-                <Text className="text-gray-400 mx-2">•</Text>
-                <Text className="text-gray-500 text-sm">📍 {post.location}</Text>
-              </>
-            )}
-            {post.sport && (
-              <>
-                <Text className="text-gray-400 mx-2">•</Text>
-                <Text className="text-blue-500 text-sm font-medium">{post.sport}</Text>
-              </>
-            )}
+          <View className="flex-row items-center justify-between">
+            <Text className="font-semibold text-gray-900">{post.userName}</Text>
+            <Text className="text-gray-500 text-sm ml-2">{formatTime(post.createdAt)}</Text>
           </View>
+          {(post.location || post.sport) && (
+            <View className="flex-row items-center mt-1">
+              {post.location && (
+                <>
+                  <Text className="text-gray-400 mx-2">•</Text>
+                  <Text className="text-gray-500 text-sm">📍 {post.location}</Text>
+                </>
+              )}
+              {post.sport && (
+                <>
+                  <Text className="text-gray-400 mx-2">•</Text>
+                  <Text className="text-blue-500 text-sm font-medium">{post.sport}</Text>
+                </>
+              )}
+            </View>
+          )}
         </View>
         
         {/* Menu pour le propriétaire du post */}
