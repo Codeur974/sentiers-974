@@ -548,9 +548,13 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
           const photosFromSessions = new Map<string, PhotoItem[]>();
 
           if (sessionsResponse.success && sessionsResponse.data) {
+            console.log('🔍 DEBUG sessionsResponse.data type:', typeof sessionsResponse.data, 'isArray:', Array.isArray(sessionsResponse.data));
+            console.log('🔍 DEBUG sessionsResponse.data keys:', Object.keys(sessionsResponse.data || {}));
+            console.log('🔍 DEBUG sessionsResponse.data:', JSON.stringify(sessionsResponse.data).substring(0, 500));
             const sessions = Array.isArray(sessionsResponse.data)
               ? sessionsResponse.data
               : (sessionsResponse.data as any)?.data;
+            console.log('📊 DEBUG sessions extracted - isArray:', Array.isArray(sessions), 'length:', sessions?.length);
             if (sessions && Array.isArray(sessions)) {
               sessions.forEach((session: any) => {
                 const performance = buildSessionPerformance(session);
