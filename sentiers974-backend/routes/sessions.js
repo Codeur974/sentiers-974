@@ -424,6 +424,56 @@ router.post(
   }
 );
 
+router.delete(
+  "/sessions/:sessionId/poi/:poiId",
+  verifyToken,
+  async (req, res) => {
+    try {
+      const { sessionId, poiId } = req.params;
+
+      const session = await Session.findOne(
+        buildOwnershipFilter(sessionId, req.userId)
+      );
+      if (!session) {
+        return res.status(404).json({
+          success: false,
+          error: "Session non trouvee",
+        });
+      }
+
+      // Supprimer de pois[]
+      const poisResult = await Session.updateOne(
+        { sessionId, ...buildUserFilter(req.userId) },
+        { $pull: { pois: { id: poiId } } }
+      );
+
+      // Supprimer aussi de photos[]
+      await Session.updateOne(
+        { sessionId, ...buildUserFilter(req.userId) },
+        { $pull: { photos: { id: poiId } } }
+      );
+
+      if (poisResult.modifiedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          error: "POI non trouve dans cette session",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "POI supprime de la session",
+      });
+    } catch (error) {
+      console.error("Erreur suppression POI de session:", error);
+      res.status(500).json({
+        success: false,
+        error: "Erreur serveur lors de la suppression du POI",
+      });
+    }
+  }
+);
+
 router.get("/pointofinterests", verifyToken, async (req, res) => {
   try {
     console.log("pointofinterests handler invoked", { userId: req.userId });
@@ -468,9 +518,16 @@ router.delete("/pointofinterests/:poiId", verifyToken, async (req, res) => {
   try {
     const { poiId } = req.params;
 
+    // Supprimer de pois[]
     const result = await Session.updateOne(
       { "pois.id": poiId, ...buildUserFilter(req.userId) },
       { $pull: { pois: { id: poiId } } }
+    );
+
+    // Supprimer aussi de photos[] pour éviter que la photo réapparaisse
+    await Session.updateOne(
+      { "photos.id": poiId, ...buildUserFilter(req.userId) },
+      { $pull: { photos: { id: poiId } } }
     );
 
     if (result.modifiedCount === 0) {
