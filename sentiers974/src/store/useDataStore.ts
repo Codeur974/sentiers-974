@@ -366,7 +366,8 @@ export const useDataStore = create<DataState>()(
         if (data.sessionId) {
           try {
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 2000);
+            // 60 secondes pour l'upload de photos (surtout en 5G avec connexion lente)
+            const timeout = setTimeout(() => controller.abort(), 60000);
 
             const formData = new FormData();
             if (!data.photoUri) {

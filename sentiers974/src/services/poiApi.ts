@@ -25,7 +25,8 @@ export const uploadPoiToServer = async (
   const controller = signal ? undefined : new AbortController();
   const timeoutSignal = controller?.signal;
   if (controller) {
-    setTimeout(() => controller.abort(), 10000);
+    // 60 secondes pour les photos (upload lent en 5G)
+    setTimeout(() => controller.abort(), 60000);
   }
 
   const finalSignal = signal || timeoutSignal;
