@@ -18,6 +18,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
   const recentMovementWindow = useRef<Array<{ time: number; distance: number }>>([]);
   const speedHistoryWindow = useRef<Array<number>>([]); // Fenêtre glissante courte
   const wasStoppedRecently = useRef<boolean>(false); // Détection reprise après pause
+  const rejectedPointsCount = useRef<number>(0); // Compteur de points rejetés pour éviter boucle infinie
 
   const isCourse = sportConfig?.nom === 'Course';
 
@@ -69,9 +70,9 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
 
     lastGpsUpdateTime.current = Date.now();
 
-    // Accuracy : on ne rejette plus les points GPS même si accuracy faible
-    // Les seuils de téléportation adaptatifs (4 niveaux) se chargent du filtrage
+    // Détection phase initiale
     const isInitialPhase = trackingPath.length < 3 || distance < 0.05; // ~50m
+    const accuracy = coords.accuracy || 999;
 
     // Distance et téléportations
     const lastPoint = { latitude: lastCoords.current.latitude, longitude: lastCoords.current.longitude };
@@ -81,6 +82,24 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
 
     // Seuils adaptés par sport avec 4 niveaux d'accuracy GPS dynamiques
     const sportName = sportConfig?.nom || 'Marche';
+
+    // FILTRE AU DÉMARRAGE : UNIQUEMENT pour Marche (évite les données aberrantes)
+    // Avec compteur de rejets maximum pour éviter boucle infinie
+    const isMarche = sportName === 'Marche' || sportName === 'Randonnée';
+    const MAX_REJECTED_POINTS = 15; // Maximum 15 rejets, après on accepte tout
+
+    if (isMarche && isInitialPhase && accuracy > 50 && rejectedPointsCount.current < MAX_REJECTED_POINTS) {
+      rejectedPointsCount.current += 1;
+      console.log(`🚫 Marche: Point GPS rejeté au démarrage (${rejectedPointsCount.current}/${MAX_REJECTED_POINTS}) - accuracy: ${accuracy.toFixed(0)}m`);
+      lastCoords.current = { ...coords };
+      lastGpsUpdateTime.current = Date.now();
+      return;
+    }
+
+    // Reset du compteur quand on sort de la phase initiale
+    if (!isInitialPhase) {
+      rejectedPointsCount.current = 0;
+    }
     const sportThresholds: Record<string, { excellent: number; good: number; medium: number; poor: number }> = {
       'Course': { excellent: 20, good: 25, medium: 35, poor: 50 },      // Course
       'Trail': { excellent: 15, good: 20, medium: 30, poor: 40 },       // Trail
@@ -97,7 +116,6 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     const thresholds = sportThresholds[sportName] || { excellent: 10, good: 12, medium: 20, poor: 30 };
 
     // Détection dynamique de la qualité GPS (4 niveaux)
-    const accuracy = coords.accuracy || 999;
     const prevAccuracy = lastCoords.current?.accuracy;
     let teleportThreshold: number;
     if (accuracy < 15) {
@@ -301,6 +319,7 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     lowSpeedDurationMs.current = 0;
     recentMovementWindow.current = [];
     speedHistoryWindow.current = [];
+    rejectedPointsCount.current = 0;
   };
 
   return {

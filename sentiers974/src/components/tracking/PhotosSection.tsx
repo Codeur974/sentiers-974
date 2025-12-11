@@ -4,6 +4,7 @@ import {
   useImperativeHandle,
   forwardRef,
   useRef,
+  useCallback,
 } from "react";
 import { View, Text, Alert, TouchableOpacity, useWindowDimensions, ActivityIndicator, DeviceEventEmitter, ScrollView } from "react-native";
 import { usePOIs } from '../../store/useDataStore';
@@ -262,16 +263,16 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
     };
 
     // Fonctions pour gérer les photos
-    const handlePhotoPress = (photo: PhotoItem) => {
+    const handlePhotoPress = useCallback((photo: PhotoItem) => {
       setSelectedPhoto({
         uri: photo.uri,
         title: photo.title,
         note: photo.note,
       });
       onInteraction?.();
-    };
+    }, [onInteraction]);
 
-    const toggleSection = (date: string) => {
+    const toggleSection = useCallback((date: string) => {
       setExpandedSections((prev) => {
         const newSet = new Set<string>();
         if (!prev.has(date)) {
@@ -279,7 +280,7 @@ const PhotosSection = forwardRef<PhotosSectionRef, PhotosSectionProps>(
         }
         return newSet;
       });
-    };
+    }, []);
 
     // Fonction utilitaire pour formater les dates
     const getLocalDateString = (timestamp: any) => {
