@@ -138,7 +138,7 @@ export const useAddPhoto = (onRefresh: () => void) => {
         }, 'AddPhoto');
 
         handleCloseModal();
-        Alert.alert('Succès', `Photo "${poi.title}" ajoutée à la session !`);
+        Alert.alert('✅ POI créé avec succès', `Photo "${poi.title}" ajoutée à la session !`);
 
         // Forcer le rechargement immédiat
         logger.debug('Appel onRefresh après création photo', undefined, 'AddPhoto');

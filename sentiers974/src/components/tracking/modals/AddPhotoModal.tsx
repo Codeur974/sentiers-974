@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, Image, Modal, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, Image, Modal, TextInput, ActivityIndicator } from 'react-native';
 
 interface AddPhotoModalProps {
   visible: boolean;
@@ -108,6 +108,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
             <TouchableOpacity
               onPress={onClose}
               className="flex-1 bg-gray-500 p-3 rounded-lg"
+              disabled={creatingPhoto}
             >
               <Text className="text-white font-bold text-center">Annuler</Text>
             </TouchableOpacity>
@@ -125,6 +126,21 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Overlay de chargement pendant la création */}
+        {creatingPhoto && (
+          <View className="absolute inset-0 bg-black/70 justify-center items-center rounded-2xl">
+            <View className="bg-white rounded-2xl p-6 items-center shadow-lg">
+              <ActivityIndicator size="large" color="#2563eb" />
+              <Text className="text-lg font-bold text-gray-800 mt-4 text-center">
+                POI en cours de création
+              </Text>
+              <Text className="text-sm text-gray-600 mt-2 text-center">
+                Veuillez patienter...
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
     </Modal>
   );
