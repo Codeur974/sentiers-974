@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, TextInput, Alert, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, TextInput, Alert, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { PhotoManager } from '../../utils/photoUtils';
 import { usePOIs } from '../../store/useDataStore';
 
@@ -345,6 +345,21 @@ export default function TrackingFooter({
                   </Text>
                 </TouchableOpacity>
               </View>
+
+              {/* Overlay de chargement pendant la création */}
+              {creatingPOI && (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.7)', justifyContent: 'center', alignItems: 'center', borderRadius: 16 }}>
+                  <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 }}>
+                    <ActivityIndicator size="large" color="#9333ea" />
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1f2937', marginTop: 16, textAlign: 'center' }}>
+                      POI en cours de création
+                    </Text>
+                    <Text style={{ fontSize: 14, color: '#4b5563', marginTop: 8, textAlign: 'center' }}>
+                      Veuillez patienter...
+                    </Text>
+                  </View>
+                </View>
+              )}
             </View>
           </View>
         </Modal>

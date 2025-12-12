@@ -4,6 +4,7 @@ import Constants from 'expo-constants';
 import { useAuth } from '../../contexts/AuthContext';
 import { useDataStore } from '../../store/useDataStore';
 import { DeviceEventEmitter } from 'react-native';
+import { secureGetItem } from '../../utils/secureStorage';
 
 // Utiliser la variable d'environnement du .env
 const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
@@ -96,7 +97,7 @@ export const useSessionPersistence = () => {
     // CrÃ©er sur MongoDB avec timeout rapide (5s)
     try {
       // DÃ©terminer le userId : user connectÃ© > deviceId > 'anonymous'
-      const storedUserId = await AsyncStorage.getItem('userId');
+      const storedUserId = await secureGetItem('userId');
       const userId = user?.id || storedUserId || null; // si null, rester en local
       if (!userId) {
         console.log('createSession: aucun userId, session gardee en local uniquement');
@@ -105,8 +106,8 @@ export const useSessionPersistence = () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       const token =
-        (await AsyncStorage.getItem('authToken')) ||
-        (await AsyncStorage.getItem('userToken'));
+        (await secureGetItem('authToken')) ||
+        (await secureGetItem('userToken'));
 
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',
@@ -221,8 +222,8 @@ export const useSessionPersistence = () => {
     let localStatsUpdated = false;
 
     const token =
-      (await AsyncStorage.getItem('authToken')) ||
-      (await AsyncStorage.getItem('userToken'));
+      (await secureGetItem('authToken')) ||
+      (await secureGetItem('userToken'));
 
     if (!token) {
       console.log('saveSession: aucun token, sauvegarde locale uniquement');
@@ -289,8 +290,8 @@ export const useSessionPersistence = () => {
   const clearSession = async () => {
     try {
       const token =
-        (await AsyncStorage.getItem('authToken')) ||
-        (await AsyncStorage.getItem('userToken'));
+        (await secureGetItem('authToken')) ||
+        (await secureGetItem('userToken'));
       // Supprimer de MongoDB si sessionId existe
       if (sessionId) {
         try {

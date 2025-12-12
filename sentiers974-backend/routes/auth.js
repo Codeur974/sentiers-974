@@ -445,4 +445,45 @@ router.post('/reset/confirm', async (req, res) => {
   }
 });
 
+/**
+ * 🔄 RAFRAÎCHIR LE TOKEN JWT
+ * POST /api/auth/refresh
+ *
+ * 🛡️ Route protégée : nécessite un token valide
+ * Header requis: Authorization: Bearer <token>
+ *
+ * Génère un nouveau token JWT avec une nouvelle date d'expiration
+ * Utile pour prolonger la session sans redemander le mot de passe
+ */
+router.post('/refresh', verifyToken, async (req, res) => {
+  try {
+    // req.userId a été validé par le middleware verifyToken
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable'
+      });
+    }
+
+    // Générer un nouveau token avec une nouvelle date d'expiration
+    const newToken = generateToken(user._id);
+
+    res.json({
+      success: true,
+      token: newToken,
+      message: 'Token rafraîchi avec succès',
+      expiresIn: '30d'
+    });
+
+  } catch (error) {
+    console.error('❌ Erreur rafraîchissement token:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors du rafraîchissement du token'
+    });
+  }
+});
+
 module.exports = router;

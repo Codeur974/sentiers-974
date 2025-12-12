@@ -3,7 +3,7 @@ import NetInfo from '@react-native-community/netinfo';
 import Constants from 'expo-constants';
 import { useDataStore } from '../../store/useDataStore';
 import { logger } from '../../utils/logger';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { secureGetItem } from '../../utils/secureStorage';
 
 const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl || 'https://sentiers-974.onrender.com';
 const MONGODB_API_URL = `${API_BASE_URL}/api/sessions`;
@@ -41,8 +41,8 @@ export const useNetworkSync = () => {
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
       const token =
-        (await AsyncStorage.getItem('authToken')) ||
-        (await AsyncStorage.getItem('userToken'));
+        (await secureGetItem('authToken')) ||
+        (await secureGetItem('userToken'));
 
       const response = await fetch(MONGODB_API_URL, {
         method: 'POST',
