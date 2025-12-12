@@ -62,17 +62,17 @@ export const PhotoDayHeader: React.FC<PhotoDayHeaderProps> = ({
         <Text className="font-bold text-blue-800">
           📅 {group.displayDate}
         </Text>
-        <View className="flex-row items-center space-x-3">
+        <View className="flex-row items-center gap-3">
           <Text className="text-sm text-blue-600">
             📷 {group.photos.length} photo{group.photos.length > 1 ? 's' : ''}
           </Text>
           {group.sessionGroups && group.sessionGroups.length > 0 && (
-            <Text className="text-sm text-purple-600 font-medium">
+            <Text className="text-sm text-purple-600 font-medium ml-2">
               📊 {group.sessionGroups.length} session{group.sessionGroups.length > 1 ? 's' : ''}
             </Text>
           )}
           {group.performance && group.performance.totalDistance > 0 && (
-            <Text className="text-sm text-green-600 font-bold">
+            <Text className="text-sm text-green-600 font-bold ml-2">
               🏃 {group.performance.totalDistance.toFixed(1)}km
             </Text>
           )}

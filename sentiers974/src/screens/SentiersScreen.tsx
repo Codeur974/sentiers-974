@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Layout from '../components/ui/Layout';
 import FooterNavigation from '../components/ui/FooterNavigation';
 import { useNavigation } from '@react-navigation/native';
@@ -26,11 +27,23 @@ export default function SentiersScreen() {
     try {
       setLoading(true);
       setError(null);
-      
+
+      // Charger le cache en premier pour affichage instantané
+      const cached = await AsyncStorage.getItem('cached_sentiers');
+      if (cached) {
+        const cachedData = JSON.parse(cached);
+        setSentiers(cachedData);
+        setLoading(false);
+        console.log(`📦 ${cachedData.length} sentiers chargés depuis le cache`);
+      }
+
+      // Puis fetch en arrière-plan pour mise à jour
       console.log('🔄 Chargement des sentiers réels depuis les APIs officielles...');
       const sentiersData = await sentiersService.getAllSentiers();
       setSentiers(sentiersData);
-      
+
+      // Sauvegarder dans le cache
+      await AsyncStorage.setItem('cached_sentiers', JSON.stringify(sentiersData));
       console.log(`✅ ${sentiersData.length} sentiers chargés avec succès`);
     } catch (err) {
       console.error('❌ Erreur lors du chargement des sentiers:', err);

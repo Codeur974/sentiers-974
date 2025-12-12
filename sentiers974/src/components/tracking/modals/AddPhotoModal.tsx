@@ -38,7 +38,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50 justify-center px-4">
-        <View className="bg-white rounded-2xl p-6">
+        <View className="bg-white rounded-2xl p-6 relative">
           <Text className="text-xl font-bold text-center mb-4">
             📷 Ajouter photo oubliée
           </Text>
@@ -51,6 +51,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
             className="border border-gray-300 rounded-lg p-3 mb-4"
             maxLength={50}
             autoFocus={false}
+            editable={!creatingPhoto}
           />
 
           <Text className="text-sm text-gray-600 mb-2">Note (optionnel)</Text>
@@ -63,6 +64,7 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
             multiline
             textAlignVertical="top"
             maxLength={200}
+            editable={!creatingPhoto}
           />
 
           {/* Photo sélectionnée */}
@@ -75,18 +77,20 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
                   className="w-full h-40 rounded-lg"
                   resizeMode="cover"
                 />
-                <TouchableOpacity
-                  onPress={onRemovePhoto}
-                  className="absolute top-2 right-2 bg-red-500 p-2 rounded-full"
-                >
-                  <Text className="text-white text-xs">✕</Text>
-                </TouchableOpacity>
+                {!creatingPhoto && (
+                  <TouchableOpacity
+                    onPress={onRemovePhoto}
+                    className="absolute top-2 right-2 bg-red-500 p-2 rounded-full"
+                  >
+                    <Text className="text-white text-xs">✕</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
           )}
 
           {/* Actions photos */}
-          {!selectedPhotoUri && (
+          {!selectedPhotoUri && !creatingPhoto && (
             <View className="flex-row space-x-3 mb-4">
               <TouchableOpacity
                 onPress={onTakePhoto}
@@ -125,22 +129,22 @@ export const AddPhotoModal: React.FC<AddPhotoModalProps> = ({
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
 
-        {/* Overlay de chargement pendant la création */}
-        {creatingPhoto && (
-          <View className="absolute inset-0 bg-black/70 justify-center items-center rounded-2xl">
-            <View className="bg-white rounded-2xl p-6 items-center shadow-lg">
-              <ActivityIndicator size="large" color="#2563eb" />
-              <Text className="text-lg font-bold text-gray-800 mt-4 text-center">
-                POI en cours de création
-              </Text>
-              <Text className="text-sm text-gray-600 mt-2 text-center">
-                Veuillez patienter...
-              </Text>
+          {/* Overlay de chargement pendant la création */}
+          {creatingPhoto && (
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.7)', justifyContent: 'center', alignItems: 'center', borderRadius: 16 }}>
+              <View style={{ backgroundColor: 'white', borderRadius: 16, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 }}>
+                <ActivityIndicator size="large" color="#2563eb" />
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#1f2937', marginTop: 16, textAlign: 'center' }}>
+                  POI en cours de création
+                </Text>
+                <Text style={{ fontSize: 14, color: '#4b5563', marginTop: 8, textAlign: 'center' }}>
+                  Veuillez patienter...
+                </Text>
+              </View>
             </View>
-          </View>
-        )}
+          )}
+        </View>
       </View>
     </Modal>
   );
