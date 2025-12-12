@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { View, Text, TouchableOpacity, Dimensions } from "react-native";
 import { WebView } from "react-native-webview";
 
@@ -30,50 +30,15 @@ export default function EnhancedMapView({
   const [mapReady, setMapReady] = useState(false);
   const webViewRef = useRef<WebView>(null);
   const { width, height } = Dimensions.get('window');
+  const initialCoords = useRef(coords);
 
-  // Mettre à jour la position en temps réel
-  useEffect(() => {
-    if (coords && mapReady && webViewRef.current) {
-      const updateScript = `
-        if (typeof updateMarkerPosition === 'function') {
-          updateMarkerPosition(${coords.latitude}, ${coords.longitude}, "${address || 'Position actuelle'}");
-        }
-        true;
-      `;
-      webViewRef.current.postMessage(updateScript);
-    }
-  }, [coords, address, mapReady]);
+  // Mémoriser le HTML initial pour éviter de recréer la WebView à chaque render
+  // IMPORTANT: useMemo doit être appelé AVANT les useEffect et les returns conditionnels
+  const mapHTML = useMemo(() => {
+    const lat = initialCoords.current?.latitude ?? -21.115141;
+    const lng = initialCoords.current?.longitude ?? 55.536384;
 
-  // Mettre à jour le tracé en temps réel
-  useEffect(() => {
-    if (trackingPath.length > 0 && mapReady && webViewRef.current) {
-      const updatePathScript = `
-        if (typeof updateTrackingPath === 'function') {
-          updateTrackingPath(${JSON.stringify(trackingPath)}, ${isTracking});
-        }
-        true;
-      `;
-      webViewRef.current.postMessage(updatePathScript);
-    }
-  }, [trackingPath, isTracking, mapReady]);
-
-  if (!isVisible) {
-    return null;
-  }
-
-  if (!coords) {
-    return (
-      <View className="flex-1 items-center justify-center bg-gray-100">
-        <View className="w-16 h-16 bg-blue-500 rounded-full items-center justify-center mb-4">
-          <Text className="text-white text-2xl">📡</Text>
-        </View>
-        <Text className="text-gray-700 text-lg font-medium">Localisation GPS...</Text>
-        <Text className="text-gray-500 text-sm mt-2">Recherche de votre position</Text>
-      </View>
-    );
-  }
-
-  const generateMapHTML = () => `
+    return `
     <!DOCTYPE html>
     <html>
       <head>
@@ -216,7 +181,7 @@ export default function EnhancedMapView({
             // Améliorer le pinch-zoom sur mobile
             touchZoom: true,
             scrollWheelZoom: true
-          }).setView([${coords.latitude}, ${coords.longitude}], 17);
+          }).setView([${lat}, ${lng}], 17);
           
           // Repositionner les contrôles Leaflet pour qu'ils ne gênent pas
           if (map.zoomControl) {
@@ -283,49 +248,23 @@ export default function EnhancedMapView({
           });
           
           // Marker initial
-          marker = L.marker([${coords.latitude}, ${coords.longitude}], {
-            icon: createCustomIcon('${isTracking ? '#22c55e' : '#3b82f6'}')
+          marker = L.marker([${lat}, ${lng}], {
+            icon: createCustomIcon('#3b82f6')
           }).addTo(map);
-          
+
           marker.bindPopup(\`
             <div style="text-align: center; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-              <strong style="color: #1f2937; font-size: 14px;">${address && address.includes('Piton de la Fournaise') ? '🌋 Piton de la Fournaise' : '📍 Ma position'}</strong><br/>
-              <small style="color: #4b5563; font-size: 12px; margin-top: 4px; display: block;">${address || 'Position actuelle'}</small><br/>
+              <strong style="color: #1f2937; font-size: 14px;">📍 Ma position</strong><br/>
+              <small style="color: #4b5563; font-size: 12px; margin-top: 4px; display: block;">Position actuelle</small><br/>
               <small style="color: #6b7280; font-family: monospace; font-size: 10px; margin-top: 2px; display: block;">
-                ${coords.latitude.toFixed(6)}, ${coords.longitude.toFixed(6)}
+                ${lat.toFixed(6)}, ${lng.toFixed(6)}
               </small>
             </div>
-          \`, { 
+          \`, {
             className: 'custom-popup',
             maxWidth: 250,
             closeButton: true
           }).openPopup();
-          
-          // Ajouter le tracé initial s'il existe
-          ${trackingPath.length > 0 ? `
-            const initialPath = ${JSON.stringify(trackingPath)};
-            if (initialPath.length > 1) {
-              currentPolyline = L.polyline(initialPath, {
-                color: '${isTracking ? '#22c55e' : '#3b82f6'}',
-                weight: 5,
-                opacity: 0.8,
-                smoothFactor: 1.5,
-                lineCap: 'round',
-                lineJoin: 'round'
-              }).addTo(map);
-              
-              // Calculer la distance totale
-              totalDistance = 0;
-              for (let i = 1; i < initialPath.length; i++) {
-                totalDistance += map.distance(initialPath[i-1], initialPath[i]) / 1000;
-              }
-              document.getElementById('distance-indicator').textContent = totalDistance.toFixed(2) + ' km';
-              
-              // Ajuster la vue pour inclure tout le tracé
-              const group = new L.featureGroup([marker, currentPolyline]);
-              map.fitBounds(group.getBounds().pad(0.05));
-            }
-          ` : ''}
           
           // Fonction pour calculer la distance entre deux points
           function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -340,10 +279,10 @@ export default function EnhancedMapView({
           }
           
           // Mettre à jour la position du marker
-          window.updateMarkerPosition = function(lat, lng, newAddress) {
+          window.updateMarkerPosition = function(lat, lng, newAddress, isTracking) {
             const newLatLng = L.latLng(lat, lng);
             marker.setLatLng(newLatLng);
-            marker.setIcon(createCustomIcon('${isTracking ? '#22c55e' : '#3b82f6'}'));
+            marker.setIcon(createCustomIcon(isTracking ? '#22c55e' : '#3b82f6'));
             
             marker.setPopupContent(\`
               <div style="text-align: center; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -369,22 +308,24 @@ export default function EnhancedMapView({
             
             lastPosition = { lat, lng };
             lastUpdateTime = now;
-            
-            // Centrer la carte sur la nouvelle position si on track
-            if (${isTracking}) {
-              map.setView(newLatLng, map.getZoom());
-            }
           };
           
           // Mettre à jour le tracé
           window.updateTrackingPath = function(pathCoords, isActive) {
+            console.log('🗺️ [MAP JS] updateTrackingPath appelé:', pathCoords.length, 'points');
+
             // Supprimer l'ancien tracé
             if (currentPolyline) {
               map.removeLayer(currentPolyline);
             }
-            
+
             if (pathCoords.length > 1) {
-              currentPolyline = L.polyline(pathCoords, {
+              // Convertir {latitude, longitude} en [lat, lng] pour Leaflet
+              const latLngs = pathCoords.map(coord => [coord.latitude, coord.longitude]);
+              console.log('🗺️ [MAP JS] Premier point converti:', latLngs[0]);
+              console.log('🗺️ [MAP JS] Dernier point converti:', latLngs[latLngs.length - 1]);
+
+              currentPolyline = L.polyline(latLngs, {
                 color: isActive ? '#22c55e' : '#3b82f6',
                 weight: 5,
                 opacity: 0.8,
@@ -392,6 +333,8 @@ export default function EnhancedMapView({
                 lineCap: 'round',
                 lineJoin: 'round'
               }).addTo(map);
+
+              console.log('✅ [MAP JS] Polyline ajoutée à la carte avec', latLngs.length, 'points');
               
               // Calculer la distance totale
               totalDistance = 0;
@@ -430,6 +373,48 @@ export default function EnhancedMapView({
       </body>
     </html>
   `;
+  }, []); // useMemo - HTML créé une seule fois au montage
+
+  // Mettre à jour la position en temps réel
+  useEffect(() => {
+    if (coords && mapReady && webViewRef.current) {
+      const updateScript = `
+        if (typeof updateMarkerPosition === 'function') {
+          updateMarkerPosition(${coords.latitude}, ${coords.longitude}, "${address || 'Position actuelle'}", ${isTracking});
+        }
+      `;
+      webViewRef.current.injectJavaScript(updateScript);
+    }
+  }, [coords, address, isTracking, mapReady]);
+
+  // Mettre à jour le tracé en temps réel
+  useEffect(() => {
+    if (trackingPath.length > 0 && mapReady && webViewRef.current) {
+      console.log(`🗺️ Mise à jour du tracé sur la carte: ${trackingPath.length} points, isTracking=${isTracking}`);
+      const updatePathScript = `
+        if (typeof updateTrackingPath === 'function') {
+          updateTrackingPath(${JSON.stringify(trackingPath)}, ${isTracking});
+        }
+      `;
+      webViewRef.current.injectJavaScript(updatePathScript);
+    }
+  }, [trackingPath, isTracking, mapReady]);
+
+  if (!isVisible) {
+    return null;
+  }
+
+  if (!coords) {
+    return (
+      <View className="flex-1 items-center justify-center bg-gray-100">
+        <View className="w-16 h-16 bg-blue-500 rounded-full items-center justify-center mb-4">
+          <Text className="text-white text-2xl">📡</Text>
+        </View>
+        <Text className="text-gray-700 text-lg font-medium">Localisation GPS...</Text>
+        <Text className="text-gray-500 text-sm mt-2">Recherche de votre position</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -439,7 +424,7 @@ export default function EnhancedMapView({
         <WebView
           ref={webViewRef}
           style={{ flex: 1 }}
-          source={{ html: generateMapHTML() }}
+          source={{ html: mapHTML }}
           onLoad={() => setMapReady(true)}
           onMessage={(event) => {
             if (event.nativeEvent.data === 'MAP_READY') {
