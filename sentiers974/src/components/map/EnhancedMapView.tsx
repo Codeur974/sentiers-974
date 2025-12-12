@@ -378,9 +378,11 @@ export default function EnhancedMapView({
   // Mettre à jour la position en temps réel
   useEffect(() => {
     if (coords && mapReady && webViewRef.current) {
+      // Échapper les guillemets pour prévenir les injections XSS
+      const safeAddress = (address || 'Position actuelle').replace(/"/g, '\\"').replace(/\\/g, '\\\\').replace(/\n/g, '\\n');
       const updateScript = `
         if (typeof updateMarkerPosition === 'function') {
-          updateMarkerPosition(${coords.latitude}, ${coords.longitude}, "${address || 'Position actuelle'}", ${isTracking});
+          updateMarkerPosition(${coords.latitude}, ${coords.longitude}, "${safeAddress}", ${isTracking});
         }
       `;
       webViewRef.current.injectJavaScript(updateScript);

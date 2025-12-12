@@ -1,6 +1,6 @@
 ﻿import React, { createContext, useContext, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL } from "../services/api";
+import { secureGetItem, secureSetItem, secureDeleteItem, migrateTokensToSecureStore } from "../utils/secureStorage";
 
 interface User {
   id: string;
@@ -30,12 +30,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Vérifie l'authentification au démarrage
   useEffect(() => {
-    checkAuth();
+    // Migrer les tokens existants vers SecureStore
+    migrateTokensToSecureStore().then(() => {
+      checkAuth();
+    });
   }, []);
 
   const checkAuth = async () => {
     try {
-      const storedToken = await AsyncStorage.getItem("authToken");
+      const storedToken = await secureGetItem("authToken");
 
       if (!storedToken) {
         setIsLoading(false);
@@ -51,12 +54,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(data.user);
         setToken(storedToken);
         if (data.user?.id) {
-          await AsyncStorage.setItem("userId", data.user.id);
+          await secureSetItem("userId", data.user.id);
         }
-        console.log("User reconnecté", data.user.email);
+        console.log("✅ User reconnecté");
       } else {
-        await AsyncStorage.removeItem("authToken");
-        await AsyncStorage.removeItem("userId");
+        await secureDeleteItem("authToken");
+        await secureDeleteItem("userId");
         console.log("Token invalide ou expiré");
       }
     } catch (error) {
@@ -68,6 +71,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
+      // Vérification du rate limiting
+      const rateLimiter = (await import('../utils/rateLimiter')).default;
+      const rateCheck = rateLimiter.check('login', email);
+
+      if (!rateCheck.allowed) {
+        throw new Error(rateCheck.error || 'Trop de tentatives');
+      }
+
+      // Enregistrer la tentative
+      rateLimiter.record('login', email);
+
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,14 +94,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.error || "Erreur de connexion");
       }
 
-      await AsyncStorage.setItem("authToken", data.token);
+      // Login réussi - reset le rate limit
+      rateLimiter.reset('login', email);
+
+      await secureSetItem("authToken", data.token);
       if (data.user?.id) {
-        await AsyncStorage.setItem("userId", data.user.id);
+        await secureSetItem("userId", data.user.id);
       }
       setToken(data.token);
       setUser(data.user);
 
-      console.log("Connexion réussie", data.user.email);
+      console.log("✅ Connexion réussie");
     } catch (error: any) {
       console.error("Erreur login", error);
       throw error;
@@ -96,7 +113,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signup = async (email: string, password: string, name?: string) => {
     try {
-      const deviceId = await AsyncStorage.getItem("deviceId");
+      // Vérification du rate limiting
+      const rateLimiter = (await import('../utils/rateLimiter')).default;
+      const rateCheck = rateLimiter.check('signup', email);
+
+      if (!rateCheck.allowed) {
+        throw new Error(rateCheck.error || 'Trop de tentatives d\'inscription');
+      }
+
+      // Enregistrer la tentative
+      rateLimiter.record('signup', email);
+
+      const deviceId = await secureGetItem("deviceId");
 
       const response = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
@@ -110,14 +138,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error(data.error || "Erreur d'inscription");
       }
 
-      await AsyncStorage.setItem("authToken", data.token);
+      // Signup réussi - reset le rate limit
+      rateLimiter.reset('signup', email);
+
+      await secureSetItem("authToken", data.token);
       if (data.user?.id) {
-        await AsyncStorage.setItem("userId", data.user.id);
+        await secureSetItem("userId", data.user.id);
       }
       setToken(data.token);
       setUser(data.user);
 
-      console.log("Inscription réussie", data.user.email);
+      console.log("✅ Inscription réussie");
       console.log("Sessions anonymes migrées si présentes");
     } catch (error: any) {
       console.error("Erreur signup", error);
@@ -127,8 +158,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem("authToken");
-      await AsyncStorage.removeItem("userId");
+      await secureDeleteItem("authToken");
+      await secureDeleteItem("userId");
       setToken(null);
       setUser(null);
       console.log("Déconnexion réussie");

@@ -23,8 +23,28 @@ class UploadService {
    */
   async uploadImage(uri: string): Promise<string> {
     try {
+      // Vérification du rate limiting
+      const rateLimiter = (await import('../utils/rateLimiter')).default;
+      const rateCheck = rateLimiter.check('upload_image');
+
+      if (!rateCheck.allowed) {
+        throw new Error(rateCheck.error || 'Trop d\'uploads. Attendez un peu.');
+      }
+
+      rateLimiter.record('upload_image');
+
       console.log('📤 Début upload vers:', API_BASE_URL);
       console.log('📄 URI fichier:', uri);
+
+      // Validation de sécurité : vérifier que c'est une vraie image
+      const { validateImageFile } = await import('../utils/imageValidator');
+      const validation = await validateImageFile(uri);
+
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Fichier invalide');
+      }
+
+      console.log('✅ Validation image OK:', validation.mimeType, `(${(validation.fileSize! / 1024).toFixed(0)}KB)`);
 
       // Manipuler l'image pour obtenir base64 (compatible Expo Go)
       const manipulatedImage = await manipulateAsync(
@@ -42,7 +62,8 @@ class UploadService {
       const base64WithPrefix = `data:image/jpeg;base64,${manipulatedImage.base64}`;
 
       // Récupérer le token d'authentification
-      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+      const { secureGetItem } = await import('../utils/secureStorage');
+      const token = await secureGetItem('authToken') || await secureGetItem('userToken');
       console.log('🔑 Token récupéré:', token ? 'Oui' : 'Non');
 
       console.log('🌐 Envoi requête vers:', `${API_BASE_URL}/api/upload`);
@@ -87,19 +108,43 @@ class UploadService {
    */
   async uploadMultipleImages(uris: string[]): Promise<string[]> {
     try {
+      // Vérification du rate limiting
+      const rateLimiter = (await import('../utils/rateLimiter')).default;
+      const rateCheck = rateLimiter.check('upload_multiple');
+
+      if (!rateCheck.allowed) {
+        throw new Error(rateCheck.error || 'Trop d\'uploads multiples. Attendez un peu.');
+      }
+
+      rateLimiter.record('upload_multiple');
+
+      // Validation de sécurité : vérifier que toutes les images sont valides
+      const { areAllImagesValid } = await import('../utils/imageValidator');
+      const validationResult = await areAllImagesValid(uris);
+
+      if (!validationResult.valid) {
+        throw new Error(`Images invalides: ${validationResult.errors.join(', ')}`);
+      }
+
+      console.log(`✅ Validation OK pour ${uris.length} images`);
+
       // Convertir toutes les images en base64
       const base64Images = await Promise.all(
         uris.map(async (uri) => {
           const base64 = await FileSystem.readAsStringAsync(uri, {
             encoding: FileSystem.EncodingType.Base64,
           });
-          const mimeType = uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+          // Utiliser la validation pour déterminer le vrai MIME type
+          const { validateImageFile } = await import('../utils/imageValidator');
+          const validation = await validateImageFile(uri);
+          const mimeType = validation.mimeType || 'image/jpeg';
           return `data:${mimeType};base64,${base64}`;
         })
       );
 
       // Récupérer le token d'authentification
-      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+      const { secureGetItem } = await import('../utils/secureStorage');
+      const token = await secureGetItem('authToken') || await secureGetItem('userToken');
 
       // Envoyer au backend
       const response = await fetch(`${API_BASE_URL}/api/upload/multiple`, {
@@ -139,19 +184,30 @@ class UploadService {
     try {
       if (onProgress) onProgress(10);
 
+      // Validation de sécurité : vérifier que c'est une vraie image
+      const { validateImageFile } = await import('../utils/imageValidator');
+      const validation = await validateImageFile(uri);
+
+      if (!validation.isValid) {
+        throw new Error(validation.error || 'Fichier invalide');
+      }
+
+      if (onProgress) onProgress(30);
+
       const base64 = await FileSystem.readAsStringAsync(uri, {
         encoding: FileSystem.EncodingType.Base64,
       });
 
       if (onProgress) onProgress(50);
 
-      const mimeType = uri.toLowerCase().endsWith('.png') ? 'image/png' : 'image/jpeg';
+      const mimeType = validation.mimeType || 'image/jpeg';
       const base64WithPrefix = `data:${mimeType};base64,${base64}`;
 
       if (onProgress) onProgress(60);
 
       // Récupérer le token d'authentification
-      const token = await AsyncStorage.getItem('authToken') || await AsyncStorage.getItem('userToken');
+      const { secureGetItem } = await import('../utils/secureStorage');
+      const token = await secureGetItem('authToken') || await secureGetItem('userToken');
 
       const response = await fetch(`${API_BASE_URL}/api/upload`, {
         method: 'POST',

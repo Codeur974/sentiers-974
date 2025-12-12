@@ -16,10 +16,11 @@ class SocialApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
+    const { secureGetItem } = await import('../utils/secureStorage');
     const url = `${API_BASE_URL}/api${endpoint}`;
     const token =
-      (await AsyncStorage.getItem('authToken')) ||
-      (await AsyncStorage.getItem('userToken'));
+      (await secureGetItem('authToken')) ||
+      (await secureGetItem('userToken'));
 
     const response = await fetch(url, {
       headers: {

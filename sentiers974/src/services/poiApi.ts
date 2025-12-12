@@ -17,9 +17,10 @@ export const uploadPoiToServer = async (
   poi: POI,
   signal?: AbortSignal
 ): Promise<PoiUploadResult> => {
+  const { secureGetItem } = await import('../utils/secureStorage');
   const token =
-    (await AsyncStorage.getItem('authToken')) ||
-    (await AsyncStorage.getItem('userToken')) ||
+    (await secureGetItem('authToken')) ||
+    (await secureGetItem('userToken')) ||
     null;
 
   const controller = signal ? undefined : new AbortController();

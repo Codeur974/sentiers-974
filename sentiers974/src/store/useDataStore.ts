@@ -392,9 +392,10 @@ export const useDataStore = create<DataState>()(
               } as any);
             }
 
+            const { secureGetItem } = await import('../utils/secureStorage');
             const token =
-              (await AsyncStorage.getItem("authToken")) ||
-              (await AsyncStorage.getItem("userToken"));
+              (await secureGetItem("authToken")) ||
+              (await secureGetItem("userToken"));
 
             const response = await fetch(
               `${API_BASE_URL}/api/sessions/${data.sessionId}/poi`,
@@ -555,9 +556,10 @@ export const useDataStore = create<DataState>()(
           if (poiToDelete.source === "mongodb" || poiToDelete.source === "backend" || poiToDelete.sessionId) {
             const controller = new AbortController();
             const timeout = setTimeout(() => controller.abort(), 4000);
+            const { secureGetItem } = await import('../utils/secureStorage');
             const token =
-              (await AsyncStorage.getItem("authToken")) ||
-              (await AsyncStorage.getItem("userToken"));
+              (await secureGetItem("authToken")) ||
+              (await secureGetItem("userToken"));
 
             const endpoints = [
               poiToDelete.sessionId

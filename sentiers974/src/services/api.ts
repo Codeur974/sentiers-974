@@ -37,9 +37,10 @@ class ApiService {
 
   // Rcupre le token JWT (cl unifie `authToken`, fallback legacy `userToken`)
   private async getAuthToken() {
-    const token = await AsyncStorage.getItem('authToken');
+    const { secureGetItem } = await import('../utils/secureStorage');
+    const token = await secureGetItem('authToken');
     if (token) return token;
-    return await AsyncStorage.getItem('userToken');
+    return await secureGetItem('userToken');
   }
 
   // Mthode gnrique pour les requtes avec retry automatique
@@ -285,9 +286,10 @@ class ApiService {
       const data = response.data as any;
       if (data.token) {
         // Stocker sous la cl standard + legacy pour compatibilit
-        await AsyncStorage.setItem('authToken', data.token);
-        await AsyncStorage.setItem('userToken', data.token);
-        await AsyncStorage.setItem('userId', data.user?.id || '');
+        const { secureSetItem } = await import('../utils/secureStorage');
+        await secureSetItem('authToken', data.token);
+        await secureSetItem('userToken', data.token);
+        await secureSetItem('userId', data.user?.id || '');
       }
     }
 
@@ -304,9 +306,10 @@ class ApiService {
 
   // Dconnexion
   async logout() {
-    await AsyncStorage.removeItem('authToken');
-    await AsyncStorage.removeItem('userToken');
-    await AsyncStorage.removeItem('userId');
+    const { secureDeleteItem } = await import('../utils/secureStorage');
+    await secureDeleteItem('authToken');
+    await secureDeleteItem('userToken');
+    await secureDeleteItem('userId');
     return { success: true };
   }
 
@@ -318,10 +321,11 @@ class ApiService {
 
   // Obtenir l'ID utilisateur actuel
   async getCurrentUserId(): Promise<string | null> {
-    const storedUserId = await AsyncStorage.getItem('userId');
+    const { secureGetItem } = await import('../utils/secureStorage');
+    const storedUserId = await secureGetItem('userId');
     if (storedUserId) return storedUserId;
     // Fallback pour les utilisateurs non connects : utiliser deviceId pour lier les sessions/POI
-    const deviceId = await AsyncStorage.getItem('deviceId');
+    const deviceId = await secureGetItem('deviceId');
     return deviceId;
   }
 
@@ -335,9 +339,10 @@ class ApiService {
 
       if (response.success) {
         // Nettoyer le stockage local aprs suppression russie
-        await AsyncStorage.removeItem('authToken');
-        await AsyncStorage.removeItem('userToken');
-        await AsyncStorage.removeItem('userId');
+        const { secureDeleteItem } = await import('../utils/secureStorage');
+        await secureDeleteItem('authToken');
+        await secureDeleteItem('userToken');
+        await secureDeleteItem('userId');
       }
 
       return response;
