@@ -215,7 +215,8 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
     let rawSpeedKmh = 0;
 
     // Plafond de vitesse basé sur le seuil de téléportation (évite spikes quand accuracy change)
-    const speedCeiling = (teleportThreshold / 1000) * 3.6; // m/s -> km/h
+    // Fix: teleportThreshold est en m/s, conversion directe en km/h
+    const speedCeiling = teleportThreshold * 3.6; // m/s -> km/h (ex: 40 m/s = 144 km/h)
     const fallbackSpeed = Math.max((newDist / Math.max(timeDiff, isCourse ? 0.2 : 0.5)) * 3600, 0);
 
     // Plafonner le fallback speed au seuil de téléportation pour éviter les explosions
