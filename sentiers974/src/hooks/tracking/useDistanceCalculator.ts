@@ -105,8 +105,8 @@ export const useDistanceCalculator = (coords: any, sportConfig: any, status: str
       'Trail': { excellent: 15, good: 20, medium: 30, poor: 40 },       // Trail
       'Marche': { excellent: 10, good: 12, medium: 20, poor: 30 },      // Marche
       'Randonnée': { excellent: 10, good: 12, medium: 20, poor: 30 },   // Randonnée
-      'VTT': { excellent: 25, good: 30, medium: 45, poor: 60 },         // VTT
-      'Vélo': { excellent: 25, good: 30, medium: 45, poor: 60 },        // Vélo
+      'VTT': { excellent: 40, good: 50, medium: 70, poor: 90 },         // VTT
+      'Vélo': { excellent: 40, good: 50, medium: 70, poor: 90 },        // Vélo
       'Escalade': { excellent: 6, good: 8, medium: 12, poor: 20 },      // Escalade
       'Natation': { excellent: 8, good: 10, medium: 15, poor: 25 },     // Natation
       'SUP': { excellent: 12, good: 15, medium: 25, poor: 35 },         // SUP
