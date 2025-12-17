@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import apiService from '../services/api';
+import { clearLocalPersistence } from '../store/useDataStore';
 
 /**
  * ⚙️ ÉCRAN DE PROFIL / PARAMÈTRES
@@ -90,6 +91,38 @@ export default function ProfileScreen() {
                 'Erreur',
                 'Une erreur est survenue lors de la suppression du compte.'
               );
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleClearCache = () => {
+    Alert.alert(
+      '🧹 Nettoyer les caches (DEV)',
+      'Cela va supprimer toutes les données locales (POIs, sessions, stats). Les données MongoDB restent intactes.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Nettoyer',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await clearLocalPersistence();
+              Alert.alert(
+                'Succès',
+                'Caches nettoyés ! Redémarrez l\'app pour voir les changements.',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => navigation.navigate('Home' as never)
+                  }
+                ]
+              );
+            } catch (error) {
+              console.error('❌ Erreur nettoyage cache:', error);
+              Alert.alert('Erreur', 'Impossible de nettoyer les caches');
             }
           }
         }
@@ -222,6 +255,19 @@ export default function ProfileScreen() {
               onPress={() => Linking.openURL('https://sentiers-974.onrender.com/terms-of-service')}
             >
               <Text style={styles.legalLink}>Conditions d'utilisation</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Bouton Dev - Nettoyer les caches */}
+        {__DEV__ && (
+          <View style={styles.devContainer}>
+            <Text style={styles.devLabel}>🛠️ MODE DÉVELOPPEMENT</Text>
+            <TouchableOpacity
+              style={styles.devButton}
+              onPress={handleClearCache}
+            >
+              <Text style={styles.devButtonText}>🧹 Nettoyer tous les caches</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -398,5 +444,48 @@ const styles = StyleSheet.create({
     color: '#2E7D32',
     textAlign: 'center',
     lineHeight: 20
+  },
+  legalLinksContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 8
+  },
+  legalLink: {
+    fontSize: 12,
+    color: '#2196F3',
+    textDecorationLine: 'underline'
+  },
+  separator: {
+    fontSize: 12,
+    color: '#999'
+  },
+  devContainer: {
+    marginTop: 24,
+    backgroundColor: '#FFF3E0',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 2,
+    borderColor: '#FF9800',
+    borderStyle: 'dashed'
+  },
+  devLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#E65100',
+    textAlign: 'center',
+    marginBottom: 12
+  },
+  devButton: {
+    backgroundColor: '#FF9800',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center'
+  },
+  devButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600'
   }
 });
