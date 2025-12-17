@@ -269,13 +269,25 @@ export const useDataStore = create<DataState>()(
               .catch(() => []),
           ]);
 
-          const mongoPois = (mongoPoisRaw || []).map((p: any) => ({
-            ...p,
-            source: "backend",
-            photoUri: p.photoUri || p.photo,
-            createdAt: p.createdAt || p.timestamp || Date.now(), // assurer un timestamp pour éviter "invalid date"
-            timestamp: p.timestamp || p.createdAt || Date.now(),
-          }));
+          const mongoPois = (mongoPoisRaw || []).map((p: any) => {
+            // Utiliser sessionCreatedAt comme fallback si timestamp est invalide (<2020)
+            const MIN_VALID_TIMESTAMP = new Date("2020-01-01").getTime();
+            let finalTimestamp = p.timestamp || p.createdAt;
+
+            // Si timestamp est invalide (null, 0, ou < 2020), utiliser sessionCreatedAt
+            if (!finalTimestamp || finalTimestamp < MIN_VALID_TIMESTAMP || (finalTimestamp > 0 && finalTimestamp < 1e12)) {
+              // Convertir sessionCreatedAt (ISO string) en timestamp
+              finalTimestamp = p.sessionCreatedAt ? new Date(p.sessionCreatedAt).getTime() : Date.now();
+            }
+
+            return {
+              ...p,
+              source: "backend",
+              photoUri: p.photoUri || p.photo,
+              createdAt: finalTimestamp,
+              timestamp: finalTimestamp,
+            };
+          });
 
           const uniquePois = Array.from(
             new Map(

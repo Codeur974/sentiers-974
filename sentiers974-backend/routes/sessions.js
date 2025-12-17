@@ -492,6 +492,7 @@ router.get("/pointofinterests", verifyToken, async (req, res) => {
           photoUri: "$pois.photo",
           uri: "$pois.photo",
           timestamp: "$pois.timestamp",
+          sessionCreatedAt: "$createdAt", // Ajouter createdAt de la session comme fallback
         },
       },
     { $sort: { timestamp: -1 } },
