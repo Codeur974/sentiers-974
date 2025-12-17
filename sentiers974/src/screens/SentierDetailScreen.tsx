@@ -21,6 +21,10 @@ export default function SentierDetailScreen() {
   const route = useRoute<SentierDetailRouteProp>();
   const navigation = useNavigation<SentierDetailNavigationProp>();
   const { sentier } = route.params;
+  const randopitonsUrl =
+    sentier.url ||
+    (sentier.randopitons_id ? `https://randopitons.re/randonnee/${sentier.randopitons_id}` : undefined) ||
+    (sentier.id ? `https://randopitons.re/randonnee/${sentier.id}` : undefined);
 
   const getDifficultyColor = (difficulte: string) => {
     switch (difficulte) {
@@ -35,7 +39,11 @@ export default function SentierDetailScreen() {
 
   const openMaps = () => {
     const [lng, lat] = sentier.point_depart.coordonnees;
-    const url = `https://maps.google.com/maps?q=${lat},${lng}`;
+    const labelSource = (sentier.point_depart?.nom && sentier.point_depart.nom !== 'La Réunion')
+      ? sentier.point_depart.nom
+      : sentier.nom;
+    const label = encodeURIComponent(labelSource || 'Point de départ');
+    const url = `https://maps.google.com/maps?q=loc:${lat},${lng} (${label})`;
     Linking.openURL(url);
   };
 
@@ -63,7 +71,7 @@ export default function SentierDetailScreen() {
 
   return (
     <Layout
-      headerTitle={sentier.nom}
+      headerTitle={randopitonsUrl ? undefined : sentier.nom}
       headerButtons={headerButtons}
       showBackButton={true}
       footerButtons={<FooterNavigation currentPage="SentierDetail" />}
@@ -73,9 +81,21 @@ export default function SentierDetailScreen() {
         {/* Section principale */}
         <View className="bg-white px-6 py-8">
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-blue-600 text-2xl font-bold flex-1 mr-4">
-              {sentier.nom}
-            </Text>
+            {randopitonsUrl ? (
+              <TouchableOpacity
+                onPress={() => Linking.openURL(randopitonsUrl)}
+                className="flex-1 mr-4"
+                activeOpacity={0.85}
+              >
+                <Text className="text-blue-600 text-2xl font-bold underline">
+                  {sentier.nom}
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <Text className="text-blue-600 text-2xl font-bold flex-1 mr-4">
+                {sentier.nom}
+              </Text>
+            )}
             <View className={`px-4 py-2 rounded-full ${getDifficultyColor(sentier.difficulte)}`}>
               <Text className="text-white font-bold">
                 {sentier.difficulte}
@@ -96,6 +116,20 @@ export default function SentierDetailScreen() {
               </Text>
             </View>
           </View>
+
+          {randopitonsUrl && (
+            <View className="mb-4">
+              <TouchableOpacity
+                onPress={() => Linking.openURL(randopitonsUrl)}
+                className="bg-orange-100 px-3 py-2 rounded-full self-start"
+                activeOpacity={0.85}
+              >
+                <Text className="text-orange-700 text-sm font-semibold">
+                  ↗ Voir la fiche officielle Randopitons
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <Text className="text-blue-600 text-base leading-6 mb-4">
             {sentier.description}

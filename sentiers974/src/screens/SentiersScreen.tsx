@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, FlatList, Linking } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Layout from '../components/ui/Layout';
 import FooterNavigation from '../components/ui/FooterNavigation';
@@ -240,6 +240,21 @@ export default function SentiersScreen() {
         className="flex-1 bg-gray-50"
         ListHeaderComponent={() => (
           <>
+            {/* Accroche Randopitons */}
+            <View className="bg-orange-100 border border-orange-200 mx-4 mt-4 mb-3 rounded-2xl p-4">
+              <TouchableOpacity
+                onPress={() => Linking.openURL('https://randopitons.re')}
+                activeOpacity={0.85}
+              >
+                <Text className="text-orange-800 text-sm font-semibold text-center">
+                  ↗ Randopitons.re — toutes les fiches officielles et tracés détaillés
+                </Text>
+                <Text className="text-orange-700 text-sm font-semibold text-center mt-1">
+                  ↓ c'est par ici
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             {/* Tabs */}
             <View className="flex-row bg-white border-b border-gray-200">
               <TouchableOpacity

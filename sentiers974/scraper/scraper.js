@@ -40,17 +40,24 @@ class RandopitonsScraper {
   }
 
   async scrapeAllSentiers() {
-    console.log('🚀 Début du scraping de TOUS les sentiers de randopitons.re...');
+    console.log('🚀 Début du scraping des liens Randopitons (sans détail)…');
     
     try {
       // 1. Récupérer la liste complète des sentiers
       const urlsSentiers = await this.getAllSentiersUrls();
       console.log(`📊 ${urlsSentiers.length} sentiers trouvés au total`);
       
-      // 2. Scraper chaque sentier en détail
-      await this.scrapeAllDetails(urlsSentiers);
+      // 2. Stocker uniquement l'ID et l'URL sans scraper le contenu détaillé
+      for (const url of urlsSentiers) {
+        const id = this.extractIdFromUrl(url);
+        await Sentier.updateOne(
+          { randopitons_id: id },
+          { $set: { randopitons_id: id, url } },
+          { upsert: true }
+        );
+      }
       
-      console.log(`✅ Scraping terminé ! ${this.scraped} sentiers récupérés, ${this.errors} erreurs`);
+      console.log(`✅ Liens enregistrés (ID + URL) pour ${urlsSentiers.length} sentiers`);
       
     } catch (error) {
       console.error('❌ Erreur lors du scraping:', error);
@@ -95,6 +102,8 @@ class RandopitonsScraper {
   }
 
   async scrapeAllDetails(urls) {
+    // Cette fonction n'est plus utilisée dans le mode "liens uniquement".
+    // On la conserve pour référence si on souhaite réactiver le scraping complet.
     console.log(`🔄 Début du scraping détaillé de ${urls.length} sentiers...`);
     
     // Traitement par batch pour éviter de surcharger le serveur

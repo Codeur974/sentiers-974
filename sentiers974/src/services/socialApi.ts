@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SocialPost, CreatePostData } from '../types/social';
 import Constants from 'expo-constants';
 

@@ -75,6 +75,11 @@ export default function SocialPostCard({ post, currentUserId, onLike, onComment,
 
   const isOwner = isAuthenticated && post.userId === currentUserId;
 
+  // DEBUG: Log pour tracer le problème des boutons manquants
+  if (__DEV__) {
+    console.log(`[PostCard ${post.id}] isOwner=${isOwner}, isAuth=${isAuthenticated}, post.userId=${post.userId}, currentUserId=${currentUserId}`);
+  }
+
   const formatTime = (timestamp: number) => {
     const now = Date.now();
     const diff = now - timestamp;

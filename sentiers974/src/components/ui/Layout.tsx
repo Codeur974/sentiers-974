@@ -23,7 +23,7 @@ export default function Layout({
   const navigation = useNavigation();
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['bottom']}>
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'bottom']}>
         {/* Status Bar */}
         <StatusBar barStyle="dark-content" />
 

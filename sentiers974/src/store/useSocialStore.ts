@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Alert } from 'react-native';
 import { SocialPost, CreatePostData } from '../types/social';
 import { socialApi } from '../services/socialApi';
+import { secureGetItem } from '../utils/secureStorage';
 
 // Posts de démonstration
 const mockPosts: SocialPost[] = [
@@ -41,6 +42,7 @@ interface SocialState {
 }
 
 interface SocialActions {
+  loadCurrentUserId: () => Promise<void>;
   loadPosts: () => Promise<void>;
   createPost: (postData: CreatePostData) => Promise<void>;
   updatePost: (postId: string, postData: CreatePostData) => Promise<void>;
@@ -66,17 +68,31 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
   error: null,
 
   // Actions
+  // 🔑 RÉCUPÉRER LE USERID DEPUIS SECURESTORE
+  // Fix: Après migration AsyncStorage → SecureStore (commit 5e5401f6)
+  // Le userId doit venir de SecureStore, pas des posts!
+  loadCurrentUserId: async () => {
+    try {
+      const storedUserId = await secureGetItem('userId');
+      if (storedUserId) {
+        set({ currentUserId: storedUserId });
+        console.log('🔑 userId chargé depuis SecureStore:', storedUserId);
+      } else {
+        console.warn('⚠️ Aucun userId trouvé dans SecureStore');
+      }
+    } catch (error) {
+      console.error('❌ Erreur chargement userId depuis SecureStore:', error);
+    }
+  },
+
   loadPosts: async () => {
     try {
       set({ loading: true, error: null });
+
+      // Charger le userId depuis SecureStore AVANT de charger les posts
+      await get().loadCurrentUserId();
+
       const posts = await socialApi.getPosts();
-
-      // Récupérer le vrai userId depuis les posts (celui qui correspond à l'utilisateur connecté)
-      const myPost = posts.find(post => post.userName === 'Moi');
-      if (myPost && myPost.userId) {
-        set({ currentUserId: myPost.userId });
-      }
-
       set({ posts, loading: false });
     } catch (error) {
       console.error('Erreur chargement posts:', error);
@@ -86,8 +102,13 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
 
   createPost: async (postData: CreatePostData) => {
     try {
-      const { currentUserId } = get();
       set({ loading: true, error: null });
+
+      // 🔑 IMPORTANT: Recharger le userId depuis SecureStore AVANT de créer le post
+      await get().loadCurrentUserId();
+      const { currentUserId } = get();
+
+      console.log('📝 Création post avec userId:', currentUserId);
 
       const newPost = await socialApi.createPost({
         ...postData,
@@ -96,18 +117,11 @@ export const useSocialStore = create<SocialState & SocialActions>()((set, get) =
         userLocation: 'La Réunion'
       });
 
-      // Mettre à jour le currentUserId avec celui retourné par le backend
-      if (newPost.userId && newPost.userId !== currentUserId) {
-        console.log('📝 Mise à jour currentUserId:', currentUserId, '→', newPost.userId);
-      }
-
       set(state => ({
         posts: [newPost, ...state.posts],
         createPostModalVisible: false,
         editingPost: null,
-        loading: false,
-        // Utiliser le vrai userId retourné par le backend
-        currentUserId: newPost.userId || state.currentUserId
+        loading: false
       }));
 
       // Afficher message de succès

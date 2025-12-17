@@ -10,6 +10,8 @@ const API_BASE_URL = Constants.expoConfig?.extra?.apiUrl
 
 export interface SentierReel {
   id: string;
+  randopitons_id?: string;
+  url?: string;
   nom: string;
   difficulte: 'Facile' | 'Modéré' | 'Difficile' | 'Très difficile' | 'Expert';
   distance: number; // en km
@@ -256,6 +258,8 @@ class SentiersService {
       // Convertir et formater les données
       const sentiers: SentierReel[] = data.map((item: any) => ({
         id: item._id || item.id,
+        randopitons_id: item.randopitons_id,
+        url: item.url,
         nom: item.nom || 'Sentier sans nom',
         difficulte: this.mapDifficulte(item.difficulte),
         distance: item.distance || 0,

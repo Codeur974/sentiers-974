@@ -124,6 +124,7 @@ export default function HomeScreen() {
   const {
     posts,
     loadPosts,
+    loadCurrentUserId,
     createPost,
     updatePost,
     deletePost,
@@ -139,6 +140,11 @@ export default function HomeScreen() {
     loading,
     error
   } = useSocialStore();
+
+  // Charger le userId depuis SecureStore au démarrage
+  useEffect(() => {
+    loadCurrentUserId();
+  }, [loadCurrentUserId]);
 
   // Vérifier si l'utilisateur a déjà vu l'onboarding
   useEffect(() => {
